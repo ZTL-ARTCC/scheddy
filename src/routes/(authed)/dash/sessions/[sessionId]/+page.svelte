@@ -26,11 +26,7 @@
 		const now = DateTime.now();
 		const interval = start_time.diff(now, 'hours');
 
-		if (interval.hours < 24) {
-			return false;
-		} else {
-			return true;
-		}
+		return interval.hours < 24;
 	}
 
 	async function cancel() {

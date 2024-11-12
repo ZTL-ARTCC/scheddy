@@ -198,7 +198,9 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 
 	const slotData = slottificate(sTypes, mentors, allSessions);
 
-	const originalSessionType = url.searchParams.has('reschedule') ? url.searchParams.get('type') : null;
+	const originalSessionType = url.searchParams.has('reschedule')
+		? url.searchParams.get('type')
+		: null;
 
 	return {
 		user,
@@ -208,7 +210,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		isDeveloper: roleOf(user) >= ROLE_DEVELOPER,
 		sessionTypes: sTypes,
 		slotData,
-		originalSessionType 
+		originalSessionType
 	};
 };
 
@@ -295,17 +297,21 @@ export const actions: Actions = {
 			timezone
 		});
 
-		const subject = reschedule
-			? 'Appointment updated'
-			: 'Appointment booked' +
-				' - ' +
-				start.setZone(timezone).toLocaleString(DateTime.DATETIME_HUGE);
-
 		if (reschedule) {
 			await db.delete(sessions).where(eq(sessions.id, orginalSessionId));
 		}
 
-		await sendEmail(user.email, subject, studentEmailContent.raw, studentEmailContent.html);
+		await sendEmail(
+			user.email,
+			reschedule
+				? 'Appointment updated'
+				: 'Appointment booked' +
+						' - ' +
+						start.setZone(timezone).toLocaleString(DateTime.DATETIME_HUGE),
+			studentEmailContent.raw,
+			studentEmailContent.html
+		);
+		
 		await sendEmail(
 			mentor.email,
 			'New session booked - ' +
