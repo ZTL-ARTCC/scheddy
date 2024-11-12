@@ -41,7 +41,7 @@
 		return c;
 	});
 
-	let sessionType: string | null = $state(null);
+	let sessionType: string | null = $state(data.originalSessionType);
 
 	let timezones = $state(getTimeZones());
 	timezones.sort((a, b) => {
@@ -58,7 +58,7 @@
 		return 0;
 	});
 
-	let step = $state(1);
+	let step = $state(data.originalSessionType ? 2 : 1);
 	let timezone = $state(DateTime.local().zoneName);
 	let timeslot: string | null = $state(null);
 	let interval = $derived(timeslot ? Interval.fromISO(timeslot.split('@')[0]) : null);

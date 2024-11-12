@@ -185,7 +185,7 @@ function slottificate(
 	return slotData;
 }
 
-export const load: PageServerLoad = async ({ cookies }) => {
+export const load: PageServerLoad = async ({ cookies, url }) => {
 	const { user } = (await loadUserData(cookies))!;
 
 	const sTypes = await db.select().from(sessionTypes);
@@ -198,6 +198,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
 	const slotData = slottificate(sTypes, mentors, allSessions);
 
+	const originalSessionType = url.searchParams.has('reschedule') ? url.searchParams.get('type') : null;
+
 	return {
 		user,
 		role: roleString(roleOf(user)),
@@ -205,18 +207,21 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		isStaff: roleOf(user) >= ROLE_STAFF,
 		isDeveloper: roleOf(user) >= ROLE_DEVELOPER,
 		sessionTypes: sTypes,
-		slotData
+		slotData,
+		originalSessionType 
 	};
 };
 
 export const actions: Actions = {
-	default: async ({ cookies, request }) => {
+	default: async ({ cookies, request, url }) => {
 		const { user } = (await loadUserData(cookies))!;
 
 		const formData = await request.formData();
 		const requestedSlotId = formData.get('timeslot')!;
 		const requestedType = formData.get('type')!;
 		const timezone = formData.get('timezone')!;
+		const orginalSessionId = url.searchParams.get('sessionId')!;
+		const reschedule = url.searchParams.has('reschedule')!;
 
 		const sTypes = await db.select().from(sessionTypes);
 		const mentors = await db
@@ -290,12 +295,17 @@ export const actions: Actions = {
 			timezone
 		});
 
-		await sendEmail(
-			user.email,
-			'Appointment booked - ' + start.setZone(timezone).toLocaleString(DateTime.DATETIME_HUGE),
-			studentEmailContent.raw,
-			studentEmailContent.html
-		);
+		const subject = reschedule
+			? 'Appointment updated'
+			: 'Appointment booked' +
+				' - ' +
+				start.setZone(timezone).toLocaleString(DateTime.DATETIME_HUGE);
+
+		if (reschedule) {
+			await db.delete(sessions).where(eq(sessions.id, orginalSessionId));
+		}
+
+		await sendEmail(user.email, subject, studentEmailContent.raw, studentEmailContent.html);
 		await sendEmail(
 			mentor.email,
 			'New session booked - ' +

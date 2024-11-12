@@ -8,7 +8,7 @@ This is your confirmation email for your upcoming session.
 -- Duration:      {duration} minutes
 -- Mentor:        {mentorName}
 
-Please reach out to your mentor directly if you need to cancel or reschedule this lesson.
+Cancel/Reschedule
 
 ---
 

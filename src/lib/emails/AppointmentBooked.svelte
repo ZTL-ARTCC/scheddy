@@ -2,11 +2,14 @@
 	import type { AppointmentBookedProps } from '$lib/emails/appointment_booked';
 	import { DateTime } from 'luxon';
 
-	let { startTime, duration, mentorName, sessionId, type, timezone }: AppointmentBookedProps =
+	let { startTime, duration, mentorName, sessionId, type, timezone, reschedule }: AppointmentBookedProps =
 		$props();
+
+	let reschedule_link = `https://scheddy.ztlartcc.org/sessions/${sessionId}`;
+	let title = reschedule ? 'Appointment updated' : 'Appointment booked';
 </script>
 
-<h1>Appointment booked!</h1>
+<h1>{title}</h1>
 
 <p>This is your confirmation email for your upcoming session.</p>
 <p><b>Session type:</b> {type}</p>
@@ -14,7 +17,7 @@
 <p><b>Timezone:</b> {timezone}</p>
 <p><b>Duration:</b> {duration} minutes</p>
 <p><b>Mentor:</b> {mentorName}</p>
-<i>Please reach out to your mentor directly if you need to cancel or reschedule this lesson.</i>
+<a href={reschedule_link}>Cancel/Reschedule</a>
 
 <p>---</p>
 
