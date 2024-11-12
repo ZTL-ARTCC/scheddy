@@ -277,7 +277,8 @@ export const actions: Actions = {
 			mentorName: mentor.firstName + ' ' + mentor.lastName,
 			duration,
 			sessionId: id,
-			type: typename
+			type: typename,
+			reschedule
 		});
 		const mentorEmailContent = new_session({
 			startTime: start.setZone(mentor.timezone),
@@ -311,7 +312,7 @@ export const actions: Actions = {
 			studentEmailContent.raw,
 			studentEmailContent.html
 		);
-		
+
 		await sendEmail(
 			mentor.email,
 			'New session booked - ' +
