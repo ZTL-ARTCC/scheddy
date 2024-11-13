@@ -69,6 +69,10 @@
 
 	let bookingState: 'success' | 'fail' | 'loading' = $state('loading');
 
+	const bookingUrl = data.originalSessionType
+		? `?sessionId=${data.originalSessionId}&reschedule=true&type=${data.originalSessionType}`
+		: '?';
+
 	async function book() {
 		if (!timeslot) return;
 
@@ -80,7 +84,7 @@
 		data.set('type', sessionType!);
 		data.set('timezone', timezone);
 
-		let r = await fetch('?', {
+		let r = await fetch(bookingUrl, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded'

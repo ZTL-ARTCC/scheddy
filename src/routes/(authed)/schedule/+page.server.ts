@@ -202,6 +202,8 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		? url.searchParams.get('type')
 		: null;
 
+	const orginalSessionId = url.searchParams.get('sessionId')!;
+
 	return {
 		user,
 		role: roleString(roleOf(user)),
@@ -210,7 +212,8 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		isDeveloper: roleOf(user) >= ROLE_DEVELOPER,
 		sessionTypes: sTypes,
 		slotData,
-		originalSessionType
+		originalSessionType,
+		orginalSessionId
 	};
 };
 
@@ -294,8 +297,7 @@ export const actions: Actions = {
 			mentor: slotObj.mentor,
 			student: user.id,
 			start: start.toISO(),
-			type: requestedType,
-			timezone
+			type: requestedType
 		});
 
 		if (reschedule) {
