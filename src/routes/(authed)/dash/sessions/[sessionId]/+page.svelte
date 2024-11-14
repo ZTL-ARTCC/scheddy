@@ -112,7 +112,7 @@
 		{data.sessionInfo.sessionType.category} - {data.sessionInfo.sessionType.name}
 	</p>
 	<p><b>Duration:</b> {data.sessionInfo.sessionType.length} minutes</p>
-	{#if data.isMentor || check_time(data.sessionInfo.session.start)}
+	{#if data.isMentor || !check_time(data.sessionInfo.session.start)}
 		<h2 class="font-bold text-lg">Session Actions</h2>
 		<div>
 			<Button
