@@ -41,7 +41,7 @@
 	}
 
 	function reschedule_helper() {
-		if (!data.isMentor) {
+		if (data.isMentor) {
 			rescheduleOpen = true;
 		} else {
 			const queryParam = new URLSearchParams();
