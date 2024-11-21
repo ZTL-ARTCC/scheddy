@@ -2,10 +2,18 @@
 	import type { AppointmentBookedProps } from '$lib/emails/appointment_booked';
 	import { DateTime } from 'luxon';
 
-	let { startTime, duration, mentorName, sessionId, type, timezone, reschedule }: AppointmentBookedProps =
-		$props();
+	let {
+		startTime,
+		duration,
+		mentorName,
+		sessionId,
+		type,
+		timezone,
+		link_params,
+		reschedule
+	}: AppointmentBookedProps = $props();
 
-	let reschedule_link = `https://scheddy.ztlartcc.org/sessions/${sessionId}`;
+	let reschedule_link = `https://scheddy.ztlartcc.org/schedule${link_params}`;
 	let title = reschedule ? 'Appointment updated' : 'Appointment booked';
 </script>
 

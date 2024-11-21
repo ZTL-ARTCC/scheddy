@@ -11,6 +11,7 @@ export interface AppointmentBookedProps {
 	mentorName: string;
 	sessionId: string;
 	timezone: string;
+	link_params: string;
 	reschedule?: boolean;
 }
 
@@ -23,6 +24,7 @@ export function appointment_booked(props: AppointmentBookedProps): EmailContent 
 			mentorName: props.mentorName,
 			sessionId: props.sessionId,
 			timezone: props.timezone,
+			link_params: props.link_params,
 			reschedule: props.reschedule ? 'rescheduled' : ''
 		}),
 		html: render(AppointmentBooked, {

@@ -3,11 +3,11 @@ import { loadUserData } from '$lib/userInfo';
 import { ROLE_DEVELOPER, ROLE_MENTOR, ROLE_STAFF, roleString } from '$lib/utils';
 import { roleOf } from '$lib';
 import { db } from '$lib/server/db';
-import { sessions, sessionTypes, users } from '$lib/server/db/schema';
+import { mentors, sessions, sessionTypes, students, users } from '$lib/server/db/schema';
 import { eq, gte, or } from 'drizzle-orm';
 import type { DayAvailability, MentorAvailability } from '$lib/availability';
 import { DateTime, Duration, Interval } from 'luxon';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { MAX_BOOKING_AHEAD_DAYS } from '$env/static/private';
 import { ulid } from 'ulid';
 import { appointment_booked } from '$lib/emails/appointment_booked';
@@ -177,7 +177,7 @@ function slottificate(
 			} else {
 				return 0;
 			}
-		})
+		});
 
 		slotData[typ.id] = slots;
 	}
@@ -281,6 +281,7 @@ export const actions: Actions = {
 			duration,
 			sessionId: id,
 			type: typename,
+			link_params: `?sessionId=${id}?reschedule=true?type=${requestedType}`,
 			reschedule
 		});
 		const mentorEmailContent = new_session({
@@ -323,5 +324,25 @@ export const actions: Actions = {
 			mentorEmailContent.raw,
 			mentorEmailContent.html
 		);
+	},
+	cancel: async ({ cookies, request }) => {
+		const { user } = (await loadUserData(cookies))!;
+		const sessionList = await db
+			.select()
+			.from(sessions)
+			.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
+			.leftJoin(mentors, eq(mentors.id, sessions.mentor))
+			.leftJoin(students, eq(students.id, sessions.student))
+			.where(eq(sessions.id, request.sessionId));
+		const sessionAndFriends = sessionList[0];
+
+		if (
+			roleOf(user) < ROLE_STAFF &&
+			!(user.id == sessionAndFriends.session.student || user.id == sessionAndFriends.session.mentor)
+		) {
+			redirect(307, '/schedule');
+		}
+
+		await db.delete(sessions).where(eq(sessions.id, request.sessionId));
 	}
 };

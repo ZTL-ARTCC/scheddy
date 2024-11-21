@@ -9,6 +9,9 @@
 	import Button from '$lib/ui/Button.svelte';
 	import { DateTime, Interval } from 'luxon';
 	import { getTimeZones } from '@vvo/tzdb';
+	import Modal from '$lib/ui/modal/Modal.svelte';
+	import ModalHeader from '$lib/ui/modal/ModalHeader.svelte';
+	import ModalFooter from '$lib/ui/modal/ModalFooter.svelte';
 
 	interface Props {
 		data: PageData;
@@ -73,6 +76,23 @@
 		? `?sessionId=${data.originalSessionId}&reschedule=true&type=${data.originalSessionType}`
 		: '?';
 
+	let cancelOpen = $state(false);
+
+	async function cancel() {
+		let udata = new URLSearchParams();
+		udata.set('sessionId', data.originalSessionId);
+
+		await fetch('?/cancel', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			},
+			body: udata.toString()
+		});
+		await goto('/dash');
+		await invalidateAll();
+	}
+
 	async function book() {
 		if (!timeslot) return;
 
@@ -132,6 +152,16 @@
 						>
 							Next
 						</Button>
+						{#if data.originalSessionType}
+							<Button
+								onclick={() => {
+									cancelOpen = true;
+								}}
+								variant="danger"
+							>
+								Cancel
+							</Button>
+						{/if}
 					{/if}
 				{:else if step === 2}
 					<Select name="timezone" bind:value={timezone} label="Timezone">
@@ -270,4 +300,29 @@
 			>
 		</div>
 	</Card>
+	{#if data.originalSessionType}
+		<Modal
+			onclose={() => {
+				cancelOpen = false;
+			}}
+			bind:open={cancelOpen}
+		>
+			<ModalHeader
+				onclose={() => {
+					cancelOpen = false;
+				}}
+				title="Confirm cancellation"
+			/>
+			<ModalFooter>
+				<Button
+					onclick={() => {
+						cancelOpen = false;
+					}}
+					variant="ghost"
+					size="sm">Nevermind</Button
+				>
+				<Button onclick={cancel} variant="danger" size="sm">Yes, cancel</Button>
+			</ModalFooter>
+		</Modal>
+	{/if}
 </div>

@@ -21,14 +21,6 @@
 	let hour: number = $state(0);
 	let minute: number = $state(0);
 
-	function check_time(t: string) {
-		const start_time = DateTime.fromISO(t);
-		const now = DateTime.now();
-		const interval = start_time.diff(now, 'hours');
-
-		return interval.hours < 24;
-	}
-
 	async function cancel() {
 		await fetch('?/cancel', {
 			method: 'POST',
@@ -39,19 +31,6 @@
 		await goto('/dash');
 		await invalidateAll();
 	}
-
-	function reschedule_helper() {
-		if (data.isMentor) {
-			rescheduleOpen = true;
-		} else {
-			const queryParam = new URLSearchParams();
-			queryParam.set('sessionId', data.sessionInfo.session.id);
-			queryParam.set('reschedule', 'true');
-			queryParam.set('type', data.sessionInfo.sessionType.id);
-			goto(`/schedule?${queryParam.toString()}`);
-		}
-	}
-
 	async function reschedule() {
 		let udata = new URLSearchParams();
 
@@ -112,8 +91,8 @@
 		{data.sessionInfo.sessionType.category} - {data.sessionInfo.sessionType.name}
 	</p>
 	<p><b>Duration:</b> {data.sessionInfo.sessionType.length} minutes</p>
-	{#if data.isMentor || !check_time(data.sessionInfo.session.start)}
-		<h2 class="font-bold text-lg">Session Actions</h2>
+	{#if data.isMentor}
+		<h2 class="font-bold text-lg">Mentor/Staff Actions</h2>
 		<div>
 			<Button
 				onclick={() => {
@@ -124,21 +103,18 @@
 				Cancel
 			</Button>
 			<Button
-				onclick={reschedule_helper}
+				onclick={() => {
+					rescheduleOpen = true;
+				}}
 				variant="danger"
 			>
 				Reschedule
 			</Button>
 		</div>
-	{:else}
-		<p class="text-red-500">
-			You cannot cancel or reschedule this session as it is less than 24 hours away. Please contact
-			your instructor if you need to cancel or reschedule.
-		</p>
 	{/if}
 </div>
 
-{#if data.isMentor || check_time(data.sessionInfo.session.start)}
+{#if data.isMentor}
 	<Modal
 		onclose={() => {
 			cancelOpen = false;
@@ -151,15 +127,13 @@
 			}}
 			title="Confirm cancellation"
 		/>
-		{#if data.isMentor}
-			<ModalBody>
-				<div class="px-4">
-					<p class="text-red-500">
-						It is your responsibility to inform the student of the cancellation.
-					</p>
-				</div>
-			</ModalBody>
-		{/if}
+		<ModalBody>
+			<div class="px-4">
+				<p class="text-red-500">
+					It is your responsibility to inform the student of the cancellation.
+				</p>
+			</div>
+		</ModalBody>
 		<ModalFooter>
 			<Button
 				onclick={() => {
