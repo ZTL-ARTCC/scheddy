@@ -218,7 +218,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ cookies, request, url }) => {
+	book: async ({ cookies, request, url }) => {
 		const { user } = (await loadUserData(cookies))!;
 
 		const formData = await request.formData();

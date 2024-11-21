@@ -73,8 +73,8 @@
 	let bookingState: 'success' | 'fail' | 'loading' = $state('loading');
 
 	const bookingUrl = data.originalSessionType
-		? `?sessionId=${data.originalSessionId}&reschedule=true&type=${data.originalSessionType}`
-		: '?';
+		? `?/book?sessionId=${data.originalSessionId}&reschedule=true&type=${data.originalSessionType}`
+		: '?/book';
 
 	let cancelOpen = $state(false);
 
