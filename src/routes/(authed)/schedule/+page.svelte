@@ -78,6 +78,13 @@
 
 	let cancelOpen = $state(false);
 
+	function check_time(t: string) {
+		const start_time = DateTime.fromISO(t);
+		const now = DateTime.now();
+		const interval = start_time.diff(now, 'hours');
+		return interval.hours < 24;
+	}
+
 	async function cancel() {
 		let udata = new URLSearchParams();
 		udata.set('sessionId', data.originalSessionId);
@@ -300,7 +307,7 @@
 			>
 		</div>
 	</Card>
-	{#if data.originalSessionType}
+	{#if data.originalSessionType && check_time(timeslot)}
 		<Modal
 			onclose={() => {
 				cancelOpen = false;
