@@ -49,7 +49,7 @@
 						<TableColumn
 							>{DateTime.fromISO(sess.session.start)
 								.setZone(data.mentor.timezone)
-								.toLocaleString(DateTime.DATETIME_MED_WITH_WEEKDAY)}</TableColumn
+								.toLocaleString(DateTime.DATETIME_FULL)}</TableColumn
 						>
 						<TableColumn>{data.typesMap[sess.session.type]}</TableColumn>
 						<TableColumn>{sess.user.firstName} {sess.user.lastName}</TableColumn>

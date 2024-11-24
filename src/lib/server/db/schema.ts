@@ -30,7 +30,7 @@ export const sessionTypes = mysqlTable('sessionType', {
 });
 
 export const sessions = mysqlTable('session', {
-	id: varchar({ length: 21 }).primaryKey().notNull(),
+	id: varchar({ length: 26 }).primaryKey().notNull(),
 	mentor: int()
 		.references(() => users.id)
 		.notNull(),

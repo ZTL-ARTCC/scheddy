@@ -7,7 +7,7 @@ import { sessions, sessionTypes, users } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 import type { MentorAvailability } from '$lib/availability';
-import { DateTime } from 'luxon';
+import { DateTime, Interval } from 'luxon';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -50,6 +50,18 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		if (start < now) continue;
 		mentorSessions.push(sess);
 	}
+
+	mentorSessions.sort((a, b) => {
+		const a_dt = Interval.fromISO(a.session.start);
+		const b_dt = Interval.fromISO(b.session.start);
+		if (a_dt.start < b_dt.start) {
+			return -1;
+		} else if (a_dt.start > b_dt.start) {
+			return 1;
+		} else {
+			return 0;
+		}
+	});
 
 	return {
 		user,

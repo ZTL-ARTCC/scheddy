@@ -31,12 +31,15 @@
 		</TableHead>
 		<TableBody>
 			{#each data.mentorSessions as sess}
+				{@const date = DateTime.fromISO(sess.session.start)}
 				<TableRow>
-					<TableColumn
-						>{DateTime.fromISO(sess.session.start).toLocaleString(
-							DateTime.DATETIME_MED_WITH_WEEKDAY
-						)}</TableColumn
-					>
+					<TableColumn>
+						{#if data.user.timezone}
+							{date.setZone(data.user.timezone).toLocaleString(DateTime.DATETIME_FULL)}
+						{:else}
+							{date.toLocaleString(DateTime.DATETIME_FULL)}
+						{/if}
+					</TableColumn>
 					<TableColumn>{data.typesMap[sess.session.type]}</TableColumn>
 					<TableColumn>{sess.student.firstName} {sess.student.lastName}</TableColumn>
 					<TableColumn>{sess.mentor.firstName} {sess.mentor.lastName}</TableColumn>
