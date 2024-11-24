@@ -8,7 +8,7 @@ This is your confirmation email for your upcoming session.
 -- Duration:      {duration} minutes
 -- Mentor:        {mentorName}
 
-Cancel/Reschedule
+Cancel/Reschedule: {rescheduleLink}
 
 ---
 

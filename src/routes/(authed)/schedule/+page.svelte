@@ -72,18 +72,22 @@
 
 	let bookingState: 'success' | 'fail' | 'loading' = $state('loading');
 
-	const bookingUrl = data.originalSessionType
-		? `?/book?sessionId=${data.originalSessionId}&reschedule=true&type=${data.originalSessionType}`
-		: '?/book';
-
-	let cancelOpen = $state(false);
-
-	function check_time(t: string) {
+	function check_time(t: string): boolean {
 		const start_time = DateTime.fromISO(t);
 		const now = DateTime.now();
 		const interval = start_time.diff(now, 'hours');
-		return interval.hours < 24;
+		return interval.hours >= 24;
 	}
+
+	let canCancelReschedule = $derived.by(() => {
+		console.log(data.originalSessionType, data.ogSession);
+		if (data.originalSessionType && data.ogSession.length !== 0) {
+			return check_time(data.ogSession[0].start);
+		} else {
+			return true;
+		}
+	});
+	let cancelOpen = $state(false);
 
 	async function cancel() {
 		let udata = new URLSearchParams();
@@ -96,8 +100,8 @@
 			},
 			body: udata.toString()
 		});
-		await goto('/dash');
 		await invalidateAll();
+		await goto('/');
 	}
 
 	async function book() {
@@ -106,17 +110,19 @@
 		step = 4;
 		bookingState = 'loading';
 
-		let data = new URLSearchParams();
-		data.set('timeslot', timeslot);
-		data.set('type', sessionType!);
-		data.set('timezone', timezone);
+		let rdata = new URLSearchParams();
+		rdata.set('timeslot', timeslot);
+		rdata.set('type', sessionType!);
+		rdata.set('timezone', timezone);
+		rdata.set('sessionId', data.originalSessionId);
+		rdata.set('reschedule', true);
 
-		let r = await fetch(bookingUrl, {
+		let r = await fetch('?/book', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded'
 			},
-			body: data.toString()
+			body: rdata.toString()
 		});
 		if (r.ok) {
 			bookingState = 'success';
@@ -137,11 +143,16 @@
 			</p>
 
 			<h1 class="mt-1 font-bold text-2xl text-center">
-				Schedule appointment at {PUBLIC_FACILITY_NAME}
+				{data.originalSessionType ? 'Reschedule' : 'Schedule'} appointment at {PUBLIC_FACILITY_NAME}
 			</h1>
 
 			<div class="text-left mt-3 mb-6 flex flex-col gap-4 justify-center">
-				{#if step === 1}
+				{#if !canCancelReschedule}
+					<p>
+						You cannot cancel or reschedule this session, as it is within 24 hours. Contact your
+						mentor.
+					</p>
+				{:else if step === 1}
 					<Select bind:value={sessionType} label="Session Type">
 						{#each Object.entries(categories) as [k, v]}
 							<optgroup label={k}>
@@ -159,16 +170,6 @@
 						>
 							Next
 						</Button>
-						{#if data.originalSessionType}
-							<Button
-								onclick={() => {
-									cancelOpen = true;
-								}}
-								variant="danger"
-							>
-								Cancel
-							</Button>
-						{/if}
 					{/if}
 				{:else if step === 2}
 					<Select name="timezone" bind:value={timezone} label="Timezone">
@@ -177,7 +178,11 @@
 						{/each}
 					</Select>
 					{#if sessionType}
-						<Select name="slot" bind:value={timeslot} label="Session Date/Time">
+						<Select
+							name="slot"
+							bind:value={timeslot}
+							label={data.originalSessionType ? 'New Session Date/Time' : 'Session Date/Time'}
+						>
 							{#each data.slotData[sessionType] as slot}
 								<option value="{slot.slot}@{slot.mentor}"
 									>{Interval.fromISO(slot.slot)
@@ -191,15 +196,25 @@
 						</Select>
 					{/if}
 					<div class="flex flex-row justify-center gap-4 flex-grow">
-						<Button
-							class="flex-1"
-							variant="ghost"
-							onclick={() => {
-								step = 1;
-							}}
-						>
-							Back
-						</Button>
+						{#if data.originalSessionType}
+							<Button
+								class="flex-1"
+								variant="danger"
+								onclick={() => {
+									cancelOpen = true;
+								}}>Cancel Appointment</Button
+							>
+						{:else}
+							<Button
+								class="flex-1"
+								variant="ghost"
+								onclick={() => {
+									step = 1;
+								}}
+							>
+								Back
+							</Button>
+						{/if}
 						{#if timeslot !== null}
 							<Button
 								class="flex-1"
@@ -307,7 +322,7 @@
 			>
 		</div>
 	</Card>
-	{#if data.originalSessionType && check_time(timeslot)}
+	{#if data.originalSessionType}
 		<Modal
 			onclose={() => {
 				cancelOpen = false;
@@ -320,6 +335,7 @@
 				}}
 				title="Confirm cancellation"
 			/>
+			<p class="mx-4">You'll need to re-book another session.</p>
 			<ModalFooter>
 				<Button
 					onclick={() => {

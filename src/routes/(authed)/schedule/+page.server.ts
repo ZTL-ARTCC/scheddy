@@ -203,6 +203,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		: null;
 
 	const originalSessionId = url.searchParams.get('sessionId')!;
+	const ogSession = await db.select().from(sessions).where(eq(sessions.id, originalSessionId));
 
 	return {
 		user,
@@ -213,20 +214,23 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		sessionTypes: sTypes,
 		slotData,
 		originalSessionType,
-		originalSessionId
+		originalSessionId,
+		ogSession
 	};
 };
 
 export const actions: Actions = {
-	book: async ({ cookies, request, url }) => {
+	book: async ({ cookies, request }) => {
 		const { user } = (await loadUserData(cookies))!;
 
 		const formData = await request.formData();
 		const requestedSlotId = formData.get('timeslot')!;
 		const requestedType = formData.get('type')!;
 		const timezone = formData.get('timezone')!;
-		const orginalSessionId = url.searchParams.get('sessionId')!;
-		const reschedule = url.searchParams.has('reschedule')!;
+		const orginalSessionId = formData.get('sessionId');
+		const reschedule = formData.has('reschedule') || false;
+
+		console.log(formData);
 
 		const sTypes = await db.select().from(sessionTypes);
 		const mentors = await db
@@ -343,6 +347,8 @@ export const actions: Actions = {
 			redirect(307, '/schedule');
 		}
 
-		await db.delete(sessions).where(eq(sessions.id, request.sessionId));
+		const formData = await request.formData();
+
+		await db.delete(sessions).where(eq(sessions.id, formData.get('sessionId')!.toString()));
 	}
 };
