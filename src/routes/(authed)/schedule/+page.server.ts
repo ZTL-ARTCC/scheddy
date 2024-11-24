@@ -281,7 +281,7 @@ export const actions: Actions = {
 			duration,
 			sessionId: id,
 			type: typename,
-			link_params: `?sessionId=${id}?reschedule=true?type=${requestedType}`,
+			link_params: `?sessionId=${id}&reschedule=true&type=${requestedType}`,
 			reschedule
 		});
 		const mentorEmailContent = new_session({
