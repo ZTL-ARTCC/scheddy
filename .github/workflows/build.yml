@@ -27,6 +27,7 @@ jobs:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       PUBLIC_SENTRY_DSN: ${{ secrets.PUBLIC_SENTRY_DSN }}
       API_MASTER_KEY: ${{ secrets.API_MASTER_KEY }}
+      BASE_URL: ${{ vars.BASE_URL }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
