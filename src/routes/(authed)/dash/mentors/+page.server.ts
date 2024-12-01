@@ -12,12 +12,22 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	if (roleOf(user) < ROLE_STAFF) {
 		redirect(307, '/schedule');
 	}
-
+	const mentors = await db
+		.select()
+		.from(users)
+		.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)));
+	const mentorsWithAvail = mentors.map((mentor: typeof users.$inferSelect) => {
+		let isAvailable = false;
+		const mentorAvailability = JSON.parse(mentor.mentorAvailability!);
+		if (mentorAvailability) {
+			isAvailable = Object.keys(mentorAvailability)
+				.filter((day) => day !== 'timezone' && day !== 'exceptions')
+				.some((day) => mentorAvailability[day].available === true);
+		}
+		return { ...mentor, isAvailable };
+	});
 	return {
 		user,
-		users: await db
-			.select()
-			.from(users)
-			.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)))
+		users: mentorsWithAvail
 	};
 };
