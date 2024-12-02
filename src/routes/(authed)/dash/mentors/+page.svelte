@@ -15,7 +15,8 @@
 </script>
 
 <p class="ml-1">
-	Mentors and instructors are added automatically by their VATUSA role. You can also
+	Mentors and instructors are added automatically by their VATUSA role. Mentors with availability
+	are indicated by a green circle. You can also
 	<a class="text-blue-500 hover:text-blue-600 transition font-semibold" href="/dash/users"
 		>override a user's role &rarr;</a
 	>
@@ -38,6 +39,11 @@
 						<span>{user.firstName} {user.lastName}</span>
 						{#if user.isVisitor}
 							<span class="bg-yellow-500 text-yellow-950 rounded-full py-1 px-3">Visitor</span>
+						{/if}
+						{#if user.isAvailable}
+							<span class="text-xs text-green-600">&#11044</span>
+						{:else}
+							<span class="text-xs text-red-600">&#11044</span>
 						{/if}
 					</TableColumn>
 					<TableColumn>
