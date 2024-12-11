@@ -56,7 +56,8 @@ function slottificate(
 			const availability: MentorAvailability | null = JSON.parse(mentor.mentorAvailability);
 			if (!availability) continue;
 
-			const mentorsOtherSessions: (typeof sessions.$inferSelect)[] = sessionsByMentor[mentor.id] || [];
+			const mentorsOtherSessions: (typeof sessions.$inferSelect)[] =
+				sessionsByMentor[mentor.id] || [];
 
 			const availablePeriodsMentorsTime: Interval[] = [];
 			const unavailablePeriodsMentorsTime: Interval[] = [];
@@ -339,13 +340,14 @@ export const actions: Actions = {
 	},
 	cancel: async ({ cookies, request }) => {
 		const { user } = (await loadUserData(cookies))!;
+		const formData = await request.formData();
 		const sessionList = await db
 			.select()
 			.from(sessions)
 			.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
 			.leftJoin(mentors, eq(mentors.id, sessions.mentor))
 			.leftJoin(students, eq(students.id, sessions.student))
-			.where(eq(sessions.id, request.sessionId));
+			.where(eq(sessions.id, formData.get('sessionId')!.toString()));
 		const sessionAndFriends = sessionList[0];
 
 		if (
@@ -354,8 +356,6 @@ export const actions: Actions = {
 		) {
 			redirect(307, '/schedule');
 		}
-
-		const formData = await request.formData();
 
 		await db.delete(sessions).where(eq(sessions.id, formData.get('sessionId')!.toString()));
 	}
