@@ -23,3 +23,10 @@ export function roleString(role: number): string {
 		return 'VATSIM Member';
 	}
 }
+
+export const RATINGS = {
+	S1: 2,
+	S2: 3,
+	S3: 4,
+	C1: 5
+};
