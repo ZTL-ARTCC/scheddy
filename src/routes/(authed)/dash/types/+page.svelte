@@ -7,20 +7,39 @@
 	import TableRow from '$lib/ui/table/TableRow.svelte';
 	import TableColumn from '$lib/ui/table/TableColumn.svelte';
 	import Button from '$lib/ui/Button.svelte';
-	import { PlusIcon, TrashIcon } from 'lucide-svelte';
+	import { PlusIcon, TrashIcon, PencilIcon } from 'lucide-svelte';
 	import Modal from '$lib/ui/modal/Modal.svelte';
 	import ModalHeader from '$lib/ui/modal/ModalHeader.svelte';
 	import ModalBody from '$lib/ui/modal/ModalBody.svelte';
 	import ModalFooter from '$lib/ui/modal/ModalFooter.svelte';
 	import CreateForm from './CreateForm.svelte';
 	import { invalidateAll } from '$app/navigation';
+	import { writable } from 'svelte/store';
+	import { RATINGS } from '$lib/utils';
 	interface Props {
 		data: PageData;
 	}
 	let { data }: Props = $props();
 
+	let form = writable(data.createForm);
+	let formEdit = $state(false);
+
+	function resetForm() {
+		formEdit = false;
+		form.update(() => ({
+			...$form,
+			data: {
+				id: '',
+				category: '',
+				duration: 0,
+				name: '',
+				rating: 0
+			}
+		}));
+	}
+
 	let categories = $derived.by(() => {
-		let c = {};
+		let c: Record<string, PageData['types']> = {};
 		for (let t of data.types) {
 			if (t && t.category) {
 				if (!Object.keys(c).includes(t.category)) {
@@ -57,6 +76,7 @@
 		<TableHead>
 			<TableHeadColumn>Type</TableHeadColumn>
 			<TableHeadColumn>Duration (minutes)</TableHeadColumn>
+			<TableHeadColumn>Rating</TableHeadColumn>
 			<TableHeadColumn>
 				<div class="flex flex-row align-middle justify-between items-center">
 					<span>Actions</span>
@@ -78,22 +98,42 @@
 					<TableColumn><i>{k}</i></TableColumn>
 					<TableColumn />
 					<TableColumn />
+					<TableColumn />
 				</TableRow>
 				{#each v as type}
 					<TableRow>
 						<TableColumn><span class="ml-2">{type.name}</span></TableColumn>
 						<TableColumn>{type.length} minutes</TableColumn>
 						<TableColumn>
-							<Button
-								onclick={() => {
-									deleteId = type.id;
-									deleteOpen = true;
-								}}
-								variant="danger"
-								size="icon"
-							>
-								<TrashIcon class="w-4 h-4" />
-							</Button>
+							{Object.entries(RATINGS).find(([_, v]) => v === type.rating)?.[0]}
+						</TableColumn>
+						<TableColumn>
+							<div class="flex flex-row gap-x-4">
+								<Button
+									onclick={() => {
+										deleteId = type.id;
+										deleteOpen = true;
+									}}
+									variant="danger"
+									size="icon"
+								>
+									<TrashIcon class="w-4 h-4" />
+								</Button>
+								<Button
+									onclick={() => {
+										$form.data.id = type.id;
+										$form.data.category = type.category;
+										$form.data.duration = type.length;
+										$form.data.name = type.name;
+										$form.data.rating = type.rating;
+										createOpen = true;
+										formEdit = true;
+									}}
+									size="icon"
+								>
+									<PencilIcon class="w-4 h-4" />
+								</Button>
+							</div>
 						</TableColumn>
 					</TableRow>
 				{/each}
@@ -104,26 +144,33 @@
 
 <Modal
 	onclose={() => {
+		resetForm();
 		createOpen = false;
 	}}
 	bind:open={createOpen}
 >
 	<ModalHeader
 		onclose={() => {
+			resetForm();
 			createOpen = false;
 		}}
-		title="Create session type"
+		title={formEdit ? 'Update session type' : 'Create session type'}
 	/>
 	<ModalBody>
-		<CreateForm
-			onsuccess={() => {
-				createOpen = false;
-			}}
-			oncancel={() => {
-				createOpen = false;
-			}}
-			data={data.createForm}
-		/>
+		{#key $form}
+			<CreateForm
+				onsuccess={() => {
+					resetForm();
+					createOpen = false;
+				}}
+				oncancel={() => {
+					resetForm();
+					createOpen = false;
+				}}
+				data={$form}
+				update={formEdit}
+			/>
+		{/key}
 	</ModalBody>
 </Modal>
 
