@@ -5,6 +5,7 @@
 	import ModalFooter from '$lib/ui/modal/ModalFooter.svelte';
 	import { CogIcon } from 'lucide-svelte';
 	import Input from '$lib/ui/form/Input.svelte';
+	import Select from '$lib/ui/form/Select.svelte';
 
 	interface Props {
 		data: SuperValidated<Infer<CreateSchema>>;
@@ -20,6 +21,13 @@
 			}
 		}
 	});
+
+	const ratings = {
+		S1: 2,
+		S2: 3,
+		S3: 4,
+		C1: 5
+	};
 </script>
 
 <form method="POST" action="?/create" use:enhance>
@@ -46,6 +54,18 @@
 			name="category"
 			error={$errors.category}
 		/>
+		<Select
+			label="Rating"
+			{...$constraints.rating}
+			bind:value={$form.rating}
+			name="rating"
+			type="number"
+			error={$errors.rating}
+		>
+			{#each Object.entries(ratings) as [k, v]}
+				<option value={v}>{k}</option>
+			{/each}
+		</Select>
 	</div>
 
 	<ModalFooter>
