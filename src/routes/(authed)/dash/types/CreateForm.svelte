@@ -3,15 +3,18 @@
 	import type { CreateSchema } from './createSchema';
 	import Button from '$lib/ui/Button.svelte';
 	import ModalFooter from '$lib/ui/modal/ModalFooter.svelte';
+	import { RATINGS } from '$lib/utils';
 	import { CogIcon } from 'lucide-svelte';
 	import Input from '$lib/ui/form/Input.svelte';
+	import Select from '$lib/ui/form/Select.svelte';
 
 	interface Props {
+		update: boolean;
 		data: SuperValidated<Infer<CreateSchema>>;
 		oncancel: () => void;
 		onsuccess: () => void;
 	}
-	let { data, oncancel, onsuccess }: Props = $props();
+	let { update, data, oncancel, onsuccess }: Props = $props();
 
 	const { form, delayed, errors, constraints, enhance } = superForm(data, {
 		async onUpdated({ form }) {
@@ -22,7 +25,7 @@
 	});
 </script>
 
-<form method="POST" action="?/create" use:enhance>
+<form method="POST" action={update ? '?/update' : '?/create'} use:enhance>
 	<div class="px-4 flex flex-col text-left gap-4">
 		<Input
 			label="Name"
@@ -46,6 +49,19 @@
 			name="category"
 			error={$errors.category}
 		/>
+		<Select
+			label="Rating"
+			{...$constraints.rating}
+			bind:value={$form.rating}
+			name="rating"
+			type="number"
+			error={$errors.rating}
+		>
+			{#each Object.entries(RATINGS) as [k, v]}
+				<option value={v}>{k}</option>
+			{/each}
+		</Select>
+		<input type="hidden" name="id" value={$form.id} />
 	</div>
 
 	<ModalFooter>
@@ -53,6 +69,8 @@
 		<Button variant="formSubmit" size="sm">
 			{#if $delayed}
 				<CogIcon class="w-6 h-6 inline animate-spin" />
+			{:else if update}
+				Update
 			{:else}
 				Create
 			{/if}
