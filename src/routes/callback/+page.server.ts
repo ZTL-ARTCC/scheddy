@@ -148,8 +148,13 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 			if (role.role == 'WM') {
 				highest_role = ROLE_DEVELOPER;
 			} else if (role.role == 'ATM' || role.role == 'DATM' || role.role == 'TA') {
+			} else if (
+				(role.role == 'ATM' || role.role == 'DATM' || role.role == 'TA') &&
+				ROLE_STAFF > highest_role
+			) {
 				highest_role = ROLE_STAFF;
 			} else if (role.role == 'INS' || role.role == 'MTR') {
+			} else if ((role.role == 'INS' || role.role == 'MTR') && ROLE_MENTOR > highest_role) {
 				highest_role = ROLE_MENTOR;
 			}
 		}
