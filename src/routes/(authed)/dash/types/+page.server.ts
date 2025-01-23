@@ -40,8 +40,32 @@ export const actions: Actions = {
 			id: nanoid(),
 			name: form.data.name,
 			length: form.data.duration,
-			category: form.data.category
+			category: form.data.category,
+			rating: form.data.rating
 		});
+
+		return { createForm: form };
+	},
+	update: async (event) => {
+		const form = await superValidate(event, zod(createSchema));
+
+		const { user } = (await loadUserData(event.cookies))!;
+		if (roleOf(user) < ROLE_STAFF) {
+			return fail(403, { createForm: form });
+		}
+		if (!form.valid) {
+			return fail(400, { createForm: form });
+		}
+
+		await db
+			.update(sessionTypes)
+			.set({
+				name: form.data.name,
+				length: form.data.duration,
+				category: form.data.category,
+				rating: form.data.rating
+			})
+			.where(eq(sessionTypes.id, form.data.id));
 
 		return { createForm: form };
 	},
