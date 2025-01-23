@@ -46,6 +46,14 @@
 			name="category"
 			error={$errors.category}
 		/>
+		<Input
+			label="Order"
+			{...$constraints.order}
+			bind:value={$form.order}
+			name="order"
+			type="number"
+			error={$errors.order}
+		/>
 	</div>
 
 	<ModalFooter>

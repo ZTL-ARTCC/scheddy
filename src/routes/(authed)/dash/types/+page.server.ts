@@ -40,7 +40,8 @@ export const actions: Actions = {
 			id: nanoid(),
 			name: form.data.name,
 			length: form.data.duration,
-			category: form.data.category
+			category: form.data.category,
+			order: form.data.order
 		});
 
 		return { createForm: form };
