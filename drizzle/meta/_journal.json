@@ -15,6 +15,13 @@
 			"when": 1732417717687,
 			"tag": "0001_sessions-ulids",
 			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "5",
+			"when": 1737672345418,
+			"tag": "0002_session-types-ordering",
+			"breakpoints": true
 		}
 	]
 }
