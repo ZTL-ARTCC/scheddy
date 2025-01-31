@@ -18,6 +18,7 @@ jobs:
       VATUSA_API_BASE: ${{ vars.VATUSA_API_BASE }}
       VATUSA_API_KEY: ${{ secrets.VATUSA_API_KEY }}
       MAX_BOOKING_AHEAD_DAYS: ${{ vars.MAX_BOOKING_AHEAD_DAYS }}
+      MAX_PENDING_SESSIONS: ${{ vars.MAX_PENDING_SESSIONS }}
       SMTP_HOST: ${{ secrets.SMTP_HOST }}
       SMTP_PORT: ${{ secrets.SMTP_PORT }}
       SMTP_SECURE: ${{ secrets.SMTP_SECURE }}
