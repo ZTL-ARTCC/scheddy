@@ -8,7 +8,7 @@ import { eq, gte, or } from 'drizzle-orm';
 import type { DayAvailability, MentorAvailability } from '$lib/availability';
 import { DateTime, Duration, Interval } from 'luxon';
 import { fail, redirect } from '@sveltejs/kit';
-import { MAX_BOOKING_AHEAD_DAYS } from '$env/static/private';
+import { MAX_BOOKING_AHEAD_DAYS, MAX_PENDING_SESSIONS } from '$env/static/private';
 import { ulid } from 'ulid';
 import { appointment_booked } from '$lib/emails/appointment_booked';
 import { sendEmail } from '$lib/email';
@@ -202,10 +202,21 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		.select()
 		.from(users)
 		.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)));
-
 	const allSessions = await db.select().from(sessions);
 
-	const slotData = slottificate(sTypes, mentors, allSessions);
+	let slotData;
+	// count the pending sessions for the student
+	const now = DateTime.utc();
+	const pendingForStudent = allSessions.filter(
+		(session) => session.student === user.id && DateTime.fromISO(session.start) > now
+	).length;
+	const maxPending = Number.parseInt(MAX_PENDING_SESSIONS);
+	if (maxPending > 0 && pendingForStudent >= maxPending) {
+		// don't allow the student to book any more sessions
+		slotData = {};
+	} else {
+		slotData = slottificate(sTypes, mentors, allSessions);
+	}
 
 	const originalSessionType = url.searchParams.has('reschedule')
 		? url.searchParams.get('type')
