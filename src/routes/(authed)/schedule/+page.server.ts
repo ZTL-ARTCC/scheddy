@@ -205,6 +205,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 	const allSessions = await db.select().from(sessions);
 
 	let slotData;
+	let atMaxSessions;
 	// count the pending sessions for the student
 	const now = DateTime.utc();
 	const pendingForStudent = allSessions.filter(
@@ -214,8 +215,10 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 	if (maxPending > 0 && pendingForStudent >= maxPending) {
 		// don't allow the student to book any more sessions
 		slotData = {};
+		atMaxSessions = true;
 	} else {
 		slotData = slottificate(sTypes, mentors, allSessions);
+		atMaxSessions = false;
 	}
 
 	const originalSessionType = url.searchParams.has('reschedule')
@@ -235,7 +238,8 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		slotData,
 		originalSessionType,
 		originalSessionId,
-		ogSession
+		ogSession,
+		atMaxSessions
 	};
 };
 

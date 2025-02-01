@@ -191,7 +191,11 @@
 										.length} minutes</option
 								>
 							{:else}
-								<option disabled>No slots available :( Check back another time</option>
+								{#if data.atMaxSessions}
+									<option disabled>You already have the max number of sessions booked</option>
+								{:else}
+									<option disabled>No slots available :( Check back another time</option>
+								{/if}
 							{/each}
 						</Select>
 					{/if}
