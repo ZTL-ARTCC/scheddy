@@ -11,4 +11,4 @@ A student has booked an appointment. Here are the details:
 ---
 
 Confirmation ID {sessionId}.
-You are receiving this email because you are a mentor with the ZTL ARTCC. If you believe to have received this email in error, please contact wm@ztlartcc.org.
+You are receiving this email because you are a mentor with the {artccShort} ARTCC. If you believe to have received this email in error, please contact wm@{artccEmailDomain}.
