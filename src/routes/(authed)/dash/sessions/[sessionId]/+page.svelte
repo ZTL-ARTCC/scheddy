@@ -34,8 +34,6 @@
 	async function reschedule() {
 		let udata = new URLSearchParams();
 
-		console.log(date);
-
 		let [ys, ms, ds] = date.split('-');
 		let y = Number.parseInt(ys);
 		let m = Number.parseInt(ms);
