@@ -1,6 +1,6 @@
 import { loadUserData } from '$lib/userInfo';
 import { roleOf } from '$lib';
-import { ROLE_STAFF } from '$lib/utils';
+import { ROLE_MENTOR } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { mentors, sessions, sessionTypes, students } from '$lib/server/db/schema';
@@ -10,7 +10,7 @@ import { DateTime } from 'luxon';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
-	if (roleOf(user) < ROLE_STAFF) {
+	if (roleOf(user) < ROLE_MENTOR) {
 		redirect(307, '/schedule');
 	}
 

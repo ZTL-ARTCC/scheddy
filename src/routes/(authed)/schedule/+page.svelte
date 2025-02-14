@@ -81,7 +81,6 @@
 	}
 
 	let canCancelReschedule = $derived.by(() => {
-		console.log(data.originalSessionType, data.ogSession);
 		if (data.originalSessionType && data.ogSession.length !== 0) {
 			return check_time(data.ogSession[0].start);
 		} else {

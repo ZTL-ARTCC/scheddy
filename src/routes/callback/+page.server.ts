@@ -24,8 +24,6 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 		const error_description: string = url.searchParams.get('error_description')!;
 		const error_message: string = url.searchParams.get('message')!;
 
-		console.log(error_code, error_description, error_message);
-
 		return {
 			success: false,
 			error_code,
@@ -63,9 +61,6 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 	const resp = await token_response.json();
 
 	if (!token_response.ok) {
-		console.log(
-			'VATSIM auth failed: ' + resp.error + ' ' + resp.hint + ' ' + resp.error_description
-		);
 		return {
 			success: false,
 			error_code: resp.error,
@@ -86,7 +81,6 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 	});
 
 	if (!user_data_resp.ok) {
-		console.log(`Failed user data resp!`);
 		return {
 			success: false,
 			error_code: 'user_data_failed',
@@ -96,7 +90,6 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 	}
 
 	const user_data_str = await user_data_resp.text();
-	console.log(user_data_str);
 	const user_data = JSON.parse(user_data_str);
 
 	let cid = user_data.data.cid;
@@ -113,8 +106,6 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 	});
 
 	if (!vatusa_user_resp.ok) {
-		console.log('Failed VATUSA data resp!');
-		console.log(vatusa_user_resp);
 		return {
 			success: false,
 			error_code: 'vatusa_data_failed',
@@ -148,9 +139,13 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 	for (const role of vatusa_info.data.roles) {
 		if (role.facility == VATUSA_FACILITY_ID) {
 			let this_role = 0;
-			if (role.role == 'WM') { this_role = ROLE_DEVELOPER; }
-			else if (role.role == 'ATM' || role.role == 'DATM' || role.role == 'TA') { this_role = ROLE_STAFF; }
-			else if (role.role == 'INS' || role.role == 'MTR') { this_role = ROLE_MENTOR; }
+			if (role.role == 'WM') {
+				this_role = ROLE_DEVELOPER;
+			} else if (role.role == 'ATM' || role.role == 'DATM' || role.role == 'TA') {
+				this_role = ROLE_STAFF;
+			} else if (role.role == 'INS' || role.role == 'MTR') {
+				this_role = ROLE_MENTOR;
+			}
 
 			if (this_role > highest_role) {
 				highest_role = this_role;

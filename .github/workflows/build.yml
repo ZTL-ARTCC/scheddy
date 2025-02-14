@@ -1,11 +1,12 @@
 name: build
 on:
   push:
-    branches: main
+    tags:
+      - '*'
   workflow_dispatch:
 jobs:
   build:
-    name: Build
+    name: Build and deploy
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
