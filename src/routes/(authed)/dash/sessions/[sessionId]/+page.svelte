@@ -150,7 +150,7 @@
 		bind:open={rescheduleOpen}
 	>
 		<ModalHeader
-			rescheduleOpen={() => {
+			onclose={() => {
 				rescheduleOpen = false;
 			}}
 			title="Reschedule"
