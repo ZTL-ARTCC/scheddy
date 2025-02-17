@@ -4,6 +4,8 @@ import { loadUserData } from '$lib/userInfo';
 import type { PageServerLoad } from './$types';
 import { eq } from 'drizzle-orm';
 import { DateTime } from 'luxon';
+import { roleOf } from '$lib';
+import { roleString } from '$lib/utils';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -37,5 +39,10 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		}
 	});
 
-	return { user, upcomingSessions, typesMap };
+	return {
+		user,
+		upcomingSessions,
+		typesMap,
+		role: roleString(roleOf(user))
+	};
 };
