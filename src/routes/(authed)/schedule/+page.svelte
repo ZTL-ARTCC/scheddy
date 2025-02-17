@@ -306,10 +306,16 @@
 
 		<div class="flex flex-col gap-2">
 			<div class="flex flex-row gap-3 justify-center">
+				<a
+					href="/my_sessions"
+					class="block hover:underline text-sm text-blue-500 font-semibold"
+					title="Sessions you are the student in">My Sessions</a
+				>
 				{#if data.isTrainer}
 					<a
 						href="/dash/mentors/{data.user.id}"
-						class="block hover:underline text-sm text-blue-500 font-semibold">My Schedule</a
+						class="block hover:underline text-sm text-blue-500 font-semibold"
+						title="Sessions you are the trainer for">My Schedule</a
 					>
 				{/if}
 				{#if data.isStaff}
