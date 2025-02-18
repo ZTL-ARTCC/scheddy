@@ -309,7 +309,7 @@
 				<a
 					href="/my_sessions"
 					class="block hover:underline text-sm text-blue-500 font-semibold"
-					title="Sessions you are the student in">My Sessions</a
+					title="Sessions you are the student in">Your Upcoming</a
 				>
 				{#if data.isTrainer}
 					<a
