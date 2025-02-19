@@ -309,13 +309,13 @@
 				<a
 					href="/my_sessions"
 					class="block hover:underline text-sm text-blue-500 font-semibold"
-					title="Sessions you are the student in">Your Upcoming</a
+					title="Sessions you are the student in">My Schedule</a
 				>
 				{#if data.isTrainer}
 					<a
 						href="/dash/mentors/{data.user.id}"
 						class="block hover:underline text-sm text-blue-500 font-semibold"
-						title="Sessions you are the trainer for">My Schedule</a
+						title="Sessions you are the trainer for">My Training Schedule</a
 					>
 				{/if}
 				{#if data.isStaff}
