@@ -80,6 +80,10 @@
 		return interval.hours >= 24;
 	}
 
+	let isValidSession = $derived(
+		(data.originalSessionId && data.ogSession.length) || !data.originalSessionId
+	);
+
 	let canCancelReschedule = $derived.by(() => {
 		if (data.originalSessionType && data.ogSession.length !== 0) {
 			return check_time(data.ogSession[0].start);
@@ -152,6 +156,8 @@
 						You cannot cancel or reschedule this session, as it is within 24 hours. Contact your
 						mentor.
 					</p>
+				{:else if !isValidSession}
+					<p>The provided Session ID is not valid. Have you cancelled this session?</p>
 				{:else if step === 1}
 					<Select bind:value={sessionType} label="Session Type">
 						{#each categories.entries() as [k, v]}
