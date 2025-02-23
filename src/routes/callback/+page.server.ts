@@ -144,7 +144,7 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 			} else if (role.role == 'ATM' || role.role == 'DATM' || role.role == 'TA') {
 				this_role = ROLE_STAFF;
 			} else if (role.role == 'INS' || role.role == 'MTR') {
-				this_role = ROLE_MENTOR;
+				this_role = ROLE_DEVELOPER;
 			}
 
 			if (this_role > highest_role) {

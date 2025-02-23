@@ -41,7 +41,8 @@ export const actions: Actions = {
 			name: form.data.name,
 			length: form.data.duration,
 			category: form.data.category,
-			order: form.data.order
+			order: form.data.order,
+			rating: form.data.rating
 		});
 
 		return { createForm: form };

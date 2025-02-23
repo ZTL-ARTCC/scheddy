@@ -1,27 +1,34 @@
 {
-	"version": "7",
-	"dialect": "mysql",
-	"entries": [
-		{
-			"idx": 0,
-			"version": "5",
-			"when": 1731349734143,
-			"tag": "0000_v1",
-			"breakpoints": true
-		},
-		{
-			"idx": 1,
-			"version": "5",
-			"when": 1732417717687,
-			"tag": "0001_sessions-ulids",
-			"breakpoints": true
-		},
-		{
-			"idx": 2,
-			"version": "5",
-			"when": 1737672345418,
-			"tag": "0002_session-types-ordering",
-			"breakpoints": true
-		}
-	]
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1731349734143,
+      "tag": "0000_v1",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1732417717687,
+      "tag": "0001_sessions-ulids",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1737672345418,
+      "tag": "0002_session-types-ordering",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1740286436201,
+      "tag": "0003_bright_gressill",
+      "breakpoints": true
+    }
+  ]
 }
