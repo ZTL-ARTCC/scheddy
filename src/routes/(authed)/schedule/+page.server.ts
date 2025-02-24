@@ -24,7 +24,7 @@ function slottificate(
 	const now = DateTime.utc();
 	const tomorrow = now.plus({ days: 1 });
 	const validDaysToBook: DateTime[] = [];
-	for (let i = 0; i < Number.parseInt(MAX_BOOKING_AHEAD_DAYS); i++) {
+	for (let i = 0; i <= Number.parseInt(MAX_BOOKING_AHEAD_DAYS); i++) {
 		validDaysToBook.push(now.plus({ days: i }));
 	}
 
@@ -206,18 +206,6 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 	let atMaxSessions;
 	// count the pending sessions for the student
 	const now = DateTime.utc();
-	const pendingForStudent = allSessions.filter(
-		(session) => session.student === user.id && DateTime.fromISO(session.start) > now
-	).length;
-	const maxPending = Number.parseInt(MAX_PENDING_SESSIONS);
-	if (maxPending > 0 && pendingForStudent >= maxPending) {
-		// don't allow the student to book any more sessions
-		slotData = {};
-		atMaxSessions = true;
-	} else {
-		slotData = slottificate(sTypes, mentors, allSessions);
-		atMaxSessions = false;
-	}
 
 	const originalSessionType = url.searchParams.has('reschedule')
 		? url.searchParams.get('type')
@@ -225,6 +213,19 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 
 	const originalSessionId = url.searchParams.get('sessionId')!;
 	const ogSession = await db.select().from(sessions).where(eq(sessions.id, originalSessionId));
+
+	const pendingForStudent = allSessions.filter(
+		(session) => session.student === user.id && DateTime.fromISO(session.start) > now
+	).length;
+	const maxPending = Number.parseInt(MAX_PENDING_SESSIONS);
+	if (maxPending > 0 && pendingForStudent >= maxPending && !ogSession.length) {
+		// don't allow the student to book any more sessions
+		slotData = {};
+		atMaxSessions = true;
+	} else {
+		slotData = slottificate(sTypes, mentors, allSessions);
+		atMaxSessions = false;
+	}
 
 	return {
 		user,
