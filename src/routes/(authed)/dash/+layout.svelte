@@ -110,14 +110,16 @@
 				{PUBLIC_FACILITY_NAME}
 			</span>
 			{#each pages as p}
-				<a
-					href={p.path}
-					class:bg-slate-600={$page.url.pathname === p.path}
-					class="flex flex-row min-w-64 px-4 py-3 rounded hover:text-slate-300 transition justify-start items-start text-left hover:cursor-pointer"
-				>
-					<p.icon class="w-5 mr-2 font-medium" />
-					<span>{p.name}</span>
-				</a>
+				{#if p.visible}
+					<a
+						href={p.path}
+						class:bg-slate-600={$page.url.pathname === p.path}
+						class="flex flex-row min-w-64 px-4 py-3 rounded hover:text-slate-300 transition justify-start items-start text-left hover:cursor-pointer"
+					>
+						<p.icon class="w-5 mr-2 font-medium" />
+						<span>{p.name}</span>
+					</a>
+				{/if}
 			{/each}
 			<button
 				onclick={logout}
