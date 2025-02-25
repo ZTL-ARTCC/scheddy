@@ -251,7 +251,7 @@ export const actions: Actions = {
 		const requestedType = formData.get('type')!;
 		const timezone = formData.get('timezone')!;
 		const orginalSessionId = formData.get('sessionId');
-		const reschedule = formData.has('reschedule') || false;
+		const reschedule = formData.get('reschedule') === 'true';
 
 		const sTypes = await db.select().from(sessionTypes);
 		const mentors = await db
@@ -333,11 +333,7 @@ export const actions: Actions = {
 
 		await sendEmail(
 			user.email,
-			reschedule
-				? 'Appointment updated'
-				: 'Appointment booked' +
-						' - ' +
-						start.setZone(timezone).toLocaleString(DateTime.DATETIME_HUGE),
+			`${reschedule ? 'Appointment updated - ' : 'Appointment booked - '}${start.setZone(timezone).toLocaleString(DateTime.DATETIME_HUGE)}`,
 			studentEmailContent.raw,
 			studentEmailContent.html
 		);
