@@ -8,7 +8,12 @@ import { eq, gte, or } from 'drizzle-orm';
 import type { DayAvailability, MentorAvailability } from '$lib/availability';
 import { DateTime, Duration, Interval } from 'luxon';
 import { fail, redirect } from '@sveltejs/kit';
-import { MAX_BOOKING_AHEAD_DAYS, MAX_PENDING_SESSIONS } from '$env/static/private';
+import { PUBLIC_FACILITY_NAME } from '$env/static/public';
+import {
+	MAX_BOOKING_AHEAD_DAYS,
+	MAX_PENDING_SESSIONS,
+	EMAIL_ARTCC_DOMAIN
+} from '$env/static/private';
 import { ulid } from 'ulid';
 import { appointment_booked } from '$lib/emails/appointment_booked';
 import { sendEmail } from '$lib/email';
@@ -307,7 +312,9 @@ export const actions: Actions = {
 			sessionId: id,
 			type: typename,
 			link_params: `?sessionId=${id}&reschedule=true&type=${requestedType}`,
-			reschedule
+			reschedule,
+			facilityName: PUBLIC_FACILITY_NAME,
+			emailDomain: EMAIL_ARTCC_DOMAIN
 		});
 		const mentorEmailContent = new_session({
 			startTime: start.setZone(mentor.timezone),
@@ -315,7 +322,9 @@ export const actions: Actions = {
 			studentName: user.firstName + ' ' + user.lastName,
 			duration,
 			sessionId: id,
-			type: typename
+			type: typename,
+			facilityName: PUBLIC_FACILITY_NAME,
+			emailDomain: EMAIL_ARTCC_DOMAIN
 		});
 
 		await db.insert(sessions).values({

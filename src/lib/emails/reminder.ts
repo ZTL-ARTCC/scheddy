@@ -10,6 +10,8 @@ export interface ReminderProps {
 	sessionId: string;
 	timezone: string;
 	mentorName: string;
+	facilityName: string;
+	emailDomain: string;
 }
 
 export function reminder(props: ReminderProps): EmailContent {
@@ -19,7 +21,9 @@ export function reminder(props: ReminderProps): EmailContent {
 			type: props.type,
 			sessionId: props.sessionId,
 			timezone: props.timezone,
-			mentorName: props.mentorName
+			mentorName: props.mentorName,
+			facilityName: props.facilityName,
+			emailDomain: props.emailDomain
 		}),
 		html: render(Reminder, {
 			props: props
