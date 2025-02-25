@@ -8,6 +8,8 @@
 	import TableBody from '$lib/ui/table/TableBody.svelte';
 	import TableRow from '$lib/ui/table/TableRow.svelte';
 	import TableColumn from '$lib/ui/table/TableColumn.svelte';
+	import Button from '$lib/ui/Button.svelte';
+	import { PencilIcon } from 'lucide-svelte';
 
 	interface Props {
 		data: PageData;
@@ -38,6 +40,7 @@
 					<TableHeadColumn>Date</TableHeadColumn>
 					<TableHeadColumn>Session Type</TableHeadColumn>
 					<TableHeadColumn>Mentor</TableHeadColumn>
+					<TableHeadColumn>Actions</TableHeadColumn>
 				</TableHead>
 				<TableBody>
 					{#each data.upcomingSessions as sess}
@@ -52,6 +55,11 @@
 							</TableColumn>
 							<TableColumn>{data.typesMap[sess.session.type]}</TableColumn>
 							<TableColumn>{sess.mentor.firstName} {sess.mentor.lastName}</TableColumn>
+							<TableColumn>
+								<Button size="icon" href="/schedule?sessionId={sess.session.id}&reschedule=true&type={sess.session.type}">
+									<PencilIcon class="w-4 h-4" />
+								</Button>
+							</TableColumn>
 						</TableRow>
 					{/each}
 				</TableBody>
