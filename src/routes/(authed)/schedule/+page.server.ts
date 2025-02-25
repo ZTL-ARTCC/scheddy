@@ -195,12 +195,13 @@ function slottificate(
 export const load: PageServerLoad = async ({ cookies, url }) => {
 	const { user } = (await loadUserData(cookies))!;
 
-	const sTypes = await db.select().from(sessionTypes);
+	const sTypes = (await db.select().from(sessionTypes)).filter((t) => t.rating <= user.rating + 1);
+	const sTypesIds = sTypes.map((t) => t.id);
 	const mentors = await db
 		.select()
 		.from(users)
 		.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)));
-	const allSessions = await db.select().from(sessions);
+	const allSessions = (await db.select().from(sessions)).filter((s) => sTypesIds.includes(s.type));
 
 	let slotData;
 	let atMaxSessions;

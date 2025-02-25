@@ -7,20 +7,21 @@
 	import TableRow from '$lib/ui/table/TableRow.svelte';
 	import TableColumn from '$lib/ui/table/TableColumn.svelte';
 	import Button from '$lib/ui/Button.svelte';
-	import { PlusIcon, TrashIcon } from 'lucide-svelte';
+	import { PencilIcon, PlusIcon, TrashIcon } from 'lucide-svelte';
 	import Modal from '$lib/ui/modal/Modal.svelte';
 	import ModalHeader from '$lib/ui/modal/ModalHeader.svelte';
 	import ModalBody from '$lib/ui/modal/ModalBody.svelte';
 	import ModalFooter from '$lib/ui/modal/ModalFooter.svelte';
 	import CreateForm from './CreateForm.svelte';
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
+	import { RATINGS } from '$lib/utils';
 	interface Props {
 		data: PageData;
 	}
 	let { data }: Props = $props();
 
 	let categories = $derived.by(() => {
-		let c = {};
+		let c: Record<string, PageData['types']> = {};
 		for (let t of data.types) {
 			if (t && t.category) {
 				if (!Object.keys(c).includes(t.category)) {
@@ -57,6 +58,7 @@
 		<TableHead>
 			<TableHeadColumn>Type</TableHeadColumn>
 			<TableHeadColumn>Duration (minutes)</TableHeadColumn>
+			<TableHeadColumn>Rating</TableHeadColumn>
 			<TableHeadColumn>
 				<div class="flex flex-row align-middle justify-between items-center">
 					<span>Actions</span>
@@ -84,16 +86,29 @@
 						<TableColumn><span class="ml-2">{type.name}</span></TableColumn>
 						<TableColumn>{type.length} minutes</TableColumn>
 						<TableColumn>
-							<Button
-								onclick={() => {
-									deleteId = type.id;
-									deleteOpen = true;
-								}}
-								variant="danger"
-								size="icon"
-							>
-								<TrashIcon class="w-4 h-4" />
-							</Button>
+							{Object.entries(RATINGS).find(([_, v]) => v === type.rating)?.[0]}
+						</TableColumn>
+						<TableColumn>
+							<div class="flex flex-row gap-x-4">
+								<Button
+									onclick={() => {
+										deleteId = type.id;
+										deleteOpen = true;
+									}}
+									variant="danger"
+									size="icon"
+								>
+									<TrashIcon class="w-4 h-4" />
+								</Button>
+								<Button
+									onclick={() => {
+										goto(`types/edit/${type.id}`);
+									}}
+									size="icon"
+								>
+									<PencilIcon class="w-4 h-4" />
+								</Button>
+							</div>
 						</TableColumn>
 					</TableRow>
 				{/each}
@@ -122,6 +137,7 @@
 			oncancel={() => {
 				createOpen = false;
 			}}
+			update={false}
 			data={data.createForm}
 		/>
 	</ModalBody>
