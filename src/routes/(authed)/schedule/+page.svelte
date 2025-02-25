@@ -3,7 +3,7 @@
 	import { PUBLIC_FACILITY_NAME } from '$env/static/public';
 	import Card from '$lib/ui/Card.svelte';
 	import { version } from '$app/environment';
-	import { HeartIcon, Import } from 'lucide-svelte';
+	import { HeartIcon } from 'lucide-svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import Select from '$lib/ui/form/Select.svelte';
 	import Button from '$lib/ui/Button.svelte';

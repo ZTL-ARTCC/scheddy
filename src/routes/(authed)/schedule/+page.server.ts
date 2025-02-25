@@ -331,9 +331,12 @@ export const actions: Actions = {
 			await db.delete(sessions).where(eq(sessions.id, orginalSessionId));
 		}
 
+		const action = reschedule ? 'Appointment updated' : 'Appointment booked';
+		const formattedTime = start.setZone(timezone).toLocaleString(DateTime.DATETIME_HUGE);
+
 		await sendEmail(
 			user.email,
-			`${reschedule ? 'Appointment updated - ' : 'Appointment booked - '}${start.setZone(timezone).toLocaleString(DateTime.DATETIME_HUGE)}`,
+			`${action} - ${formattedTime}`,
 			studentEmailContent.raw,
 			studentEmailContent.html
 		);
