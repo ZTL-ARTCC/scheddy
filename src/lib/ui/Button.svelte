@@ -22,13 +22,13 @@
 
 	const base = 'inline-block text-center rounded font-bold transition';
 	const variants = {
-		normal: 'bg-blue-500 text-blue-950 hover:bg-blue-600 shadow disabled:bg-gray-500',
-		danger: 'bg-red-500 text-red-950 hover:bg-red-600 shadow disabled:bg-gray-500',
+		normal: 'bg-blue-500 text-blue-950 hover:bg-blue-600 shadow-sm disabled:bg-gray-500',
+		danger: 'bg-red-500 text-red-950 hover:bg-red-600 shadow-sm disabled:bg-gray-500',
 		ghost: 'hover:text-blue-500 hover:bg-blue-500/30 disabled:text-gray-500',
 		tableCreateAction:
-			'bg-blue-500 text-blue-950 hover:bg-blue-600 flex flex-row p-2 float-right align-top shadow disabled:bg-gray-500',
+			'bg-blue-500 text-blue-950 hover:bg-blue-600 flex flex-row p-2 float-right align-top shadow-sm disabled:bg-gray-500',
 		formSubmit:
-			'bg-blue-500 text-blue-950 hover:bg-blue-600 shadow min-w-24 text-center justify-center items-center flex flex-row disabled:bg-gray-500'
+			'bg-blue-500 text-blue-950 hover:bg-blue-600 shadow-sm min-w-24 text-center justify-center items-center flex flex-row disabled:bg-gray-500'
 	};
 	const sizes = {
 		icon: 'p-2',

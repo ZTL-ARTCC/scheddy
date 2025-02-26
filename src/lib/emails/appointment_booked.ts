@@ -14,6 +14,8 @@ export interface AppointmentBookedProps {
 	timezone: string;
 	link_params: string;
 	reschedule?: boolean;
+	facilityName: string;
+	emailDomain: string;
 }
 
 export function appointment_booked(props: AppointmentBookedProps): EmailContent {
@@ -27,7 +29,9 @@ export function appointment_booked(props: AppointmentBookedProps): EmailContent 
 			timezone: props.timezone,
 			link_params: props.link_params,
 			reschedule: props.reschedule ? 'rescheduled' : '',
-			reschedule_link: `${BASE_URL}schedule/${props.link_params}`
+			reschedule_link: `${BASE_URL}schedule/${props.link_params}`,
+			facilityName: props.facilityName,
+			emailDomain: props.emailDomain
 		}),
 		html: render(AppointmentBooked, {
 			props: props

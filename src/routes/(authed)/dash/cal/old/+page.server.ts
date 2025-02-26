@@ -25,7 +25,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		.select()
 		.from(sessions)
 		.leftJoin(students, eq(students.id, sessions.student))
-		.leftJoin(mentors, eq(mentors.id, sessions.mentor));
+		.leftJoin(mentors, eq(mentors.id, sessions.mentor))
+		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type));
 
 	const mentorSessions = allSessions;
 
@@ -44,6 +45,11 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	return {
 		user,
 		mentorSessions,
-		typesMap
+		typesMap,
+		breadcrumbs: [
+			{ title: 'Dashboard', url: '/dash' },
+			{ title: 'Facility Calendar', url: '/dash/cal' },
+			{ title: 'Past Sessions' }
+		]
 	};
 };

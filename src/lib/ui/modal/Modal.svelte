@@ -17,7 +17,7 @@
 	onclick={onclose}
 	class:hidden={!open}
 	class:pointer-events-none={!open}
-	class="inset-0 transition-colors z-50 min-w-screen w-screen min-h-screen absolute top-0 left-0 right-0 bottom-0 bg-black/20 backdrop-blur flex items-center align-middle justify-center"
+	class="inset-0 transition-colors z-50 min-w-screen w-screen min-h-screen absolute top-0 left-0 right-0 bottom-0 bg-black/20 backdrop-blur-sm flex items-center align-middle justify-center"
 >
 	<Card
 		onclick={(e) => {

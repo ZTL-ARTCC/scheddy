@@ -7,4 +7,4 @@ As it is now within 24 hours, directly contact {mentorName}, your mentor, to mak
 ---
 
 Confirmation ID {sessionId}.
-You are receiving this email because you have booked a session with the ZTL ARTCC. If you believe to have received this email in error, please contact wm@ztlartcc.org.
+You are receiving this email because you have booked a session with the {facilityName}. If you believe to have received this email in error, please contact wm@{emailDomain}.

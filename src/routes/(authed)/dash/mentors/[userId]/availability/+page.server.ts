@@ -10,6 +10,7 @@ import { fail, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import type { MentorAvailability } from '$lib/availability';
 import { availSchema } from './availSchema';
+import { getTimeZones } from '@vvo/tzdb';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -35,10 +36,42 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		zod(availSchema)
 	);
 
+	const timezones = getTimeZones();
+	timezones.sort((a, b) => {
+		const nameA = a.name.toUpperCase(); // ignore upper and lowercase
+		const nameB = b.name.toUpperCase(); // ignore upper and lowercase
+		if (nameA < nameB) {
+			return -1;
+		}
+		if (nameA > nameB) {
+			return 1;
+		}
+
+		// names must be equal
+		return 0;
+	});
+
 	return {
 		user,
 		mentor: mentor[0],
-		form
+		form,
+		timezones,
+		breadcrumbs:
+			user.id === mentor[0].id
+				? [
+						{ title: 'Dashboard', url: '/dash' },
+						{ title: 'My Schedule', url: '/dash/mentors/' + mentor[0].id },
+						{ title: 'Availability' }
+					]
+				: [
+						{ title: 'Dashboard', url: '/dash' },
+						{ title: 'Mentors', url: '/dash/mentors' },
+						{
+							title: mentor[0].firstName + ' ' + mentor[0].lastName,
+							url: '/dash/mentors/' + mentor[0].id
+						},
+						{ title: 'Availability' }
+					]
 	};
 };
 

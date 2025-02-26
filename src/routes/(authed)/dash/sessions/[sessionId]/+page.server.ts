@@ -29,7 +29,12 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
 	return {
 		sessionInfo: sessionAndFriends,
-		isMentor: user.id == sessionAndFriends.session.mentor || roleOf(user) >= ROLE_STAFF
+		isMentor: user.id == sessionAndFriends.session.mentor || roleOf(user) >= ROLE_STAFF,
+		breadcrumbs: [
+			{ title: 'Dashboard', url: '/dash' },
+			{ title: 'Facility Calendar', url: '/dash/cal' },
+			{ title: 'Session Information' }
+		]
 	};
 };
 
