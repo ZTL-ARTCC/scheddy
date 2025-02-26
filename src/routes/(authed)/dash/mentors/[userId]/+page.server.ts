@@ -72,25 +72,21 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		}
 	});
 
-	const availability: MentorAvailability | null = mentor[0].mentorAvailability
-		? JSON.parse(mentor[0].mentorAvailability)
-		: null;
-
 	let ex_changed = false;
 
-	if (availability?.exceptions) {
-		for (const ex in availability.exceptions) {
+	if (avail?.exceptions) {
+		for (const ex in avail.exceptions) {
 			const ex_date = createUTCInt(
 				ex,
-				availability.exceptions[ex].start.hour,
-				availability.exceptions[ex].start.minute,
+				avail.exceptions[ex].start.hour,
+				avail.exceptions[ex].start.minute,
 				mentor[0].timezone
 			);
 
 			const time_now = new Date().getTime();
 
 			if (ex_date < time_now) {
-				delete availability.exceptions[ex];
+				delete avail.exceptions[ex];
 				ex_changed = true;
 			}
 		}
@@ -100,7 +96,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		await db
 			.update(users)
 			.set({
-				mentorAvailability: JSON.stringify(availability)
+				mentorAvailability: JSON.stringify(avail)
 			})
 			.where(eq(users.id, Number.parseInt(params.userId!)));
 	}
