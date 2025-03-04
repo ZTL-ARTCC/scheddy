@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import Button from '$lib/ui/Button.svelte';
-	import Card from '$lib/ui/Card.svelte';
+	import { Button } from '$lib/components/ui/button';
 
 	interface Props {
 		data: PageData;
@@ -10,7 +9,6 @@
 	let { data }: Props = $props();
 </script>
 
-<Card>
 	{#if data.success}
 		<p>Logged in successfully. You'll be redirected in a moment!</p>
 	{:else}
@@ -18,4 +16,3 @@
 		<p class="text-center">{data.error_message} (error code: {data.error_code})</p>
 		<Button href="/">Try again</Button>
 	{/if}
-</Card>

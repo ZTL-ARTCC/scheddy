@@ -14,18 +14,12 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		redirect(307, '/schedule');
 	}
 
-	const validTypes = await db.select().from(sessionTypes);
-
-	const typesMap: Record<string, string> = {};
-	for (const typ of validTypes) {
-		typesMap[typ.id] = typ.name;
-	}
-
 	const allSessions = await db
 		.select()
 		.from(sessions)
 		.leftJoin(students, eq(students.id, sessions.student))
-		.leftJoin(mentors, eq(mentors.id, sessions.mentor));
+		.leftJoin(mentors, eq(mentors.id, sessions.mentor))
+		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type));
 
 	const mentorSessions = [];
 	const now = DateTime.utc();
@@ -50,6 +44,6 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	return {
 		user,
 		mentorSessions,
-		typesMap
+		breadcrumbs: [{ title: 'Dashboard', url: '/dash' }, { title: 'Facility Calendar' }]
 	};
 };

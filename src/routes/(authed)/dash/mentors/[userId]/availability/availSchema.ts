@@ -10,6 +10,7 @@ export const dayAvailability = z.object({
 	start: time,
 	end: time
 });
+export type DayAvailability = typeof dayAvailability;
 
 export const availSchema = z.object({
 	timezone: z.string(),
@@ -22,3 +23,5 @@ export const availSchema = z.object({
 	saturday: dayAvailability,
 	exceptions: z.record(z.string(), dayAvailability)
 });
+
+export type AvailSchema = typeof availSchema;

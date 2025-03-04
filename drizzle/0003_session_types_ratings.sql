@@ -1,0 +1,1 @@
+ALTER TABLE `sessionType` ADD `rating` int DEFAULT 0 NOT NULL;

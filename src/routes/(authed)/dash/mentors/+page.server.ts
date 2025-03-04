@@ -28,6 +28,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	});
 	return {
 		user,
-		users: mentorsWithAvail
+		users: mentorsWithAvail,
+		breadcrumbs: [{ title: 'Dashboard', url: '/dash' }, { title: 'Mentors' }]
 	};
 };

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import * as Card from '$lib/components/ui/card';
+	import { CalendarCheck2, TowerControlIcon } from 'lucide-svelte';
 
 	interface Props {
 		data: PageData;
@@ -22,19 +24,33 @@
 	});
 </script>
 
-<div class="flex flex-col gap-4">
-	<h1 class="text-2xl font-semibold">Good {timeofday}, {data.user.firstName}</h1>
-	<p>
-		You have {data.yourSessions} upcoming sessions
-		<a
-			class="text-blue-500 hover:text-blue-600 transition font-semibold ml-4"
-			href="/dash/mentors/{data.user.id}">Your schedule &rarr;</a
-		>
-	</p>
-	<p>
-		In total, there are {data.upcoming} upcoming sessions with {data.mentors} different mentors
-		<a class="text-blue-500 hover:text-blue-600 transition font-semibold ml-4" href="/dash/cal"
-			>Facility schedule &rarr;</a
-		>
-	</p>
+<h1 class="text-2xl font-semibold">Good {timeofday}, {data.user.firstName}</h1>
+
+<div class="flex flex-col md:flex-row gap-2">
+	<Card.Root class="min-w-xs grow md:grow-0">
+		<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-1">
+			<Card.Title class="text-sm font-medium">Your upcoming sessions</Card.Title>
+			<CalendarCheck2 class="w-4 h-4 text-muted-foreground" />
+		</Card.Header>
+		<Card.Content class="px-6 pb-6 pt-4">
+			<div class="text-2xl font-bold">{data.yourSessions}</div>
+			<a
+				href="/dash/mentors/{data.user.id}"
+				class="text-muted-foreground text-xs hover:underline underline-offset-4"
+				>Your schedule &rarr;</a
+			>
+		</Card.Content>
+	</Card.Root>
+	<Card.Root class="min-w-xs grow md:grow-0">
+		<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-1">
+			<Card.Title class="text-sm font-medium">Facility total upcoming sessions</Card.Title>
+			<TowerControlIcon class="w-4 h-4 text-muted-foreground" />
+		</Card.Header>
+		<Card.Content class="px-6 pb-6 pt-4">
+			<div class="text-2xl font-bold">{data.upcoming}</div>
+			<a href="/dash/cal" class="text-muted-foreground text-xs hover:underline underline-offset-4"
+				>Facility calendar &rarr;</a
+			>
+		</Card.Content>
+	</Card.Root>
 </div>
