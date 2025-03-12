@@ -31,8 +31,6 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		sessionAndFriends.session.createdBy
 	);
 
-	DateTime.fromISO(createdByData.time).toLocaleString(DateTime.DATETIME_FULL);
-
 	const createdByUser = await db.select().from(users).where(eq(users.id, createdByData.id));
 
 	return {
