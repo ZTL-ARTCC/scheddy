@@ -22,7 +22,7 @@ import { getTimeZones } from '@vvo/tzdb';
 export const load: PageServerLoad = async ({ cookies, url }) => {
 	const { user } = (await loadUserData(cookies))!;
 
-	const sTypes = (await db.select().from(sessionTypes));
+	const sTypes = await db.select().from(sessionTypes);
 	const mentors = await db
 		.select()
 		.from(users)
@@ -132,7 +132,7 @@ export const actions: Actions = {
 	default: async (event) => {
 		const { user } = (await loadUserData(event.cookies))!;
 
-		const sTypes = (await db.select().from(sessionTypes));
+		const sTypes = await db.select().from(sessionTypes);
 		const mentors = await db
 			.select()
 			.from(users)
@@ -226,6 +226,11 @@ export const actions: Actions = {
 			emailDomain: ARTCC_EMAIL_DOMAIN
 		});
 
+		const createdByData = {
+			id: user.id,
+			time: DateTime.now().toISO()
+		};
+
 		if (oldId == undefined) {
 			await db.insert(sessions).values({
 				id,
@@ -233,7 +238,8 @@ export const actions: Actions = {
 				student: user.id,
 				start: start.toISO(),
 				type: form.data.sessionType,
-				timezone: form.data.timezone
+				timezone: form.data.timezone,
+				createdBy: JSON.stringify(createdByData)
 			});
 		} else {
 			await db

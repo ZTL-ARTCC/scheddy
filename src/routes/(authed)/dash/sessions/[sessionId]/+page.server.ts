@@ -3,7 +3,7 @@ import { roleOf } from '$lib';
 import { ROLE_STAFF } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { mentors, sessions, sessionTypes, students } from '$lib/server/db/schema';
+import { mentors, sessions, sessionTypes, students, users } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import { DateTime } from 'luxon';
@@ -27,9 +27,20 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		redirect(307, '/schedule');
 	}
 
+	const createdByData: { id: number; time: string } = JSON.parse(
+		sessionAndFriends.session.createdBy
+	);
+
+	const createdByUser = await db.select().from(users).where(eq(users.id, createdByData.id));
+
 	return {
 		sessionInfo: sessionAndFriends,
 		isMentor: user.id == sessionAndFriends.session.mentor || roleOf(user) >= ROLE_STAFF,
+		createdBy: sessionAndFriends.session.createdBy
+			? `${createdByUser[0].firstName} ${createdByUser[0].lastName} at ${DateTime.fromISO(
+					createdByData.time
+				).toLocaleString(DateTime.DATETIME_FULL)}`
+			: 'Not specified',
 		breadcrumbs: [
 			{ title: 'Dashboard', url: '/dash' },
 			{ title: 'Facility Calendar', url: '/dash/cal' },

@@ -8,6 +8,7 @@
 	import { superForm } from 'sveltekit-superforms';
 	import * as Popover from '$lib/components/ui/popover';
 	import * as Form from '$lib/components/ui/form';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import {
 		DateFormatter,
 		type DateValue,
@@ -248,11 +249,52 @@
 		<UserSelector label="Student" {form} {usersMap} name="student" bind:value={$formData.student} />
 	{/if}
 
-	<Form.Button>
-		{#if $delayed}
-			<LoaderCircleIcon class="animate-spin size-4" />
-		{:else}
-			Create Session
-		{/if}
-	</Form.Button>
+	{#if isMentorAvailable}
+		<Form.Button>
+			{#if $delayed}
+				<LoaderCircleIcon class="animate-spin size-4" />
+			{:else}
+				Create Session
+			{/if}
+		</Form.Button>
+	{:else}
+		<Form.Button type="button" onclick={() => (dialogOpen = true)}>Create Session</Form.Button>
+	{/if}
+
+	<Dialog.Root open={dialogOpen} onOpenChange={() => (dialogOpen = !dialogOpen)}>
+		<Dialog.Content>
+			<Dialog.Header>
+				<Dialog.Title>Schedule Outside Availability?</Dialog.Title>
+				<Dialog.Description>
+					This session falls outside of this mentor's availability. Are you sure you want to create
+					it?
+				</Dialog.Description>
+			</Dialog.Header>
+			<div class="flex flex-row gap-x-4">
+				<Form.Button
+					type="submit"
+					class="w-full"
+					onclick={() => {
+						dialogOpen = false;
+						form.submit();
+					}}
+				>
+					{#if $delayed}
+						<LoaderCircleIcon class="animate-spin size-4" />
+					{:else}
+						Create Session
+					{/if}
+				</Form.Button>
+				<Form.Button
+					class="w-full"
+					variant="destructive"
+					onclick={() => {
+						dialogOpen = false;
+					}}
+				>
+					Nevermind
+				</Form.Button>
+			</div>
+		</Dialog.Content>
+	</Dialog.Root>
 </form>

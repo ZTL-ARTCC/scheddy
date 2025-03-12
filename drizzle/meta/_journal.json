@@ -29,6 +29,13 @@
 			"when": 1740622956810,
 			"tag": "0003_session_types_ratings",
 			"breakpoints": true
+		},
+		{
+			"idx": 4,
+			"version": "5",
+			"when": 1741655017210,
+			"tag": "0004_track_session_creations",
+			"breakpoints": true
 		}
 	]
 }

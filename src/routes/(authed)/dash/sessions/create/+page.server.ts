@@ -120,13 +120,19 @@ export const actions: Actions = {
 
 		const id = ulid();
 
+		const createdByData = {
+			id: user.id,
+			time: DateTime.now().toISO()
+		};
+
 		await db.insert(sessions).values({
 			id,
 			mentor: form.data.mentor,
 			student: form.data.student,
 			start: date.toString(),
 			type: form.data.type,
-			timezone: event.url.searchParams.get('timezone')
+			timezone: event.url.searchParams.get('timezone'),
+			createdBy: JSON.stringify(createdByData)
 		});
 
 		const mentorName = await db.select().from(users).where(eq(users.id, form.data.mentor));
@@ -145,6 +151,19 @@ export const actions: Actions = {
 			emailDomain: ARTCC_EMAIL_DOMAIN
 		});
 
+		try {
+			await sendEmail(
+				user.email,
+				'Appointment booked - ' +
+					date
+						.setZone(event.url.searchParams.get('timezone'))
+						.toLocaleString(DateTime.DATETIME_HUGE),
+				studentEmailContent.raw,
+				studentEmailContent.html
+			);
+		} catch (e) {
+			console.error(e);
+		}
 
 		return { form };
 	}
