@@ -27,20 +27,23 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		redirect(307, '/schedule');
 	}
 
-	const createdByData: { id: number; time: string } = JSON.parse(
-		sessionAndFriends.session.createdBy
-	);
+	const createdByUser = await db
+		.select()
+		.from(users)
+		.where(eq(users.id, sessionAndFriends.session.createdBy));
 
-	const createdByUser = await db.select().from(users).where(eq(users.id, createdByData.id));
+	const createdAt = sessionAndFriends.session.createdAt
+		? DateTime.fromISO(sessionAndFriends.session.createdAt).toLocaleString(DateTime.DATETIME_FULL)
+		: 'Not specified';
+
+	const createdBy = sessionAndFriends.session.createdBy
+		? `${createdByUser[0].firstName} ${createdByUser[0].lastName} at ${createdAt}`
+		: 'Not specified';
 
 	return {
 		sessionInfo: sessionAndFriends,
 		isMentor: user.id == sessionAndFriends.session.mentor || roleOf(user) >= ROLE_STAFF,
-		createdBy: sessionAndFriends.session.createdBy
-			? `${createdByUser[0].firstName} ${createdByUser[0].lastName} at ${DateTime.fromISO(
-					createdByData.time
-				).toLocaleString(DateTime.DATETIME_FULL)}`
-			: 'Not specified',
+		createdBy,
 		breadcrumbs: [
 			{ title: 'Dashboard', url: '/dash' },
 			{ title: 'Facility Calendar', url: '/dash/cal' },
@@ -74,9 +77,7 @@ export const actions: Actions = {
 
 		await db
 			.update(sessions)
-			.set({
-				start: newDateObj.setZone('utc').toString()
-			})
+			.set({ start: newDateObj.setZone('utc').toString() })
 			.where(eq(sessions.id, params.sessionId));
 	}
 };

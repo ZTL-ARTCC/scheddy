@@ -120,11 +120,6 @@ export const actions: Actions = {
 
 		const id = ulid();
 
-		const createdByData = {
-			id: user.id,
-			time: DateTime.now().toISO()
-		};
-
 		await db.insert(sessions).values({
 			id,
 			mentor: form.data.mentor,
@@ -132,7 +127,8 @@ export const actions: Actions = {
 			start: date.toString(),
 			type: form.data.type,
 			timezone: event.url.searchParams.get('timezone'),
-			createdBy: JSON.stringify(createdByData)
+			createdBy: user.id,
+			createdAt: DateTime.now().toISO()
 		});
 
 		const mentorName = await db.select().from(users).where(eq(users.id, form.data.mentor));
