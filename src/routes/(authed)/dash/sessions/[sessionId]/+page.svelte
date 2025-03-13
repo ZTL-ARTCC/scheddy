@@ -1,9 +1,17 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { DateTime } from 'luxon';
-	import { CalendarDaysIcon, ClockIcon, GraduationCapIcon, IdCardIcon } from 'lucide-svelte';
+	import {
+		CalendarDaysIcon,
+		ClockIcon,
+		GraduationCapIcon,
+		IdCardIcon,
+		PencilIcon
+	} from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import DataDisplay from './DataDisplay.svelte';
+	import { roleOf } from '$lib';
+	import { ROLE_STAFF } from '$lib/utils';
 
 	interface Props {
 		data: PageData;
@@ -29,6 +37,11 @@
 		<DataDisplay icon={ClockIcon} label="Duration">
 			{data.sessionInfo.sessionType.length} minutes
 		</DataDisplay>
+		{#if roleOf(data.user) >= ROLE_STAFF}
+			<DataDisplay icon={PencilIcon} label="Created By">
+				{data.createdBy}
+			</DataDisplay>
+		{/if}
 	</tbody>
 </table>
 

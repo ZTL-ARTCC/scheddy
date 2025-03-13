@@ -8,6 +8,7 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { ROLE_STAFF } from '$lib/utils';
 	import { roleOf } from '$lib';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	interface Props {
 		data: PageData;
@@ -21,6 +22,14 @@
 	<h2 class="font-semibold text-lg">Upcoming Sessions</h2>
 
 	<DataTable class="w-full" data={data.mentorSessions} {columns} />
+
+	<div class="flex flex-col">
+		<h2 class="font-semibold text-lg">Create Session</h2>
+		<p class="text-sm text-slate-500 mb-4">
+			Create session on behalf of a student
+		</p>
+		<Button href="/dash/sessions/create" class="self-start">Create Session</Button>
+	</div>
 
 	<div class="flex flex-col">
 		<h2 class="font-semibold text-lg">
