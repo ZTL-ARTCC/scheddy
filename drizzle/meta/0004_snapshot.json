@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "15bebff3-299a-48c0-928f-b201ad867559",
+  "id": "cf194039-b5bf-40df-b096-ee4f2f70f319",
   "prevId": "2ac34098-d942-4289-90c5-ad4d9424a217",
   "tables": {
     "mentor": {
@@ -214,6 +214,13 @@
         },
         "createdBy": {
           "name": "createdBy",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -254,6 +261,19 @@
           "tableTo": "sessionType",
           "columnsFrom": [
             "type"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "session_createdBy_user_id_fk": {
+          "name": "session_createdBy_user_id_fk",
+          "tableFrom": "session",
+          "tableTo": "user",
+          "columnsFrom": [
+            "createdBy"
           ],
           "columnsTo": [
             "id"
