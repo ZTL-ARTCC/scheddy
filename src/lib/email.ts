@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer, { type SendMailOptions } from 'nodemailer';
 import {
 	SMTP_HOST,
 	SMTP_PORT,
@@ -32,17 +32,33 @@ export function templateOut(src: string, data: Record<string, string>): string {
 	return out;
 }
 
+/**
+ * Send an email.
+ *
+ * The first 4 parameters are required; callers can optionally supply
+ * the `ics` parameter to include an .ics file in the email attachments.
+ */
 export async function sendEmail(
 	to: string,
 	subject: string,
 	plaintext: string,
-	html: string
+	html: string,
+	ics?: string
 ): Promise<SMTPTransport.SentMessageInfo> {
-	return emailTransporter.sendMail({
+	const options: SendMailOptions = {
 		from: SMTP_EMAIL_FROM,
 		to: to,
 		subject,
 		text: plaintext,
 		html
-	});
+	};
+	if (ics) {
+		options.attachments = [
+			{
+				filename: 'event.ics',
+				content: ics
+			}
+		];
+	}
+	return emailTransporter.sendMail(options);
 }
