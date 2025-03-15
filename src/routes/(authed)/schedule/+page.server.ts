@@ -12,17 +12,18 @@ import { sendEmail } from '$lib/email';
 import { new_session } from '$lib/emails/new_session';
 import { slottificate } from '$lib/slottificate';
 import { DateTime, Interval } from 'luxon';
-import { MAX_PENDING_SESSIONS, ARTCC_EMAIL_DOMAIN } from '$env/static/private';
+import { MAX_PENDING_SESSIONS, ARTCC_EMAIL_DOMAIN, BASE_URL } from '$env/static/private';
 import { PUBLIC_FACILITY_NAME } from '$env/static/public';
 import { z } from 'zod';
 import { superValidate, message, setError } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { getTimeZones } from '@vvo/tzdb';
+import * as ics from 'ics';
 
 export const load: PageServerLoad = async ({ cookies, url }) => {
 	const { user } = (await loadUserData(cookies))!;
 
-	const sTypes = (await db.select().from(sessionTypes));
+	const sTypes = await db.select().from(sessionTypes);
 	const mentors = await db
 		.select()
 		.from(users)
@@ -132,7 +133,7 @@ export const actions: Actions = {
 	default: async (event) => {
 		const { user } = (await loadUserData(event.cookies))!;
 
-		const sTypes = (await db.select().from(sessionTypes));
+		const sTypes = await db.select().from(sessionTypes);
 		const mentors = await db
 			.select()
 			.from(users)
@@ -241,10 +242,30 @@ export const actions: Actions = {
 				.set({
 					start: start.toISO(),
 					timezone: form.data.timezone,
-					mentor: slotObj.mentor,
+					mentor: slotObj.mentor
 				})
 				.where(eq(sessions.id, oldId));
 		}
+
+		const icsEvent = (await new Promise((res, rej) => {
+			const startUtc = start.setZone('utc');
+			ics.createEvent(
+				{
+					start: [startUtc.year, startUtc.month, startUtc.day, startUtc.hour, startUtc.minute],
+					startInputType: 'utc',
+					duration: { hours: Math.floor(duration / 60), minutes: duration % 60 },
+					title: `${PUBLIC_FACILITY_NAME} Training Session`,
+					description: `${typename} with ${mentor.firstName} ${mentor.lastName} and ${user.firstName} ${user.lastName}`,
+					url: BASE_URL
+				},
+				(err: any, val: any) => {
+					if (err) {
+						rej(err);
+					}
+					res(val);
+				}
+			);
+		})) as string;
 
 		try {
 			await sendEmail(
@@ -252,7 +273,8 @@ export const actions: Actions = {
 				'Appointment rescheduled - ' +
 					start.setZone(form.data.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 				studentEmailContent.raw,
-				studentEmailContent.html
+				studentEmailContent.html,
+				icsEvent
 			);
 
 			await sendEmail(
@@ -260,7 +282,8 @@ export const actions: Actions = {
 				'Session rescheduled - ' +
 					start.setZone(mentor.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 				mentorEmailContent.raw,
-				mentorEmailContent.html
+				mentorEmailContent.html,
+				icsEvent
 			);
 		} catch (e) {
 			console.error(e); // TODO: requeue these for later
