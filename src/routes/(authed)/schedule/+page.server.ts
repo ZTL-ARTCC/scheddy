@@ -202,6 +202,9 @@ export const actions: Actions = {
 		const id = ulid();
 
 		const oldId = event.url.searchParams.get('sessionId');
+		const oldMentor = oldId
+			? (await db.select({ mentor: sessions.mentor }).from(sessions).where(eq(sessions.id, oldId)))[0].mentor
+			: null;
 
 		const studentEmailContent = appointment_booked({
 			startTime: start.setZone(form.data.timezone),
@@ -243,7 +246,7 @@ export const actions: Actions = {
 				.set({
 					start: start.toISO(),
 					timezone: form.data.timezone,
-					mentor: slotObj.mentor,
+					mentor: slotObj.mentor
 				})
 				.where(eq(sessions.id, oldId));
 		}
@@ -251,7 +254,7 @@ export const actions: Actions = {
 		try {
 			await sendEmail(
 				user.email,
-				'Appointment rescheduled - ' +
+				`Appointment ${oldId ? 'rescheduled' : 'booked'} - ` +
 					start.setZone(form.data.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 				studentEmailContent.raw,
 				studentEmailContent.html
@@ -259,7 +262,7 @@ export const actions: Actions = {
 
 			await sendEmail(
 				mentor.email,
-				'Session rescheduled - ' +
+				`Session ${oldMentor === slotObj.mentor ? 'rescheduled' : 'booked'} - ` +
 					start.setZone(mentor.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 				mentorEmailContent.raw,
 				mentorEmailContent.html
