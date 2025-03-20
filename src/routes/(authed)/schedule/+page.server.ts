@@ -54,9 +54,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 	});
 
 	const schema = z.object({
-		sessionType: z
-			.enum(['', ...sTypes.map((u) => u.id)])
-			.refine((typ) => typ != '', 'No type specified'),
+		sessionType: z.enum(['', ...sTypes.map((u) => u.id)]),
 		slot: z.string(),
 		timezone: z.enum(timezones.map((u) => u.name))
 	});
