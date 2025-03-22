@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ROLE_MENTOR, ROLE_STAFF, ROLE_STUDENT } from '$lib/utils';
+	import { roleString } from '$lib/utils';
 	import type { AppointmentCanceledProps } from './appointment_canceled';
 	import { DateTime } from 'luxon';
 
@@ -12,20 +12,10 @@
 		timezone,
 		facilityName,
 		emailDomain,
-		cancelationReason,
-		cancelationUserLevel,
+		cancellationReason,
+		cancellationUserLevel,
 		student
-	}: AppointmentCanceledProps = $props();
-
-	let role = $state('');
-
-	if (cancelationUserLevel === ROLE_STUDENT) {
-		role = 'Student';
-	} else if (cancelationUserLevel === ROLE_MENTOR) {
-		role = 'Mentor';
-	} else if (cancelationUserLevel >= ROLE_STAFF) {
-		role = 'Staff';
-	}
+		}: AppointmentCanceledProps = $props();
 
 	let title = student ? 'Appointment' : 'Session'
 </script>
@@ -41,7 +31,7 @@
 
 <p>---</p>
 
-<p><b>Reason:</b> {role} Cancel - {cancelationReason}</p>
+<p><b>Reason:</b> {roleString(cancellationUserLevel)} Cancel - {cancellationReason}</p>
 
 <i>Confirmation ID {sessionId}</i>
 <i
