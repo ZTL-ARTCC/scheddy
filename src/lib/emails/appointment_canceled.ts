@@ -3,7 +3,6 @@ import { type EmailContent, templateOut } from '$lib/email';
 import plaintextTemplate from './AppointmentCanceled.txt';
 import AppointmentCanceled from './AppointmentCanceled.svelte';
 import { render } from 'svelte/server';
-import { roleString } from '$lib/utils';
 
 export interface AppointmentCanceledProps {
 	startTime: DateTime;
@@ -14,8 +13,8 @@ export interface AppointmentCanceledProps {
 	timezone: string;
 	facilityName: string;
 	emailDomain: string;
-	cancellationReason: string;
-	cancellationUserLevel: number;
+	cancelationReason: string;
+	cancelationUserLevel: number;
 	student: boolean;
 }
 
@@ -30,8 +29,8 @@ export function appointment_canceled(props: AppointmentCanceledProps): EmailCont
 			timezone: props.timezone,
 			facilityName: props.facilityName,
 			emailDomain: props.emailDomain,
-			cancellationReason: props.cancellationReason,
-			role: roleString(props.cancellationUserLevel)
+			cancelationReason: props.cancelationReason,
+			cancelationUserLevel: props.cancelationUserLevel.toString()
 		}),
 		html: render(AppointmentCanceled, {
 			props: props
