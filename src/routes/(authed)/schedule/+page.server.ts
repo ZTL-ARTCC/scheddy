@@ -1,6 +1,6 @@
 import type { PageServerLoad, Actions } from './$types';
 import { loadUserData } from '$lib/userInfo';
-import { ROLE_MENTOR, roleString } from '$lib/utils';
+import { ROLE_MENTOR, ROLE_STUDENT, roleString } from '$lib/utils';
 import { roleOf } from '$lib';
 import { db } from '$lib/server/db';
 import { sessions, sessionTypes, users } from '$lib/server/db/schema';
@@ -18,6 +18,7 @@ import { z } from 'zod';
 import { superValidate, message, setError } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { getTimeZones } from '@vvo/tzdb';
+import { appointment_canceled } from '$lib/emails/appointment_canceled';
 
 export const load: PageServerLoad = async ({ cookies, url }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -229,6 +230,20 @@ export const actions: Actions = {
 			emailDomain: ARTCC_EMAIL_DOMAIN
 		});
 
+		const oldMentorEmailContent = appointment_canceled({
+			startTime: start.setZone(mentor.timezone),
+			timezone: mentor.timezone,
+			studentName: user.firstName + ' ' + user.lastName,
+			duration,
+			sessionId: id,
+			type: typename,
+			facilityName: PUBLIC_FACILITY_NAME,
+			emailDomain: ARTCC_EMAIL_DOMAIN,
+			cancelationReason: 'Student Rescheduled',
+			cancelationUserLevel: ROLE_STUDENT,
+			student: true
+		});
+
 		if (oldId == undefined) {
 			await db.insert(sessions).values({
 				id,
@@ -267,6 +282,16 @@ export const actions: Actions = {
 				mentorEmailContent.raw,
 				mentorEmailContent.html
 			);
+
+			if (oldId != undefined && oldMentor !== slotObj.mentor) {
+				await sendEmail(
+					mentor.email,
+					'Session canceled - ' +
+						start.setZone(mentor.timezone).toLocaleString(DateTime.DATETIME_HUGE),
+					oldMentorEmailContent.raw,
+					oldMentorEmailContent.html
+				);
+			}
 		} catch (e) {
 			console.error(e); // TODO: requeue these for later
 		}
