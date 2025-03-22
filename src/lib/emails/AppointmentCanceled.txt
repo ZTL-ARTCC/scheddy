@@ -1,0 +1,16 @@
+Appointment canceled
+-------------------
+
+This session has been canceled.
+-- Session type:  {type}
+-- Date/time:     {startTime}
+-- Timezone:      {timezone}
+-- Duration:      {duration} minutes
+-- Mentor:        {mentorName}
+
+---
+
+Reason: {role} Cancel - {cancelationReason}
+
+Confirmation ID {sessionId}.
+You are receiving this email because you have booked a session with the {facilityName}. If you believe to have received this email in error, please contact wm@{emailDomain}.

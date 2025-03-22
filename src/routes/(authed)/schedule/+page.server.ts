@@ -1,13 +1,14 @@
 import type { PageServerLoad, Actions } from './$types';
 import { loadUserData } from '$lib/userInfo';
-import { ROLE_MENTOR, roleString } from '$lib/utils';
+import { ROLE_MENTOR, ROLE_STUDENT, roleString } from '$lib/utils';
 import { roleOf } from '$lib';
 import { db } from '$lib/server/db';
-import { sessions, sessionTypes, users } from '$lib/server/db/schema';
+import { sessions, sessionTypes, users, mentors } from '$lib/server/db/schema';
 import { eq, gte, or } from 'drizzle-orm';
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import { ulid } from 'ulid';
 import { appointment_booked } from '$lib/emails/appointment_booked';
+import { appointment_canceled } from '$lib/emails/appointment_canceled';
 import { sendEmail } from '$lib/email';
 import { new_session } from '$lib/emails/new_session';
 import { slottificate } from '$lib/slottificate';
@@ -24,7 +25,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 	const { user } = (await loadUserData(cookies))!;
 
 	const sTypes = await db.select().from(sessionTypes);
-	const mentors = await db
+	const mMentors = await db
 		.select()
 		.from(users)
 		.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)));
@@ -76,7 +77,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		slotData = {};
 		atMaxSessions = true;
 	} else {
-		slotData = slottificate(sTypes, mentors, allSessions);
+		slotData = slottificate(sTypes, mMentors, allSessions);
 		atMaxSessions = false;
 	}
 
@@ -132,13 +133,13 @@ export const actions: Actions = {
 		const { user } = (await loadUserData(event.cookies))!;
 
 		const sTypes = await db.select().from(sessionTypes);
-		const mentors = await db
+		const mMentors = await db
 			.select()
 			.from(users)
 			.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)));
 		const allSessions = await db.select().from(sessions);
 
-		const slotData = slottificate(sTypes, mentors, allSessions);
+		const slotData = slottificate(sTypes, mMentors, allSessions);
 
 		const timezones = getTimeZones();
 
@@ -202,7 +203,15 @@ export const actions: Actions = {
 
 		const oldId = event.url.searchParams.get('sessionId');
 		const oldMentor = oldId
-			? (await db.select({ mentor: sessions.mentor }).from(sessions).where(eq(sessions.id, oldId)))[0].mentor
+			? (
+					await db
+						.select({
+							mentor: mentors
+						})
+						.from(sessions)
+						.innerJoin(mentors, eq(sessions.mentor, mentors.id))
+						.where(eq(sessions.id, oldId))
+				)[0]?.mentor
 			: null;
 
 		const studentEmailContent = appointment_booked({
@@ -288,6 +297,30 @@ export const actions: Actions = {
 				mentorEmailContent.html,
 				icsEvent
 			);
+
+			if (oldId && oldMentor && oldMentor?.id !== slotObj.mentor) {
+				const oldMentorEmailContent = appointment_canceled({
+					startTime: start.setZone(oldMentor.timezone),
+					type: typename,
+					duration,
+					mentorName: oldMentor.firstName + ' ' + oldMentor.lastName,
+					sessionId: oldId,
+					timezone: oldMentor.timezone,
+					facilityName: PUBLIC_FACILITY_NAME,
+					emailDomain: ARTCC_EMAIL_DOMAIN,
+					cancelationReason: 'Student Rescheduled',
+					cancelationUserLevel: ROLE_STUDENT,
+					student: false
+				});
+
+				await sendEmail(
+					oldMentor.email,
+					'Session canceled - ' +
+						start.setZone(mentor.timezone).toLocaleString(DateTime.DATETIME_HUGE),
+					oldMentorEmailContent.raw,
+					oldMentorEmailContent.html
+				);
+			}
 		} catch (e) {
 			console.error(e); // TODO: requeue these for later
 		}
