@@ -6,7 +6,8 @@ import { db } from '$lib/server/db';
 import { mentors, sessions, sessionTypes, students } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
-import { appointment_canceled } from '$lib/emails/appointment_canceled';
+import { appointment_canceled } from '$lib/emails/student/appointment_canceled';
+import { session_canceled } from '$lib/emails/mentor/session_canceled';
 import { sendEmail } from '$lib/email';
 import { ARTCC_EMAIL_DOMAIN } from '$env/static/private';
 import { PUBLIC_FACILITY_NAME } from '$env/static/public';
@@ -63,21 +64,31 @@ export const actions: Actions = {
 
 		const reason = (await request.formData()).get('reason');
 
-		const emailContent = {
+		const studentEmailContent = appointment_canceled({
 			startTime: DateTime.fromISO(sessionAndFriends.session.start),
 			timezone: sessionAndFriends.session.timezone,
-			mentorName: sessionAndFriends.mentor.firstName + ' ' + sessionAndFriends.mentor.lastName,
 			duration: sessionAndFriends.sessionType?.length,
+			mentorName: sessionAndFriends.mentor.firstName + ' ' + sessionAndFriends.mentor.lastName,
 			sessionId: params.sessionId,
 			type: sessionAndFriends.sessionType?.name,
 			facilityName: PUBLIC_FACILITY_NAME,
 			emailDomain: ARTCC_EMAIL_DOMAIN,
-			cancelationReason: reason ? reason : 'Not Specified',
-			cancelationUserLevel: user.role
-		};
+			cancellationReason: reason ? reason.toString() : 'Not Specified',
+			cancellationUserLevel: user.role
+		});
 
-		const studentEmailContent = appointment_canceled({ ...emailContent, student: true });
-		const mentorEmailContent = appointment_canceled({ ...emailContent, student: false });
+		const mentorEmailContent = session_canceled({
+			startTime: DateTime.fromISO(sessionAndFriends.session.start),
+			timezone: sessionAndFriends.mentor.timezone,
+			duration: sessionAndFriends.sessionType?.length,
+			studentName: sessionAndFriends.student.firstName + ' ' + sessionAndFriends.student.lastName,
+			sessionId: params.sessionId,
+			type: sessionAndFriends.sessionType?.name,
+			facilityName: PUBLIC_FACILITY_NAME,
+			emailDomain: ARTCC_EMAIL_DOMAIN,
+			cancellationReason: reason ? reason.toString() : 'Not Specified',
+			cancellationUserLevel: user.role
+		});
 
 		try {
 			await sendEmail(
@@ -93,7 +104,7 @@ export const actions: Actions = {
 				sessionAndFriends.mentor.email,
 				'Session canceled - ' +
 					DateTime.fromISO(sessionAndFriends.session.start)
-						.setZone(sessionAndFriends.session.timezone)
+						.setZone(sessionAndFriends.mentor.timezone)
 						.toLocaleString(DateTime.DATETIME_HUGE),
 				mentorEmailContent.raw,
 				mentorEmailContent.html

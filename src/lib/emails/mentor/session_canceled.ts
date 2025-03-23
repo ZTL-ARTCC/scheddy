@@ -1,31 +1,30 @@
 import { DateTime } from 'luxon';
 import { type EmailContent, templateOut } from '$lib/email';
-import plaintextTemplate from './AppointmentCanceled.txt';
-import AppointmentCanceled from './AppointmentCanceled.svelte';
+import plaintextTemplate from './SessionCanceled.txt';
+import SessionCanceled from './SessionCanceled.svelte';
 import { render } from 'svelte/server';
 import { roleString } from '$lib/utils';
 
-export interface AppointmentCanceledProps {
+export interface SessionCanceledProps {
 	startTime: DateTime;
 	type: string;
 	duration: number;
-	mentorName: string;
+	studentName: string;
 	sessionId: string;
 	timezone: string;
 	facilityName: string;
 	emailDomain: string;
 	cancellationReason: string;
 	cancellationUserLevel: number;
-	student: boolean;
 }
 
-export function appointment_canceled(props: AppointmentCanceledProps): EmailContent {
+export function session_canceled(props: SessionCanceledProps): EmailContent {
 	return {
 		raw: templateOut(plaintextTemplate, {
 			startTime: props.startTime.setZone(props.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 			type: props.type,
 			duration: props.duration.toString(),
-			mentorName: props.mentorName,
+			studentName: props.studentName,
 			sessionId: props.sessionId,
 			timezone: props.timezone,
 			facilityName: props.facilityName,
@@ -33,7 +32,7 @@ export function appointment_canceled(props: AppointmentCanceledProps): EmailCont
 			cancellationReason: props.cancellationReason,
 			role: roleString(props.cancellationUserLevel)
 		}),
-		html: render(AppointmentCanceled, {
+		html: render(SessionCanceled, {
 			props: props
 		}).body
 	};

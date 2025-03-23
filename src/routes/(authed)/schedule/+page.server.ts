@@ -3,14 +3,14 @@ import { loadUserData } from '$lib/userInfo';
 import { ROLE_MENTOR, ROLE_STUDENT, roleString } from '$lib/utils';
 import { roleOf } from '$lib';
 import { db } from '$lib/server/db';
-import { sessions, sessionTypes, users, mentors } from '$lib/server/db/schema';
+import { sessions, sessionTypes, users } from '$lib/server/db/schema';
 import { eq, gte, or } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import { ulid } from 'ulid';
-import { appointment_booked } from '$lib/emails/appointment_booked';
-import { appointment_canceled } from '$lib/emails/appointment_canceled';
+import { appointment_booked } from '$lib/emails/student/appointment_booked';
+import { session_canceled } from '$lib/emails/mentor/session_canceled';
 import { sendEmail } from '$lib/email';
-import { new_session } from '$lib/emails/new_session';
+import { new_session } from '$lib/emails/mentor/new_session';
 import { slottificate } from '$lib/slottificate';
 import { DateTime, Interval } from 'luxon';
 import { MAX_PENDING_SESSIONS, ARTCC_EMAIL_DOMAIN, BASE_URL } from '$env/static/private';
@@ -202,16 +202,13 @@ export const actions: Actions = {
 		const id = ulid();
 
 		const oldId = event.url.searchParams.get('sessionId');
-		const oldMentor = oldId
-			? (
-					await db
-						.select({
-							mentor: mentors
-						})
-						.from(sessions)
-						.innerJoin(mentors, eq(sessions.mentor, mentors.id))
-						.where(eq(sessions.id, oldId))
-				)[0]?.mentor
+		const oldSession = allSessions.find((s) => s.id === oldId);
+		const oldSessionData = oldId
+			? {
+					session: oldSession,
+					mentor: mMentors.find((m) => m.id === oldSession?.mentor),
+					student: (await db.select().from(users).where(eq(users.id, oldSession?.student)))[0]
+				}
 			: null;
 
 		const studentEmailContent = appointment_booked({
@@ -291,32 +288,35 @@ export const actions: Actions = {
 
 			await sendEmail(
 				mentor.email,
-				`Session ${oldMentor === slotObj.mentor ? 'rescheduled' : 'booked'} - ` +
+				`Session ${oldSessionData?.mentor?.id === slotObj.mentor ? 'rescheduled' : 'booked'} - ` +
 					start.setZone(mentor.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 				mentorEmailContent.raw,
 				mentorEmailContent.html,
 				icsEvent
 			);
 
-			if (oldId && oldMentor && oldMentor?.id !== slotObj.mentor) {
-				const oldMentorEmailContent = appointment_canceled({
-					startTime: start.setZone(oldMentor.timezone),
+			if (oldSessionData && oldSessionData.mentor?.id !== slotObj.mentor) {
+				const oldMentorEmailContent = session_canceled({
+					startTime: DateTime.fromISO(oldSessionData.session?.start).setZone(
+						oldSessionData.mentor.timezone
+					),
 					type: typename,
 					duration,
-					mentorName: oldMentor.firstName + ' ' + oldMentor.lastName,
+					studentName: oldSessionData.student.firstName + ' ' + oldSessionData.student.lastName,
 					sessionId: oldId,
-					timezone: oldMentor.timezone,
+					timezone: oldSessionData.mentor?.timezone,
 					facilityName: PUBLIC_FACILITY_NAME,
 					emailDomain: ARTCC_EMAIL_DOMAIN,
-					cancelationReason: 'Student Rescheduled',
-					cancelationUserLevel: ROLE_STUDENT,
-					student: false
+					cancellationReason: 'Student Rescheduled',
+					cancellationUserLevel: ROLE_STUDENT
 				});
 
 				await sendEmail(
-					oldMentor.email,
+					oldSessionData.mentor.email,
 					'Session canceled - ' +
-						start.setZone(mentor.timezone).toLocaleString(DateTime.DATETIME_HUGE),
+						DateTime.fromISO(oldSessionData.session?.start)
+							.setZone(oldSessionData.mentor.timezone)
+							.toLocaleString(DateTime.DATETIME_HUGE),
 					oldMentorEmailContent.raw,
 					oldMentorEmailContent.html
 				);

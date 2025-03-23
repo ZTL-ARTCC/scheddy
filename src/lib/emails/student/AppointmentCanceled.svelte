@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { AppointmentBookedProps } from '$lib/emails/appointment_booked';
+	import { roleString } from '$lib/utils';
+	import type { AppointmentCanceledProps } from './appointment_canceled';
 	import { DateTime } from 'luxon';
-	import { BASE_URL } from '$env/static/private';
 
 	let {
 		startTime,
@@ -10,27 +10,25 @@
 		sessionId,
 		type,
 		timezone,
-		link_params,
-		reschedule,
 		facilityName,
-		emailDomain
-	}: AppointmentBookedProps = $props();
-
-	let reschedule_link = `${BASE_URL}schedule${link_params}`;
-	let title = reschedule ? 'Appointment updated' : 'Appointment booked';
+		emailDomain,
+		cancellationReason,
+		cancellationUserLevel
+	}: AppointmentCanceledProps = $props();
 </script>
 
-<h1>{title}</h1>
+<h1>Appointment Canceled</h1>
 
-<p>This is your confirmation email for your upcoming session.</p>
+<p>This session has been canceled.</p>
 <p><b>Session type:</b> {type}</p>
 <p><b>Date/time:</b> {startTime.setZone(timezone).toLocaleString(DateTime.DATETIME_HUGE)}</p>
 <p><b>Timezone:</b> {timezone}</p>
 <p><b>Duration:</b> {duration} minutes</p>
 <p><b>Mentor:</b> {mentorName}</p>
-<a href={reschedule_link}>Cancel/Reschedule</a>
 
 <p>---</p>
+
+<p><b>Reason:</b> {roleString(cancellationUserLevel)} Cancel - {cancellationReason}</p>
 
 <i>Confirmation ID {sessionId}</i>
 <i

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { AppointmentBookedProps } from '$lib/emails/appointment_booked';
+	import type { AppointmentBookedProps } from "./appointment_booked";
 	import { DateTime } from 'luxon';
 
 	let {

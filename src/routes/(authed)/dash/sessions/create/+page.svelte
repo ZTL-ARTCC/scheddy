@@ -16,12 +16,11 @@
 		parseDate,
 		today
 	} from '@internationalized/date';
-	import { cn, ROLE_STAFF } from '$lib/utils';
+	import { cn } from '$lib/utils';
 	import { Calendar } from '$lib/components/ui/calendar';
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select';
 	import UserSelector from '$lib/ui/UserSelector.svelte';
-	import { roleOf } from '$lib';
 	import type { DayAvailability, MentorAvailability } from '$lib/availability';
 
 	interface Props {

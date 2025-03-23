@@ -3,7 +3,7 @@ import { sessions, sessionTypes, students, mentors } from '$lib/server/db/schema
 import { eq } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { sendEmail } from '$lib/email';
-import { reminder } from '$lib/emails/reminder';
+import { reminder } from '$lib/emails/student/reminder';
 import { PUBLIC_FACILITY_NAME } from '$env/static/public';
 import { ARTCC_EMAIL_DOMAIN } from '$env/static/private';
 

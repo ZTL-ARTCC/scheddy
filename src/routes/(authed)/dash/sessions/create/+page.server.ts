@@ -11,12 +11,12 @@ import { fail, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { createSchema } from './createSchema';
 import { ulid } from 'ulid';
-import { appointment_booked } from '$lib/emails/appointment_booked';
+import { appointment_booked } from '$lib/emails/student/appointment_booked';
 import { PUBLIC_FACILITY_NAME } from '$env/static/public';
 import { ARTCC_EMAIL_DOMAIN } from "$env/static/private";
 import { sendEmail } from '$lib/email';
 import { getTimeZones } from '@vvo/tzdb';
-import { new_session } from '$lib/emails/new_session';
+import { new_session } from '$lib/emails/mentor/new_session';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
