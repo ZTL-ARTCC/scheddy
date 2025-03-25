@@ -21,7 +21,7 @@ export function new_session(props: NewSessionProps): EmailContent {
 			startTime: props.startTime.setZone(props.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 			type: props.type,
 			duration: props.duration.toString(),
-			studentName: props.mentorName,
+			studentName: props.studentName,
 			sessionId: props.sessionId,
 			timezone: props.timezone,
 			facilityName: props.facilityName,

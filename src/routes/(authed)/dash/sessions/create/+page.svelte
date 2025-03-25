@@ -3,7 +3,7 @@
 	import { DateTime, Interval } from 'luxon';
 	import { goto } from '$app/navigation';
 	import { CalendarIcon, LoaderCircleIcon } from 'lucide-svelte';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import { buttonVariants } from '$lib/components/ui/button';
 	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms';
 	import * as Popover from '$lib/components/ui/popover';
@@ -44,6 +44,8 @@
 	});
 	let date = $state<DateValue | undefined>();
 
+	let mentorTimezone = $state(data.mentorsMap[$formData.mentor].timezone);
+
 	const availableInterval = (
 		mentorAvailability: DayAvailability,
 		sessionStart: DateTime,
@@ -69,6 +71,10 @@
 	};
 
 	const isMentorAvailable = $derived.by(() => {
+		if (!data.mentorsMap[$formData.mentor]) return false;
+		if (!Object.keys(data.mentorsMap[$formData.mentor]).includes('availability')) return false;
+		if (Object.keys(data.typesMap).length === 0) return false;
+
 		const availability: MentorAvailability | null = data.mentorsMap[$formData.mentor].availability
 			? JSON.parse(data.mentorsMap[$formData.mentor].availability as string)
 			: null;
@@ -76,7 +82,7 @@
 		if (!availability) return false;
 
 		const s_date = DateTime.fromISO($formData.date, {
-			zone: data.usersMap[$formData.student].timezone
+			zone: mentorTimezone
 		});
 
 		const start = s_date.set({ hour: $formData.hour, minute: $formData.minute });
@@ -129,14 +135,27 @@
 <form
 	class="flex flex-col gap-2 max-w-sm"
 	method="POST"
-	action={`?timezone=${data.usersMap[$formData.student].timezone}`}
+	action={`?timezone=${mentorTimezone}`}
 	use:enhance
 >
-	<p class="text-sm text-muted-foreground">
-		Enter all dates and times in {data.usersMap[$formData.student].timezone}, where it's currently {DateTime.now()
-			.setZone(data.usersMap[$formData.student].timezone)
-			.toLocaleString(DateTime.TIME_SIMPLE)}
-	</p>
+	<div class="flex flex-row mb-4">
+		<p class="text-sm text-muted-foreground">
+			Enter all dates and times in {mentorTimezone}, where it's currently {DateTime.now()
+				.setZone(mentorTimezone)
+				.toLocaleString(DateTime.TIME_SIMPLE)}
+		</p>
+		<Select.Root type="single" bind:value={mentorTimezone} name={mentorTimezone}>
+			<Select.Trigger>
+				{mentorTimezone}
+			</Select.Trigger>
+			<Select.Content>
+				{#each data.timezones as timezone}
+					{@const label = timezone.name}
+					<Select.Item value={timezone.name} {label}>{label}</Select.Item>
+				{/each}
+			</Select.Content>
+		</Select.Root>
+	</div>
 
 	<Form.Field {form} name="date" class="flex flex-col">
 		<Form.Control>
@@ -258,7 +277,9 @@
 			{/if}
 		</Form.Button>
 	{:else}
-		<Form.Button type="button" onclick={() => (dialogOpen = true)}>Create Session</Form.Button>
+		<Form.Button type="button" onclick={() => (dialogOpen = true)} disabled={$formData.type === ''}>
+			Create Session
+		</Form.Button>
 	{/if}
 
 	<Dialog.Root open={dialogOpen} onOpenChange={() => (dialogOpen = !dialogOpen)}>

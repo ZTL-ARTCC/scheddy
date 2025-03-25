@@ -14,6 +14,8 @@ import { ulid } from 'ulid';
 import { appointment_booked } from '$lib/emails/appointment_booked';
 import { PUBLIC_FACILITY_NAME, ARTCC_EMAIL_DOMAIN } from '$env/static/public';
 import { sendEmail } from '$lib/email';
+import { getTimeZones } from '@vvo/tzdb';
+import { new_session } from '$lib/emails/new_session';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -45,7 +47,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		date: DateTime.now().toISODate(),
 		hour: DateTime.now().hour,
 		minute: DateTime.now().minute,
-		type: sTypes[0].id,
+		type: sTypes.length === 0 ? "" : sTypes[0].id,
 		mentor: user.id,
 		student: u_users[0].id
 	};
@@ -55,7 +57,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	let dmentors: (typeof users.$inferSelect)[];
 
 	if (roleOf(user) >= ROLE_STAFF) {
-		dmentors = u_users.filter((u) => u.role >= ROLE_MENTOR);
+		dmentors = u_users.filter((u) => roleOf(u) >= ROLE_MENTOR);
 	} else {
 		dmentors = [user];
 	}
@@ -77,13 +79,24 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		};
 	}
 
-	const usersMap: Record<number, { name: string; timezone: string }> = {};
+	const usersMap: Record<number, { name: string }> = {};
 	for (const user of u_users) {
-		usersMap[user.id] = {
-			name: user.firstName + ' ' + user.lastName,
-			timezone: user.timezone
-		};
+		usersMap[user.id] = { name: user.firstName + ' ' + user.lastName };
 	}
+
+	const timezones = getTimeZones();
+	timezones.sort((a, b) => {
+		const nameA = a.name.toUpperCase();
+		const nameB = b.name.toUpperCase();
+		if (nameA < nameB) {
+			return -1;
+		}
+		if (nameA > nameB) {
+			return 1;
+		}
+
+		return 0;
+	});
 
 	return {
 		breadcrumbs: [
@@ -94,7 +107,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		form,
 		typesMap,
 		mentorsMap,
-		usersMap
+		usersMap,
+		timezones
 	};
 };
 
@@ -131,13 +145,14 @@ export const actions: Actions = {
 			createdAt: DateTime.now().toISO()
 		});
 
-		const mentorName = await db.select().from(users).where(eq(users.id, form.data.mentor));
+		const mentor = await db.select().from(users).where(eq(users.id, form.data.mentor));
+		const student = await db.select().from(users).where(eq(users.id, form.data.student))
 		const type = await db.select().from(sessionTypes).where(eq(sessionTypes.id, form.data.type));
 
 		const studentEmailContent = appointment_booked({
 			startTime: date,
 			timezone: event.url.searchParams.get('timezone'),
-			mentorName: mentorName[0].firstName + ' ' + mentorName[0].lastName,
+			mentorName: mentor[0].firstName + ' ' + mentor[0].lastName,
 			duration: type[0].length,
 			sessionId: id,
 			type: type[0].name,
@@ -147,15 +162,36 @@ export const actions: Actions = {
 			emailDomain: ARTCC_EMAIL_DOMAIN
 		});
 
+		const mentorEmailContent = new_session({
+			startTime: date,
+			timezone: event.url.searchParams.get('timezone'),
+			studentName: student[0].firstName + ' ' + student[0].lastName,
+			duration: type[0].length,
+			sessionId: id,
+			type: type[0].name,
+			facilityName: PUBLIC_FACILITY_NAME,
+			emailDomain: ARTCC_EMAIL_DOMAIN
+		});
+
 		try {
 			await sendEmail(
-				user.email,
+				student[0].email,
 				'Appointment booked - ' +
 					date
 						.setZone(event.url.searchParams.get('timezone'))
 						.toLocaleString(DateTime.DATETIME_HUGE),
 				studentEmailContent.raw,
 				studentEmailContent.html
+			);
+
+			await sendEmail(
+				mentor[0].email,
+				'Session booked - ' +
+					date
+						.setZone(event.url.searchParams.get('timezone'))
+						.toLocaleString(DateTime.DATETIME_HUGE),
+				mentorEmailContent.raw,
+				mentorEmailContent.html
 			);
 		} catch (e) {
 			console.error(e);
