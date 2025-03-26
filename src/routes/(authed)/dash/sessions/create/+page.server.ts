@@ -43,17 +43,6 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
 	const u_users = await db.select().from(users);
 
-	const data = {
-		date: DateTime.now().toISODate(),
-		hour: DateTime.now().hour,
-		minute: DateTime.now().minute,
-		type: sTypes.length === 0 ? "" : sTypes[0].id,
-		mentor: user.id,
-		student: u_users[0].id
-	};
-
-	const form = await superValidate(data, zod(createSchema));
-
 	let dmentors: (typeof users.$inferSelect)[];
 
 	if (roleOf(user) >= ROLE_STAFF) {
@@ -75,7 +64,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		mentorsMap[user.id] = {
 			name: user.firstName + ' ' + user.lastName,
 			availability: user.mentorAvailability,
-			timezone: user.timezone
+			timezone: user.timezone ?? "America/New York"
 		};
 	}
 
@@ -83,6 +72,18 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	for (const user of u_users) {
 		usersMap[user.id] = { name: user.firstName + ' ' + user.lastName };
 	}
+
+	const data: typeof createSchema._type = {
+		date: DateTime.now().toISODate(),
+		hour: DateTime.now().hour,
+		minute: DateTime.now().minute,
+		type: sTypes.length === 0 ? '' : sTypes[0].id,
+		mentor: user.id,
+		student: u_users[0].id,
+		timezone: mentorsMap[user.id].timezone
+	};
+
+	const form = await superValidate(data, zod(createSchema));
 
 	const timezones = getTimeZones();
 	timezones.sort((a, b) => {
@@ -125,7 +126,7 @@ export const actions: Actions = {
 			return fail(400, { form });
 		}
 
-		let date = DateTime.fromISO(form.data.date, { zone: event.url.searchParams.get('timezone') });
+		let date = DateTime.fromISO(form.data.date, { zone: form.data.timezone });
 
 		date = date.set({
 			hour: form.data.hour,
@@ -140,18 +141,18 @@ export const actions: Actions = {
 			student: form.data.student,
 			start: date.toString(),
 			type: form.data.type,
-			timezone: event.url.searchParams.get('timezone'),
+			timezone: form.data.timezone,
 			createdBy: user.id,
 			createdAt: DateTime.now().toISO()
 		});
 
 		const mentor = await db.select().from(users).where(eq(users.id, form.data.mentor));
-		const student = await db.select().from(users).where(eq(users.id, form.data.student))
+		const student = await db.select().from(users).where(eq(users.id, form.data.student));
 		const type = await db.select().from(sessionTypes).where(eq(sessionTypes.id, form.data.type));
 
 		const studentEmailContent = appointment_booked({
 			startTime: date,
-			timezone: event.url.searchParams.get('timezone'),
+			timezone: form.data.timezone,
 			mentorName: mentor[0].firstName + ' ' + mentor[0].lastName,
 			duration: type[0].length,
 			sessionId: id,
@@ -164,7 +165,7 @@ export const actions: Actions = {
 
 		const mentorEmailContent = new_session({
 			startTime: date,
-			timezone: event.url.searchParams.get('timezone'),
+			timezone: form.data.timezone,
 			studentName: student[0].firstName + ' ' + student[0].lastName,
 			duration: type[0].length,
 			sessionId: id,
@@ -178,7 +179,7 @@ export const actions: Actions = {
 				student[0].email,
 				'Appointment booked - ' +
 					date
-						.setZone(event.url.searchParams.get('timezone'))
+						.setZone(form.data.timezone)
 						.toLocaleString(DateTime.DATETIME_HUGE),
 				studentEmailContent.raw,
 				studentEmailContent.html
@@ -188,7 +189,7 @@ export const actions: Actions = {
 				mentor[0].email,
 				'Session booked - ' +
 					date
-						.setZone(event.url.searchParams.get('timezone'))
+						.setZone(form.data.timezone)
 						.toLocaleString(DateTime.DATETIME_HUGE),
 				mentorEmailContent.raw,
 				mentorEmailContent.html

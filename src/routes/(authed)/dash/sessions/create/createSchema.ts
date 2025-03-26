@@ -6,5 +6,6 @@ export const createSchema = z.object({
 	minute: z.coerce.number(),
 	type: z.string(),
 	mentor: z.coerce.number(),
-	student: z.coerce.number()
+	student: z.coerce.number(),
+	timezone: z.string()
 });

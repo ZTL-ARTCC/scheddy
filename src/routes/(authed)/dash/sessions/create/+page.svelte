@@ -44,8 +44,6 @@
 	});
 	let date = $state<DateValue | undefined>();
 
-	let mentorTimezone = $state(data.mentorsMap[$formData.mentor].timezone);
-
 	const availableInterval = (
 		mentorAvailability: DayAvailability,
 		sessionStart: DateTime,
@@ -82,7 +80,7 @@
 		if (!availability) return false;
 
 		const s_date = DateTime.fromISO($formData.date, {
-			zone: mentorTimezone
+			zone: $formData.timezone
 		});
 
 		const start = s_date.set({ hour: $formData.hour, minute: $formData.minute });
@@ -132,29 +130,31 @@
 
 <h2 class="text-xl font-semibold">Create Session</h2>
 
-<form
-	class="flex flex-col gap-2 max-w-sm"
-	method="POST"
-	action={`?timezone=${mentorTimezone}`}
-	use:enhance
->
+<form class="flex flex-col gap-2 max-w-sm" method="POST" use:enhance>
 	<div class="flex flex-row mb-4">
 		<p class="text-sm text-muted-foreground">
-			Enter all dates and times in {mentorTimezone}, where it's currently {DateTime.now()
-				.setZone(mentorTimezone)
+			Enter all dates and times in {$formData.timezone}, where it's currently {DateTime.now()
+				.setZone($formData.timezone)
 				.toLocaleString(DateTime.TIME_SIMPLE)}
 		</p>
-		<Select.Root type="single" bind:value={mentorTimezone} name={mentorTimezone}>
-			<Select.Trigger>
-				{mentorTimezone}
-			</Select.Trigger>
-			<Select.Content>
-				{#each data.timezones as timezone}
-					{@const label = timezone.name}
-					<Select.Item value={timezone.name} {label}>{label}</Select.Item>
-				{/each}
-			</Select.Content>
-		</Select.Root>
+		<Form.Field {form} name="timezone">
+			<Form.Control>
+				{#snippet children({ props })}
+					<Select.Root type="single" bind:value={$formData.timezone} name={props.name}>
+						<Select.Trigger {...props}>
+							{$formData.timezone ? $formData.timezone : 'Select a timezone'}
+						</Select.Trigger>
+						<Select.Content>
+							{#each data.timezones as timezone}
+								{@const label = timezone.name}
+								<Select.Item value={timezone.name} {label}>{label}</Select.Item>
+							{/each}
+						</Select.Content>
+					</Select.Root>
+				{/snippet}
+			</Form.Control>
+			<Form.FieldErrors />
+		</Form.Field>
 	</div>
 
 	<Form.Field {form} name="date" class="flex flex-col">
@@ -264,9 +264,7 @@
 		bind:value={$formData.mentor}
 	/>
 
-	{#if roleOf(data.user) >= ROLE_STAFF}
-		<UserSelector label="Student" {form} {usersMap} name="student" bind:value={$formData.student} />
-	{/if}
+	<UserSelector label="Student" {form} {usersMap} name="student" bind:value={$formData.student} />
 
 	{#if isMentorAvailable}
 		<Form.Button>
@@ -277,7 +275,7 @@
 			{/if}
 		</Form.Button>
 	{:else}
-		<Form.Button type="button" onclick={() => (dialogOpen = true)} disabled={$formData.type === ''}>
+		<Form.Button type="button" onclick={() => (dialogOpen = true)} hidden={$formData.type === ''}>
 			Create Session
 		</Form.Button>
 	{/if}
