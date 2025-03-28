@@ -230,6 +230,7 @@ export const actions: Actions = {
 			duration,
 			sessionId: id,
 			type: typename,
+			reschedule: oldId != undefined,
 			facilityName: PUBLIC_FACILITY_NAME,
 			emailDomain: ARTCC_EMAIL_DOMAIN
 		});
@@ -295,7 +296,7 @@ export const actions: Actions = {
 				icsEvent
 			);
 
-			if (oldSessionData && oldSessionData.mentor?.id !== slotObj.mentor) {
+			if (oldSessionData && oldSessionData.mentor && oldSessionData.mentor?.id !== slotObj.mentor) {
 				const oldMentorEmailContent = session_canceled({
 					startTime: DateTime.fromISO(oldSessionData.session?.start).setZone(
 						oldSessionData.mentor.timezone

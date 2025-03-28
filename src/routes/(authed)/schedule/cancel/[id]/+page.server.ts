@@ -3,7 +3,7 @@ import { loadUserData } from '$lib/userInfo';
 import { ROLE_STUDENT, roleString } from '$lib/utils';
 import { roleOf } from '$lib';
 import { db } from '$lib/server/db';
-import { mentors, sessions, sessionTypes, users } from '$lib/server/db/schema';
+import { mentors, sessions, sessionTypes, users, userTokens } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { redirect } from '@sveltejs/kit';
 import { appointment_canceled } from '$lib/emails/student/appointment_canceled';
@@ -31,17 +31,7 @@ export const actions: Actions = {
 
 		const sessionData = (
 			await db
-				.select({
-					session: sessions,
-					mentorFirstName: mentors.firstName,
-					mentorLastName: mentors.lastName,
-					studentFirstName: users.firstName,
-					studentLastName: users.lastName,
-					mentorEmail: mentors.email,
-					mentorTimezone: mentors.timezone,
-					sTypeName: sessionTypes.name,
-					sTypeDuration: sessionTypes.length
-				})
+				.select()
 				.from(sessions)
 				.leftJoin(mentors, eq(sessions.mentor, mentors.id))
 				.leftJoin(users, eq(sessions.student, users.id))
@@ -56,10 +46,10 @@ export const actions: Actions = {
 		const studentEmailContent = appointment_canceled({
 			startTime: DateTime.fromISO(sessionData.session.start),
 			timezone: sessionData.session.timezone,
-			mentorName: sessionData.mentorFirstName + ' ' + sessionData.mentorLastName,
-			duration: sessionData.sTypeDuration,
+			mentorName: sessionData.mentor?.firstName + ' ' + sessionData.mentor?.lastName,
+			duration: sessionData.sessionType?.length ?? 0,
 			sessionId: sessionData.session.id,
-			type: sessionData.sTypeName,
+			type: sessionData.sessionType?.name ?? 'No Type',
 			facilityName: PUBLIC_FACILITY_NAME,
 			emailDomain: ARTCC_EMAIL_DOMAIN,
 			cancellationReason: 'Not Specified',
@@ -68,11 +58,11 @@ export const actions: Actions = {
 
 		const mentorEmailContent = session_canceled({
 			startTime: DateTime.fromISO(sessionData.session.start),
-			timezone: sessionData.mentorTimezone,
-			studentName: sessionData.studentFirstName + ' ' + sessionData.studentLastName,
-			duration: sessionData.sTypeDuration,
+			timezone: sessionData.mentor?.timezone ?? 'America/New York',
+			studentName: sessionData.user?.firstName + ' ' + sessionData.user?.firstName,
+			duration: sessionData.sessionType?.length ?? 0,
 			sessionId: sessionData.session.id,
-			type: sessionData.sTypeName,
+			type: sessionData.sessionType?.name ?? 'No Type',
 			facilityName: PUBLIC_FACILITY_NAME,
 			emailDomain: ARTCC_EMAIL_DOMAIN,
 			cancellationReason: 'Not Specified',
@@ -81,7 +71,7 @@ export const actions: Actions = {
 
 		try {
 			await sendEmail(
-				user.email,
+				sessionData.user?.email,
 				'Appointment canceled - ' +
 					DateTime.fromISO(sessionData.session.start)
 						.setZone(sessionData.session.timezone)
@@ -91,10 +81,10 @@ export const actions: Actions = {
 			);
 
 			await sendEmail(
-				sessionData.mentorEmail,
+				sessionData.mentor?.email,
 				'Session canceled - ' +
 					DateTime.fromISO(sessionData.session.start)
-						.setZone(sessionData.mentorTimezone)
+						.setZone(sessionData.mentor.timezone)
 						.toLocaleString(DateTime.DATETIME_HUGE),
 				mentorEmailContent.raw,
 				mentorEmailContent.html

@@ -74,7 +74,7 @@ export const actions: Actions = {
 			facilityName: PUBLIC_FACILITY_NAME,
 			emailDomain: ARTCC_EMAIL_DOMAIN,
 			cancellationReason: reason ? reason.toString() : 'Not Specified',
-			cancellationUserLevel: user.role
+			cancellationUserLevel: roleOf(user)
 		});
 
 		const mentorEmailContent = session_canceled({
@@ -87,7 +87,7 @@ export const actions: Actions = {
 			facilityName: PUBLIC_FACILITY_NAME,
 			emailDomain: ARTCC_EMAIL_DOMAIN,
 			cancellationReason: reason ? reason.toString() : 'Not Specified',
-			cancellationUserLevel: user.role
+			cancellationUserLevel: roleOf(user)
 		});
 
 		try {

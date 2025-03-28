@@ -33,10 +33,8 @@
 
 <h2 class="text-xl font-semibold">Cancel Session</h2>
 
-<!-- Debating on whether to remove now that cancelation emails have been implemented -->
 <p>
-	Are you sure you wish to cancel? It is your responsibility to inform the student of the
-	cancellation.
+	Are you sure you wish to cancel?
 </p>
 
 <Input placeholder="Reason... (optional)" class="w-1/2" bind:value={reason}></Input>

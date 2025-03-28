@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { NewSessionProps } from '$lib/emails/mentor/new_session';
+	import type { NewSessionProps } from './new_session';
 	import { DateTime } from 'luxon';
 
 	let {
@@ -9,12 +9,15 @@
 		sessionId,
 		type,
 		timezone,
+		reschedule,
 		facilityName,
 		emailDomain
 	}: NewSessionProps = $props();
+
+	let title = reschedule ? 'Session rescheduled' : 'New session booked';
 </script>
 
-<h1>New session booked</h1>
+<h1>{title}</h1>
 
 <p>A student has booked an appointment. Here are the details:</p>
 <p><b>Session type:</b> {type}</p>

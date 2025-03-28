@@ -65,7 +65,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		mentorsMap[user.id] = {
 			name: user.firstName + ' ' + user.lastName,
 			availability: user.mentorAvailability,
-			timezone: user.timezone ?? "America/New York"
+			timezone: user.timezone ?? 'America/New York'
 		};
 	}
 
@@ -171,6 +171,7 @@ export const actions: Actions = {
 			duration: type[0].length,
 			sessionId: id,
 			type: type[0].name,
+			reschedule: false,
 			facilityName: PUBLIC_FACILITY_NAME,
 			emailDomain: ARTCC_EMAIL_DOMAIN
 		});
@@ -179,9 +180,7 @@ export const actions: Actions = {
 			await sendEmail(
 				student[0].email,
 				'Appointment booked - ' +
-					date
-						.setZone(form.data.timezone)
-						.toLocaleString(DateTime.DATETIME_HUGE),
+					date.setZone(form.data.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 				studentEmailContent.raw,
 				studentEmailContent.html
 			);
@@ -189,9 +188,7 @@ export const actions: Actions = {
 			await sendEmail(
 				mentor[0].email,
 				'Session booked - ' +
-					date
-						.setZone(form.data.timezone)
-						.toLocaleString(DateTime.DATETIME_HUGE),
+					date.setZone(form.data.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 				mentorEmailContent.raw,
 				mentorEmailContent.html
 			);

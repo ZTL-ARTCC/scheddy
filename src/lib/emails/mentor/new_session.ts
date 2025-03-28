@@ -11,6 +11,7 @@ export interface NewSessionProps {
 	studentName: string;
 	sessionId: string;
 	timezone: string;
+	reschedule?: boolean;
 	facilityName: string;
 	emailDomain: string;
 }
