@@ -93,6 +93,13 @@ export const actions: Actions = {
 			console.error(e);
 		}
 
-		await db.delete(sessions).where(eq(sessions.id, event.params.id));
+		await db
+			.update(sessions)
+			.set({
+				cancelled: true,
+				cancellationUserLevel: ROLE_STUDENT,
+				cancellationReason: 'Not Specified'
+			})
+			.where(eq(sessions.id, event.params.id));
 	}
 };

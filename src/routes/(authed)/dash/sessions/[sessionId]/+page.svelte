@@ -6,12 +6,13 @@
 		ClockIcon,
 		GraduationCapIcon,
 		IdCardIcon,
-		PencilIcon
+		PencilIcon,
+		X
 	} from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import DataDisplay from './DataDisplay.svelte';
 	import { roleOf } from '$lib';
-	import { ROLE_STAFF } from '$lib/utils';
+	import { ROLE_STAFF, roleString } from '$lib/utils';
 
 	interface Props {
 		data: PageData;
@@ -41,13 +42,21 @@
 			<DataDisplay icon={PencilIcon} label="Created By">
 				{data.createdBy}
 			</DataDisplay>
+			{#if data.sessionInfo.session.cancelled}
+				<DataDisplay icon={X} label="Cancelled">
+					{roleString(data.sessionInfo.session.cancellationUserLevel ?? 0)}:
+					{data.sessionInfo.session.cancellationReason}
+				</DataDisplay>
+			{/if}
 		{/if}
 	</tbody>
 </table>
 
 <div class="flex flex-row flex-wrap gap-2">
 	<Button href="/dash/sessions/{data.sessionInfo.session.id}/edit">Edit</Button>
-	<Button href="/dash/sessions/{data.sessionInfo.session.id}/cancel" variant="destructive"
-		>Cancel</Button
-	>
+	{#if !data.sessionInfo.session.cancelled}
+		<Button href="/dash/sessions/{data.sessionInfo.session.id}/cancel" variant="destructive">
+			Cancel
+		</Button>
+	{/if}
 </div>

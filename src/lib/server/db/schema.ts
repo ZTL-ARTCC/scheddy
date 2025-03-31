@@ -46,7 +46,10 @@ export const sessions = mysqlTable('session', {
 	reminded: boolean().default(false).notNull(),
 	timezone: text().notNull(),
 	createdBy: int().references(() => users.id),
-	createdAt: text()
+	createdAt: text(),
+	cancelled: boolean().notNull().default(false),
+	cancellationUserLevel: int(),
+	cancellationReason: text()
 });
 export const students = aliasedTable(users, 'student');
 export const mentors = aliasedTable(users, 'mentor');
