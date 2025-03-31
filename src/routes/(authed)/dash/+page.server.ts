@@ -4,6 +4,7 @@ import { roleOf } from '$lib';
 import { ROLE_MENTOR } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
+import { eq } from 'drizzle-orm';
 import { sessions } from '$lib/server/db/schema';
 import { DateTime } from 'luxon';
 
@@ -13,7 +14,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		redirect(307, '/schedule');
 	}
 
-	const allSessions = await db.select().from(sessions);
+	const allSessions = await db.select().from(sessions).where(eq(sessions.cancelled, false));
 
 	let yourSessions = 0;
 	const mentorsSoFar = [];

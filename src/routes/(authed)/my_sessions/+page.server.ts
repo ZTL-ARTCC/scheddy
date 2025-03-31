@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		.from(sessions)
 		.leftJoin(mentors, eq(sessions.mentor, mentors.id))
 		.leftJoin(sessionTypes, eq(sessions.type, sessionTypes.id))
-		.where(and(eq(sessions.student, user.id), gte(sessions.start, now)));
+		.where(and(eq(sessions.student, user.id), gte(sessions.start, now), eq(sessions.cancelled, false)));
 
 	upcomingSessions.sort((a, b) => {
 		const a_dt = DateTime.fromISO(a.session.start);

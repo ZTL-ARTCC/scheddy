@@ -56,6 +56,13 @@ export const actions: Actions = {
 			redirect(307, '/schedule');
 		}
 
-		await db.delete(sessions).where(eq(sessions.id, params.sessionId));
+		await db
+			.update(sessions)
+			.set({
+				cancelled: true,
+				cancellationUserLevel: roleOf(user),
+				cancellationReason: reason ? reason.toString() : 'Not Specified'
+			})
+			.where(eq(sessions.id, params.sessionId));
 	}
 };
