@@ -1,6 +1,6 @@
 import type { PageServerLoad, Actions } from './$types';
 import { loadUserData } from '$lib/userInfo';
-import { roleString } from '$lib/utils';
+import { ROLE_STUDENT, roleString } from '$lib/utils';
 import { roleOf } from '$lib';
 import { db } from '$lib/server/db';
 import { sessions } from '$lib/server/db/schema';
@@ -29,6 +29,13 @@ export const actions: Actions = {
 			return redirect(307, '/schedule');
 		}
 
-		await db.delete(sessions).where(eq(sessions.id, event.params.id));
+		await db
+			.update(sessions)
+			.set({
+				cancelled: true,
+				cancellationUserLevel: ROLE_STUDENT,
+				cancellationReason: 'Not Specified'
+			})
+			.where(eq(sessions.id, event.params.id));
 	}
 };

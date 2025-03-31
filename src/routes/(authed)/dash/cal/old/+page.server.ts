@@ -1,6 +1,6 @@
 import { loadUserData } from '$lib/userInfo';
 import { roleOf } from '$lib';
-import { ROLE_STAFF } from '$lib/utils';
+import { ROLE_MENTOR, ROLE_STAFF } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { mentors, sessions, sessionTypes, students } from '$lib/server/db/schema';
@@ -10,7 +10,7 @@ import { DateTime } from 'luxon';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
-	if (roleOf(user) < ROLE_STAFF) {
+	if (roleOf(user) < ROLE_MENTOR) {
 		redirect(307, '/schedule');
 	}
 
@@ -21,14 +21,27 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		typesMap[typ.id] = typ.name;
 	}
 
-	const allSessions = await db
+	const query = db
 		.select()
 		.from(sessions)
 		.leftJoin(students, eq(students.id, sessions.student))
 		.leftJoin(mentors, eq(mentors.id, sessions.mentor))
 		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type));
 
-	const mentorSessions = allSessions;
+	if (roleOf(user) < ROLE_STAFF) {
+		query.where(eq(mentors.id, user.id));
+	}
+
+	const allSessions = await query;
+
+	const mentorSessions = [];
+
+	const now = DateTime.utc();
+	for (const sess of allSessions) {
+		const start = DateTime.fromISO(sess.session.start);
+		if (start > now) continue;
+		mentorSessions.push(sess);
+	}
 
 	mentorSessions.sort((a, b) => {
 		const a_dt = DateTime.fromISO(a.session.start);
