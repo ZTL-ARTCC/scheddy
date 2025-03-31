@@ -16,15 +16,13 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
 	const now = DateTime.utc().toISO();
 
-	const allSessions = await db
+	const mentorSessions = await db
 		.select()
 		.from(sessions)
 		.leftJoin(students, eq(students.id, sessions.student))
 		.leftJoin(mentors, eq(mentors.id, sessions.mentor))
 		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
 		.where(and(eq(sessions.cancelled, false), gte(sessions.start, now)));
-
-	const mentorSessions = allSessions;
 
 	mentorSessions.sort((a, b) => {
 		const a_dt = DateTime.fromISO(a.session.start);
