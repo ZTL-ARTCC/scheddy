@@ -4,7 +4,7 @@ import { ROLE_MENTOR, ROLE_STAFF } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { sessions, sessionTypes, users } from '$lib/server/db/schema';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, and, inArray, gte } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import { DateTime } from 'luxon';
 import { fail, superValidate } from 'sveltekit-superforms';
@@ -13,7 +13,7 @@ import { createSchema } from './createSchema';
 import { ulid } from 'ulid';
 import { appointment_booked } from '$lib/emails/student/appointment_booked';
 import { PUBLIC_FACILITY_NAME } from '$env/static/public';
-import { ARTCC_EMAIL_DOMAIN } from "$env/static/private";
+import { ARTCC_EMAIL_DOMAIN } from '$env/static/private';
 import { sendEmail } from '$lib/email';
 import { getTimeZones } from '@vvo/tzdb';
 import { new_session } from '$lib/emails/mentor/new_session';
@@ -86,6 +86,15 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
 	const form = await superValidate(data, zod(createSchema));
 
+	const now = DateTime.utc().toISO();
+
+	const mentorSessions = await db
+		.select()
+		.from(sessions)
+		.where(
+			and(eq(sessions.mentor, user.id), eq(sessions.cancelled, false), gte(sessions.start, now))
+		);
+
 	const timezones = getTimeZones();
 	timezones.sort((a, b) => {
 		const nameA = a.name.toUpperCase();
@@ -110,7 +119,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		typesMap,
 		mentorsMap,
 		usersMap,
-		timezones
+		timezones,
+		mentorSessions
 	};
 };
 
