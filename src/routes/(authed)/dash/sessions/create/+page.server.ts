@@ -4,7 +4,7 @@ import { ROLE_MENTOR, ROLE_STAFF } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { sessions, sessionTypes, users } from '$lib/server/db/schema';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, and, inArray, gte } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import { DateTime } from 'luxon';
 import { fail, superValidate } from 'sveltekit-superforms';
@@ -13,7 +13,7 @@ import { createSchema } from './createSchema';
 import { ulid } from 'ulid';
 import { appointment_booked } from '$lib/emails/appointment_booked';
 import { PUBLIC_FACILITY_NAME } from '$env/static/public';
-import { ARTCC_EMAIL_DOMAIN } from "$env/static/private";
+import { ARTCC_EMAIL_DOMAIN } from '$env/static/private';
 import { sendEmail } from '$lib/email';
 import { getTimeZones } from '@vvo/tzdb';
 import { new_session } from '$lib/emails/new_session';
@@ -65,7 +65,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		mentorsMap[user.id] = {
 			name: user.firstName + ' ' + user.lastName,
 			availability: user.mentorAvailability,
-			timezone: user.timezone ?? "America/New York"
+			timezone: user.timezone ?? 'America/New York'
 		};
 	}
 
@@ -85,6 +85,15 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	};
 
 	const form = await superValidate(data, zod(createSchema));
+
+	const now = DateTime.utc().toISO();
+
+	const mentorSessions = await db
+		.select()
+		.from(sessions)
+		.where(
+			and(eq(sessions.mentor, user.id), eq(sessions.cancelled, false), gte(sessions.start, now))
+		);
 
 	const timezones = getTimeZones();
 	timezones.sort((a, b) => {
@@ -110,7 +119,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		typesMap,
 		mentorsMap,
 		usersMap,
-		timezones
+		timezones,
+		mentorSessions
 	};
 };
 
@@ -179,9 +189,7 @@ export const actions: Actions = {
 			await sendEmail(
 				student[0].email,
 				'Appointment booked - ' +
-					date
-						.setZone(form.data.timezone)
-						.toLocaleString(DateTime.DATETIME_HUGE),
+					date.setZone(form.data.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 				studentEmailContent.raw,
 				studentEmailContent.html
 			);
@@ -189,9 +197,7 @@ export const actions: Actions = {
 			await sendEmail(
 				mentor[0].email,
 				'Session booked - ' +
-					date
-						.setZone(form.data.timezone)
-						.toLocaleString(DateTime.DATETIME_HUGE),
+					date.setZone(form.data.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 				mentorEmailContent.raw,
 				mentorEmailContent.html
 			);
