@@ -106,7 +106,14 @@
 			<Form.Control>
 				{#snippet children({ props })}
 					<Form.Label>Time</Form.Label>
-					<Input onblur={pad} {...props} type="number" bind:value={$formData.hour} min=0 max=23/>
+					<Input
+						onblur={pad}
+						{...props}
+						type="number"
+						bind:value={$formData.hour}
+						min="0"
+						max="23"
+					/>
 				{/snippet}
 			</Form.Control>
 			<Form.Description>Hours (HH)</Form.Description>
@@ -119,7 +126,14 @@
 					<!-- required for spacing. it's cursed -->
 					<!-- eslint-disable-next-line no-irregular-whitespace -->
 					<Form.Label>​</Form.Label>
-					<Input onblur={pad} {...props} type="number" bind:value={$formData.minute} min=0 max=59 />
+					<Input
+						onblur={pad}
+						{...props}
+						type="number"
+						bind:value={$formData.minute}
+						min="0"
+						max="59"
+					/>
 				{/snippet}
 			</Form.Control>
 			<Form.Description>Minutes (MM)</Form.Description>

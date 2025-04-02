@@ -25,9 +25,7 @@
 
 	<div class="flex flex-col">
 		<h2 class="font-semibold text-lg">Create Session</h2>
-		<p class="text-sm text-slate-500 mb-4">
-			Create session on behalf of a student
-		</p>
+		<p class="text-sm text-slate-500 mb-4">Create session on behalf of a student</p>
 		<Button href="/dash/sessions/create" class="self-start">Create Session</Button>
 	</div>
 

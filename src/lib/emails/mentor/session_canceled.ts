@@ -1,10 +1,11 @@
 import { DateTime } from 'luxon';
 import { type EmailContent, templateOut } from '$lib/email';
-import plaintextTemplate from './NewSession.txt?raw';
-import NewSession from './NewSession.svelte';
+import plaintextTemplate from './SessionCanceled.txt';
+import SessionCanceled from './SessionCanceled.svelte';
 import { render } from 'svelte/server';
+import { roleString } from '$lib/utils';
 
-export interface NewSessionProps {
+export interface SessionCanceledProps {
 	startTime: DateTime;
 	type: string;
 	duration: number;
@@ -13,9 +14,11 @@ export interface NewSessionProps {
 	timezone: string;
 	facilityName: string;
 	emailDomain: string;
+	cancellationReason: string;
+	cancellationUserLevel: number;
 }
 
-export function new_session(props: NewSessionProps): EmailContent {
+export function session_canceled(props: SessionCanceledProps): EmailContent {
 	return {
 		raw: templateOut(plaintextTemplate, {
 			startTime: props.startTime.setZone(props.timezone).toLocaleString(DateTime.DATETIME_HUGE),
@@ -25,9 +28,11 @@ export function new_session(props: NewSessionProps): EmailContent {
 			sessionId: props.sessionId,
 			timezone: props.timezone,
 			facilityName: props.facilityName,
-			emailDomain: props.emailDomain
+			emailDomain: props.emailDomain,
+			cancellationReason: props.cancellationReason,
+			role: roleString(props.cancellationUserLevel)
 		}),
-		html: render(NewSession, {
+		html: render(SessionCanceled, {
 			props: props
 		}).body
 	};

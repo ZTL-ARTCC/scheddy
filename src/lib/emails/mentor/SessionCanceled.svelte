@@ -1,5 +1,6 @@
 <script lang="ts">
-	import type { NewSessionProps } from '$lib/emails/new_session';
+	import { roleString } from '$lib/utils';
+	import type { SessionCanceledProps } from './session_canceled';
 	import { DateTime } from 'luxon';
 
 	let {
@@ -10,20 +11,24 @@
 		type,
 		timezone,
 		facilityName,
-		emailDomain
-	}: NewSessionProps = $props();
+		emailDomain,
+		cancellationReason,
+		cancellationUserLevel
+	}: SessionCanceledProps = $props();
 </script>
 
-<h1>New session booked</h1>
+<h1>Session Canceled</h1>
 
-<p>A student has booked an appointment. Here are the details:</p>
+<p>This session has been canceled.</p>
 <p><b>Session type:</b> {type}</p>
-<p><b>Date/time:</b> {startTime.toLocaleString(DateTime.DATETIME_HUGE)}</p>
+<p><b>Date/time:</b> {startTime.setZone(timezone).toLocaleString(DateTime.DATETIME_HUGE)}</p>
 <p><b>Timezone:</b> {timezone}</p>
 <p><b>Duration:</b> {duration} minutes</p>
 <p><b>Student:</b> {studentName}</p>
 
 <p>---</p>
+
+<p><b>Reason:</b> {roleString(cancellationUserLevel)} Cancel - {cancellationReason}</p>
 
 <i>Confirmation ID {sessionId}</i>
 <i

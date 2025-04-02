@@ -2,6 +2,7 @@
 	import type { PageData } from './$types';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
+	import Input from '$lib/components/ui/input/input.svelte';
 	import { toast } from 'svelte-sonner';
 
 	interface Props {
@@ -9,12 +10,20 @@
 	}
 	let { data }: Props = $props();
 
+	let reason: string | null = $state(null);
+
 	async function cancel() {
+		let udata = new URLSearchParams();
+		if (reason) {
+			udata.set('reason', reason);
+		}
+
 		await fetch('?/cancel', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded'
-			}
+			},
+			body: udata.toString()
 		});
 		await goto(`/dash/mentors/${data.sessionInfo.mentor.id}`);
 		toast.success('Session cancelled successfully!');
@@ -25,9 +34,10 @@
 <h2 class="text-xl font-semibold">Cancel Session</h2>
 
 <p>
-	Are you sure you wish to cancel? It is your responsibility to inform the student of the
-	cancellation.
+	Are you sure you wish to cancel?
 </p>
+
+<Input placeholder="Reason... (optional)" class="w-1/2" bind:value={reason}></Input>
 
 <div class="flex flex-row flex-wrap gap-2">
 	<Button
