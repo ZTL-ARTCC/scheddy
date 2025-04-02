@@ -223,6 +223,13 @@ export const actions: Actions = {
 			facilityName: PUBLIC_FACILITY_NAME,
 			emailDomain: ARTCC_EMAIL_DOMAIN
 		});
+
+		let mentorReschedule = false;
+
+		if (oldId && oldSessionData && oldSessionData.mentor.id === slotObj.mentor) {
+			mentorReschedule = true;
+		}
+
 		const mentorEmailContent = new_session({
 			startTime: start.setZone(mentor.timezone),
 			timezone: mentor.timezone,
@@ -230,7 +237,7 @@ export const actions: Actions = {
 			duration,
 			sessionId: id,
 			type: typename,
-			reschedule: oldId != undefined,
+			reschedule: mentorReschedule,
 			facilityName: PUBLIC_FACILITY_NAME,
 			emailDomain: ARTCC_EMAIL_DOMAIN
 		});
