@@ -4,7 +4,7 @@ import { ROLE_MENTOR, ROLE_STAFF } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { mentors, sessions, sessionTypes, students, users } from '$lib/server/db/schema';
-import { eq, gte, or } from 'drizzle-orm';
+import { eq, gte, inArray, or } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import { DateTime } from 'luxon';
 import { fail, superValidate } from 'sveltekit-superforms';
@@ -34,7 +34,19 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
 	const start = DateTime.fromISO(session.start).setZone(session.timezone);
 
-	const sTypes = await db.select().from(sessionTypes);
+	let sTypes: (typeof sessionTypes.$inferSelect)[];
+
+	// Bypass allowed types if Sr Staff or INS
+	if (roleOf(user) >= ROLE_STAFF || user.rating >= 8) {
+		sTypes = await db.select().from(sessionTypes);
+	} else {
+		const allowedTypes: string[] = user.allowedSessionTypes
+			? JSON.parse(user.allowedSessionTypes)
+			: null;
+
+		sTypes = await db.select().from(sessionTypes).where(inArray(sessionTypes.id, allowedTypes));
+	}
+
 	const typesMap: Record<string, { name: string; length: number }> = {};
 	for (const type of sTypes) {
 		typesMap[type.id] = type;

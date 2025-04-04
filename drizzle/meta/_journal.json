@@ -37,11 +37,18 @@
 			"tag": "0004_track_session_creations",
 			"breakpoints": true
 		},
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1743391889553,
+      "tag": "0005_dont-delete-sessions-when-cancelled",
+      "breakpoints": true
+    },
 		{
-			"idx": 5,
+			"idx": 6,
 			"version": "5",
-			"when": 1743391889553,
-			"tag": "0005_dont-delete-sessions-when-cancelled",
+			"when": 1743808424255,
+			"tag": "0006_allow-session-types-to-be-unbookable",
 			"breakpoints": true
 		}
 	]
