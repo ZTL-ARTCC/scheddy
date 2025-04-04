@@ -46,6 +46,9 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 	const allowedTypes: string[] | null = mentor[0].allowedSessionTypes
 		? JSON.parse(mentor[0].allowedSessionTypes)
 		: null;
+	const bookableTypes: string[] | null = mentor[0].bookableSessionTypes
+		? JSON.parse(mentor[0].bookableSessionTypes)
+		: null;
 
 	const allSessions = await db
 		.select()
@@ -109,6 +112,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		mentor: mentor[0],
 		availability: avail,
 		allowedTypes,
+		bookableTypes,
 		typesMap,
 		mentorSessions,
 		breadcrumbs:

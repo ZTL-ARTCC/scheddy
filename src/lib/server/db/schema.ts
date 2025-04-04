@@ -12,6 +12,7 @@ export const users = mysqlTable('user', {
 	rating: int().notNull(),
 	mentorAvailability: text(),
 	allowedSessionTypes: text(),
+	bookableSessionTypes: text(),
 	timezone: text()
 });
 
@@ -28,7 +29,8 @@ export const sessionTypes = mysqlTable('sessionType', {
 	category: text().notNull(),
 	length: int().notNull(),
 	order: int().notNull().default(0),
-	rating: int().notNull().default(2)
+	rating: int().notNull().default(2),
+	bookable: boolean().notNull().default(true)
 });
 
 export const sessions = mysqlTable('session', {
