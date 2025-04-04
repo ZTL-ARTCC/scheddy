@@ -8,6 +8,7 @@
 	import { LoaderCircle } from 'lucide-svelte';
 	import { ratingIdDisplay, RATINGS } from '$lib/utils';
 	import * as Select from '$lib/components/ui/select';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 
 	interface Props {
 		data: PageData;
@@ -22,6 +23,7 @@
 			}
 		}
 	});
+
 	const { form: formData, enhance, delayed } = form;
 </script>
 
@@ -81,6 +83,18 @@
 		<Form.Description>
 			Only users with this rating or higher will be able to book this session.
 		</Form.Description>
+		<Form.FieldErrors />
+	</Form.Field>
+	<Form.Field {form} name="bookable">
+		<Form.Control>
+			{#snippet children()}
+				<Form.Label>Bookable</Form.Label>
+				<Checkbox bind:checked={$formData.bookable} />
+			{/snippet}
+		</Form.Control>
+		<Form.Description>
+			Determines whether this session appears under the "Bookable Sessions" for a mentor.
+		</Form.Description>	
 		<Form.FieldErrors />
 	</Form.Field>
 	<Form.Button>
