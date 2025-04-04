@@ -8,7 +8,7 @@ import { eq } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import { fail, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { typeSchema } from './typeSchema';
+import { typeSchema } from '../typeSchema';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -50,7 +50,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 				? [
 						{ title: 'Dashboard', url: '/dash' },
 						{ title: 'My Schedule', url: '/dash/mentors/' + mentor[0].id },
-						{ title: 'Session Types' }
+						{ title: 'Allowed Session Types' }
 					]
 				: [
 						{ title: 'Dashboard', url: '/dash' },
@@ -59,7 +59,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 							title: mentor[0].firstName + ' ' + mentor[0].lastName,
 							url: '/dash/mentors/' + mentor[0].id
 						},
-						{ title: 'Session Types' }
+						{ title: 'Allowed Session Types' }
 					]
 	};
 };
