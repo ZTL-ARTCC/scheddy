@@ -1,48 +1,48 @@
 {
-  "version": "7",
-  "dialect": "mysql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "5",
-      "when": 1731349734143,
-      "tag": "0000_v1",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1732417717687,
-      "tag": "0001_sessions-ulids",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1737672345418,
-      "tag": "0002_session-types-ordering",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1740622956810,
-      "tag": "0003_session_types_ratings",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1741892051865,
-      "tag": "0004_track_session_creations",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1743391889553,
-      "tag": "0005_dont-delete-sessions-when-cancelled",
-      "breakpoints": true
-    }
-  ]
+	"version": "7",
+	"dialect": "mysql",
+	"entries": [
+		{
+			"idx": 0,
+			"version": "5",
+			"when": 1731349734143,
+			"tag": "0000_v1",
+			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "5",
+			"when": 1732417717687,
+			"tag": "0001_sessions-ulids",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "5",
+			"when": 1737672345418,
+			"tag": "0002_session-types-ordering",
+			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "5",
+			"when": 1740622956810,
+			"tag": "0003_session_types_ratings",
+			"breakpoints": true
+		},
+		{
+			"idx": 4,
+			"version": "5",
+			"when": 1741892051865,
+			"tag": "0004_track_session_creations",
+			"breakpoints": true
+		},
+		{
+			"idx": 5,
+			"version": "5",
+			"when": 1743391889553,
+			"tag": "0005_dont-delete-sessions-when-cancelled",
+			"breakpoints": true
+		}
+	]
 }
