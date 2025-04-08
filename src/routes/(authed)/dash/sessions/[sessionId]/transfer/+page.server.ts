@@ -1,6 +1,6 @@
 import { loadUserData } from '$lib/userInfo';
 import { roleOf } from '$lib';
-import { ROLE_STAFF } from '$lib/utils';
+import { ROLE_MENTOR, ROLE_STAFF } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import {
@@ -11,9 +11,11 @@ import {
 	students,
 	users
 } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, gte, or } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
-import { DateTime } from 'luxon';
+import { fail, superValidate } from 'sveltekit-superforms';
+import { transferSchema } from '../transferSchema';
+import { zod } from 'sveltekit-superforms/adapters';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -27,58 +29,53 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		.where(eq(sessions.id, params.sessionId));
 	const sessionAndFriends = sessionList[0];
 
-	const transfer = await db
-		.select()
-		.from(pendingTransfers)
-		.where(eq(pendingTransfers.sessionId, sessionAndFriends.session.id));
-
 	if (
 		roleOf(user) < ROLE_STAFF &&
-		!(
-			user.id == sessionAndFriends.session.student ||
-			user.id == sessionAndFriends.session.mentor ||
-			user.id == transfer[0].targetMentor
-		)
+		!(user.id == sessionAndFriends.session.student || user.id == sessionAndFriends.session.mentor)
 	) {
 		redirect(307, '/schedule');
 	}
 
-	const createdByUser = await db
+	const dmentors = await db
 		.select()
 		.from(users)
-		.where(eq(users.id, sessionAndFriends.session.createdBy));
+		.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)));
 
-	const createdAt = sessionAndFriends.session.createdAt
-		? DateTime.fromISO(sessionAndFriends.session.createdAt).toLocaleString(DateTime.DATETIME_FULL)
-		: 'Not specified';
+	const usersMap: Record<number, string> = {};
 
-	const createdBy = sessionAndFriends.session.createdBy
-		? `${createdByUser[0].firstName} ${createdByUser[0].lastName} at ${createdAt}`
-		: 'Not specified';
+	for (const user of dmentors) {
+		usersMap[user.id] = user.firstName + ' ' + user.lastName;
+	}
+
+	const data = {
+		targetMentor: dmentors[0].id
+	};
+
+	const form = await superValidate(data, zod(transferSchema));
 
 	return {
-		sessionInfo: sessionAndFriends,
-		isMentor: user.id == sessionAndFriends.session.mentor || roleOf(user) >= ROLE_STAFF,
-		targetMentor: transfer[0] != null,
-		createdBy,
+		sessionId: params.sessionId,
+		form,
+		usersMap,
 		breadcrumbs: [
 			{ title: 'Dashboard', url: '/dash' },
 			{ title: 'Facility Calendar', url: '/dash/cal' },
-			{ title: 'Session Information' }
+			{ title: 'Session Information', url: `/dash/sessions/${params.sessionId}` },
+			{ title: 'Transfer Session' }
 		]
 	};
 };
 
 export const actions: Actions = {
-	reschedule: async ({ cookies, params, request }) => {
-		const { user } = (await loadUserData(cookies))!;
+	default: async (event) => {
+		const { user } = (await loadUserData(event.cookies))!;
 		const sessionList = await db
 			.select()
 			.from(sessions)
 			.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
 			.leftJoin(mentors, eq(mentors.id, sessions.mentor))
 			.leftJoin(students, eq(students.id, sessions.student))
-			.where(eq(sessions.id, params.sessionId));
+			.where(eq(sessions.id, event.params.sessionId));
 		const sessionAndFriends = sessionList[0];
 
 		if (
@@ -88,13 +85,18 @@ export const actions: Actions = {
 			redirect(307, '/schedule');
 		}
 
-		const formData = await request.formData();
-		const newDate = formData.get('date')!.toString();
-		const newDateObj = DateTime.fromISO(newDate);
+		const form = await superValidate(event, zod(transferSchema));
+		if (!form.valid) {
+			return fail(400, { form });
+		}
 
-		await db
-			.update(sessions)
-			.set({ start: newDateObj.setZone('utc').toString() })
-			.where(eq(sessions.id, params.sessionId));
+		await db.insert(pendingTransfers).values({
+			targetMentor: form.data.targetMentor,
+			originalMentor: sessionAndFriends.session.mentor,
+			sessionId: sessionAndFriends.session.id,
+			status: 'pending'
+		});
+
+		return { form };
 	}
 };

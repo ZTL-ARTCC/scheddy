@@ -53,5 +53,13 @@ export const sessions = mysqlTable('session', {
 	cancellationUserLevel: int(),
 	cancellationReason: text()
 });
+
+export const pendingTransfers = mysqlTable('pendingTransfers', {
+	originalMentor: int().references(() => users.id).notNull(),
+	targetMentor: int().references(() => users.id).notNull(),
+	sessionId: varchar({ length: 26 }).primaryKey().notNull(),
+	status: text().notNull() // pending, accepted, denied
+});
+
 export const students = aliasedTable(users, 'student');
 export const mentors = aliasedTable(users, 'mentor');
