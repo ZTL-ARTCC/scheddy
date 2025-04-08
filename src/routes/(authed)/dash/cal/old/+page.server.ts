@@ -30,9 +30,11 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type));
 
 	if (roleOf(user) < ROLE_STAFF) {
-		query.where(and(eq(mentors.id, user.id), lte(sessions.start, now)));
+		query.where(
+			and(eq(mentors.id, user.id), eq(sessions.cancelled, false), lte(sessions.start, now))
+		);
 	} else {
-		query.where(lte(sessions.start, now));
+		query.where(and(lte(sessions.start, now), eq(sessions.cancelled, false)));
 	}
 
 	const mentorSessions = await query;
