@@ -48,5 +48,13 @@ export const sessions = mysqlTable('session', {
 	createdBy: int().references(() => users.id),
 	createdAt: text()
 });
+
+export const pendingTransfers = mysqlTable('pendingTransfers', {
+	originalMentor: int().references(() => users.id).notNull(),
+	targetMentor: int().references(() => users.id).notNull(),
+	sessionId: varchar({ length: 26 }).primaryKey().notNull(),
+	status: text().notNull() // pending, accepted, denied
+});
+
 export const students = aliasedTable(users, 'student');
 export const mentors = aliasedTable(users, 'mentor');

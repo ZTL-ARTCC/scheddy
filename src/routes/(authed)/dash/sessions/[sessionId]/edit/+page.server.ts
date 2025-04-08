@@ -44,9 +44,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		date: DateTime.fromISO(session.start).toISODate(),
 		hour: start.hour,
 		minute: start.minute,
-
 		type: session.type,
-
 		mentor: session.mentor
 	};
 
