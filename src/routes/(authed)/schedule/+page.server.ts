@@ -29,7 +29,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		.select()
 		.from(users)
 		.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)));
-	const allSessions = await db.select().from(sessions);
+	const allSessions = await db.select().from(sessions).where(eq(sessions.cancelled, false));
 
 	let slotData;
 	let atMaxSessions;
@@ -137,7 +137,7 @@ export const actions: Actions = {
 			.select()
 			.from(users)
 			.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)));
-		const allSessions = await db.select().from(sessions);
+		const allSessions = await db.select().from(sessions).where(eq(sessions.cancelled, false));
 
 		const slotData = slottificate(sTypes, mMentors, allSessions);
 
