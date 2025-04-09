@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { NewSessionProps } from './new_session';
+	import type { SessionTransferRequestProps } from './transfer_request';
 	import { DateTime } from 'luxon';
 
 	let {
@@ -9,24 +9,23 @@
 		sessionId,
 		type,
 		timezone,
-		reschedule,
+		mentorName,
 		facilityName,
-		emailDomain
-	}: NewSessionProps = $props();
-
-	let title = reschedule ? 'Session updated' : 'New session booked';
-	let bookedText = 'A student has booked an appointment. Here are the details:';
-	let updatedText = 'The details for your session has changed.';
+		emailDomain,
+    transferLink
+	}: SessionTransferRequestProps = $props();
 </script>
 
-<h1>{title}</h1>
+<h1>New session transfer request</h1>
 
-<p>{reschedule ? updatedText : bookedText}</p>
+<p>Another mentor has requested to transfer a session to you. Here are the details:</p>
 <p><b>Session type:</b> {type}</p>
 <p><b>Date/time:</b> {startTime.toLocaleString(DateTime.DATETIME_HUGE)}</p>
 <p><b>Timezone:</b> {timezone}</p>
 <p><b>Duration:</b> {duration} minutes</p>
+<p><b>Mentor:</b> {mentorName}</p>
 <p><b>Student:</b> {studentName}</p>
+<a href={transferLink}>Accept/Decline</a>
 
 <p>---</p>
 

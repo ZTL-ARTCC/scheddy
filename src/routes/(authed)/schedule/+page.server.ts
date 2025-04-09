@@ -287,7 +287,7 @@ export const actions: Actions = {
 		try {
 			await sendEmail(
 				user.email,
-				`Appointment ${oldId ? 'rescheduled' : 'booked'} - ` +
+				`Appointment ${oldId ? 'updated' : 'booked'} - ` +
 					start.setZone(form.data.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 				studentEmailContent.raw,
 				studentEmailContent.html,
@@ -296,7 +296,7 @@ export const actions: Actions = {
 
 			await sendEmail(
 				mentor.email,
-				`Session ${oldSessionData?.mentor?.id === slotObj.mentor ? 'rescheduled' : 'booked'} - ` +
+				`Session ${oldSessionData?.mentor?.id === slotObj.mentor ? 'updated' : 'booked'} - ` +
 					start.setZone(mentor.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 				mentorEmailContent.raw,
 				mentorEmailContent.html,

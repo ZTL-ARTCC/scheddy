@@ -1,0 +1,15 @@
+Session transfer request {result}
+-------------------
+
+Your session transfer request has been {result}. Here are the details:
+-- Session type:  {type}
+-- Date/time:     {startTime}
+-- Timezone:      {timezone}
+-- Duration:      {duration} minutes
+-- Student:       {studentName}
+-- New Mentor:    {mentorName}
+
+---
+
+Confirmation ID {sessionId}.
+You are receiving this email because you are a mentor with the {facilityName}. If you believe to have received this email in error, please contact wm@{emailDomain}.

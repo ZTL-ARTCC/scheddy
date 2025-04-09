@@ -34,8 +34,8 @@
 		label="Mentor"
 		{form}
 		usersMap={data.usersMap}
-		name="targetMentor"
-		bind:value={$formData.targetMentor}
+		name="newMentor"
+		bind:value={$formData.newMentor}
 	/>
 
 	<Form.Button>
