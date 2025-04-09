@@ -48,7 +48,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 	}
 
 	const data = {
-		targetMentor: dmentors[0].id
+		newMentor: dmentors[0].id
 	};
 
 	const form = await superValidate(data, zod(transferSchema));
@@ -91,10 +91,9 @@ export const actions: Actions = {
 		}
 
 		await db.insert(pendingTransfers).values({
-			targetMentor: form.data.targetMentor,
-			originalMentor: sessionAndFriends.session.mentor,
+			oldMentor: sessionAndFriends.session.mentor,
+			newMentor: form.data.newMentor,
 			sessionId: sessionAndFriends.session.id,
-			status: 'pending'
 		});
 
 		return { form };
