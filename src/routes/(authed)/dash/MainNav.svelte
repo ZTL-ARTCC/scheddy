@@ -1,5 +1,6 @@
 <script lang="ts">
 	import {
+	ArrowUpDown,
 		CalendarClockIcon,
 		CalendarIcon,
 		CalendarPlusIcon,
@@ -46,6 +47,12 @@
 					url: '/dash/cal/old',
 					title: 'Past Sessions',
 					icon: HistoryIcon,
+					visible: role >= ROLE_MENTOR
+				},
+				{
+					url: `/dash/cal/transfer-requests`,
+					title: 'Transfer Requests',
+					icon: ArrowUpDown,
 					visible: role >= ROLE_MENTOR
 				}
 			]

@@ -21,10 +21,6 @@
 		}
 	});
 	const { form: formData, enhance, delayed } = form;
-
-	$effect(() => {
-		console.log($formData.targetMentor);
-	});
 </script>
 
 <h2 class="text-xl font-semibold">Transfer Session</h2>
@@ -34,7 +30,7 @@
 		label="Mentor"
 		{form}
 		usersMap={data.usersMap}
-		name="newMentor"
+		name="targetMentor"
 		bind:value={$formData.newMentor}
 	/>
 
