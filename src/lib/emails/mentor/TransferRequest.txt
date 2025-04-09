@@ -1,0 +1,17 @@
+New session transfer request
+-------------------
+
+Another mentor has requested to transfer a session to you. Here are the details:
+-- Session type:  {type}
+-- Date/time:     {startTime}
+-- Timezone:      {timezone}
+-- Duration:      {duration} minutes
+-- Mentor:        {mentorName}
+-- Student:       {studentName}
+
+Accept/Decline: {transferLink}
+
+---
+
+Confirmation ID {sessionId}.
+You are receiving this email because you are a mentor with the {facilityName}. If you believe to have received this email in error, please contact wm@{emailDomain}.

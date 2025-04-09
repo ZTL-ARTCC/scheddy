@@ -14,6 +14,12 @@ import {
 import { eq } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import { DateTime } from 'luxon';
+import { session_transfer_result } from '$lib/emails/mentor/transfer_result';
+import { PUBLIC_FACILITY_NAME } from '$env/static/public';
+import { ARTCC_EMAIL_DOMAIN } from '$env/static/private';
+import { sendEmail } from '$lib/email';
+import { appointment_booked } from '$lib/emails/student/appointment_booked';
+import { new_session } from '$lib/emails/mentor/new_session';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -70,7 +76,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 };
 
 export const actions: Actions = {
-	reschedule: async ({ cookies, params, request }) => {
+	accept: async ({ cookies, params }) => {
 		const { user } = (await loadUserData(cookies))!;
 		const sessionList = await db
 			.select()
@@ -81,20 +87,141 @@ export const actions: Actions = {
 			.where(eq(sessions.id, params.sessionId));
 		const sessionAndFriends = sessionList[0];
 
-		if (
-			roleOf(user) < ROLE_STAFF &&
-			!(user.id == sessionAndFriends.session.student || user.id == sessionAndFriends.session.mentor)
-		) {
+		const transfer = await db
+			.select()
+			.from(pendingTransfers)
+			.where(eq(pendingTransfers.sessionId, sessionAndFriends.session.id));
+
+		if (roleOf(user) < ROLE_STAFF && !(user.id == transfer[0].newMentor)) {
 			redirect(307, '/schedule');
 		}
 
-		const formData = await request.formData();
-		const newDate = formData.get('date')!.toString();
-		const newDateObj = DateTime.fromISO(newDate);
+		const newMentor = await db.select().from(users).where(eq(users.id, transfer[0].newMentor));
+
+		const studentEmailContent = appointment_booked({
+			startTime: DateTime.fromISO(sessionAndFriends.session.start).setZone(
+				sessionAndFriends.session.timezone
+			),
+			timezone: sessionAndFriends.session.timezone,
+			mentorName: newMentor[0].firstName + ' ' + newMentor[0].lastName,
+			duration: sessionAndFriends.sessionType?.length,
+			sessionId: sessionAndFriends.session.id,
+			type: sessionAndFriends.sessionType?.name,
+			link_params: `?sessionId=${sessionAndFriends.session.id}&reschedule=true&type=${sessionAndFriends.sessionType?.id}`,
+			reschedule: true,
+			facilityName: PUBLIC_FACILITY_NAME,
+			emailDomain: ARTCC_EMAIL_DOMAIN
+		});
+
+		const mentorEmailContent = new_session({
+			startTime: DateTime.fromISO(sessionAndFriends.session.start).setZone(
+				sessionAndFriends.session.timezone
+			),
+			timezone: sessionAndFriends.session.timezone,
+			studentName: sessionAndFriends.user?.firstName + ' ' + sessionAndFriends.user?.lastName,
+			duration: sessionAndFriends.sessionType?.length,
+			sessionId: sessionAndFriends.session.id,
+			type: sessionAndFriends.sessionType?.name,
+			reschedule: false,
+			facilityName: PUBLIC_FACILITY_NAME,
+			emailDomain: ARTCC_EMAIL_DOMAIN
+		});
+
+		const oldMentorEmailContent = session_transfer_result({
+			startTime: DateTime.fromISO(sessionAndFriends.session.start),
+			timezone: sessionAndFriends.session.timezone,
+			duration: sessionAndFriends.sessionType?.length,
+			studentName: sessionAndFriends.user?.firstName + ' ' + sessionAndFriends.user?.lastName,
+			mentorName: newMentor[0].firstName + ' ' + newMentor[0].lastName,
+			sessionId: params.sessionId,
+			type: sessionAndFriends.sessionType?.name,
+			facilityName: PUBLIC_FACILITY_NAME,
+			emailDomain: ARTCC_EMAIL_DOMAIN,
+			result: 'accepted'
+		});
+
+		await sendEmail(
+			sessionAndFriends.mentor.email,
+			'Session transfer request accepted -' +
+				DateTime.fromISO(sessionAndFriends.session.start)
+					.setZone(sessionAndFriends.session.timezone)
+					.toLocaleString(DateTime.DATETIME_HUGE),
+			oldMentorEmailContent.raw,
+			oldMentorEmailContent.html
+		);
+
+		await sendEmail(
+			sessionAndFriends.user?.email,
+			'Appointment updated - ' +
+				DateTime.fromISO(sessionAndFriends.session.start)
+					.setZone(sessionAndFriends.session.timezone)
+					.toLocaleString(DateTime.DATETIME_HUGE),
+			studentEmailContent.raw,
+			studentEmailContent.html
+		);
+
+		await sendEmail(
+			newMentor[0].email,
+			'Session booked - ' +
+				DateTime.fromISO(sessionAndFriends.session.start)
+					.setZone(sessionAndFriends.session.timezone)
+					.toLocaleString(DateTime.DATETIME_HUGE),
+			mentorEmailContent.raw,
+			mentorEmailContent.html
+		);
 
 		await db
 			.update(sessions)
-			.set({ start: newDateObj.setZone('utc').toString() })
+			.set({
+				mentor: transfer[0].newMentor
+			})
+			.where(eq(sessions.id, transfer[0].sessionId));
+
+		await db.delete(pendingTransfers).where(eq(pendingTransfers.sessionId, transfer[0].sessionId));
+	},
+	decline: async ({ cookies, params }) => {
+		const { user } = (await loadUserData(cookies))!;
+		const sessionList = await db
+			.select()
+			.from(sessions)
+			.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
+			.leftJoin(mentors, eq(mentors.id, sessions.mentor))
+			.leftJoin(students, eq(students.id, sessions.student))
 			.where(eq(sessions.id, params.sessionId));
+		const sessionAndFriends = sessionList[0];
+
+		const transfer = await db
+			.select()
+			.from(pendingTransfers)
+			.where(eq(pendingTransfers.sessionId, sessionAndFriends.session.id));
+
+		if (roleOf(user) < ROLE_STAFF && !(user.id == transfer[0].newMentor)) {
+			redirect(307, '/schedule');
+		}
+
+		const oldMentorEmailContent = session_transfer_result({
+			startTime: DateTime.fromISO(sessionAndFriends.session.start),
+			timezone: sessionAndFriends.session.timezone,
+			duration: sessionAndFriends.sessionType?.length,
+			studentName: sessionAndFriends.user?.firstName + ' ' + sessionAndFriends.user?.lastName,
+			mentorName: sessionAndFriends.mentor.firstName + ' ' + sessionAndFriends.mentor.lastName,
+			sessionId: params.sessionId,
+			type: sessionAndFriends.sessionType?.name,
+			facilityName: PUBLIC_FACILITY_NAME,
+			emailDomain: ARTCC_EMAIL_DOMAIN,
+			result: 'declined'
+		});
+
+		await sendEmail(
+			sessionAndFriends.mentor.email,
+			'Session transfer request declined -' +
+				DateTime.fromISO(sessionAndFriends.session.start)
+					.setZone(sessionAndFriends.session.timezone)
+					.toLocaleString(DateTime.DATETIME_HUGE),
+			oldMentorEmailContent.raw,
+			oldMentorEmailContent.html
+		);
+
+		await db.delete(pendingTransfers).where(eq(pendingTransfers.sessionId, transfer[0].sessionId));
 	}
 };
