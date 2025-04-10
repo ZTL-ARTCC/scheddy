@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
 	const session = sessionAndFriends.session;
 
-	const start = DateTime.fromISO(session.start);
+	const start = DateTime.fromISO(session.start).setZone(session.timezone);
 
 	let sTypes: (typeof sessionTypes.$inferSelect)[];
 
