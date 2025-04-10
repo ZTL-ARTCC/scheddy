@@ -8,7 +8,7 @@ import { sessionTypes } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { fail, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { editSchema } from './editSchema';
+import { typeSchema } from '../../typeSchema';
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
 	if (roleOf(user) < ROLE_STAFF) {
@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
 	const data = (await db.select().from(sessionTypes).where(eq(sessionTypes.id, params.typeId)))[0];
 
-	const form = await superValidate(data, zod(editSchema));
+	const form = await superValidate(data, zod(typeSchema));
 
 	return {
 		form,
@@ -30,7 +30,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 };
 export const actions: Actions = {
 	default: async (event) => {
-		const form = await superValidate(event, zod(editSchema));
+		const form = await superValidate(event, zod(typeSchema));
 		const { user } = (await loadUserData(event.cookies))!;
 		if (roleOf(user) < ROLE_STAFF) {
 			redirect(307, '/schedule');
@@ -46,7 +46,8 @@ export const actions: Actions = {
 				length: form.data.length,
 				order: form.data.order,
 				rating: form.data.rating,
-				category: form.data.category
+				category: form.data.category,
+				bookable: form.data.bookable
 			})
 			.where(eq(sessionTypes.id, event.params.typeId));
 

@@ -65,24 +65,48 @@
 		<p>No availability set at this time</p>
 	{/if}
 
-	<h2 class="font-semibold text-lg">
-		Allowed Session Types
-		{#if roleOf(data.user) >= ROLE_STAFF}
-			<a
-				class="text-sm text-blue-500 hover:text-blue-600 transition font-semibold"
-				href="/dash/mentors/{data.mentor.id}/types">Update allowed types &rarr;</a
-			>
-		{/if}
-	</h2>
-	{#if data.allowedTypes}
-		<ul class="list-disc list-inside">
-			{#each data.allowedTypes as typ}
-				<li>{data.typesMap[typ]}</li>
+	<div class="flex flex-row gap-x-4">
+		<div class="flex flex-col gap-4">
+			<h2 class="font-semibold text-lg">
+				Allowed Session Types {#if roleOf(data.user) >= ROLE_STAFF}
+					<a
+						class="text-sm text-blue-500 hover:text-blue-600 transition font-semibold"
+						href="/dash/mentors/{data.mentor.id}/types/allowed_types">Update allowed types &rarr;</a
+					>
+				{/if}
+			</h2>
+			{#if data.allowedTypes}
+				<ul class="list-disc list-inside">
+					{#each data.allowedTypes as typ}
+						<li>{data.typesMap[typ]}</li>
+					{:else}
+						<i>This mentor is not able to teach any sessions.</i>
+					{/each}
+				</ul>
 			{:else}
 				<i>This mentor is not able to teach any sessions.</i>
-			{/each}
-		</ul>
-	{:else}
-		<i>This mentor is not able to teach any sessions.</i>
-	{/if}
+			{/if}
+		</div>
+		<div class="flex flex-col gap-4">
+			<h2 class="font-semibold text-lg">
+				Bookable Session Types {#if roleOf(data.user) >= ROLE_STAFF}
+					<a
+						class="text-sm text-blue-500 hover:text-blue-600 transition font-semibold"
+						href="/dash/mentors/{data.mentor.id}/types/bookable_types">Update bookable types &rarr;</a
+					>
+				{/if}
+			</h2>
+			{#if data.bookableTypes}
+				<ul class="list-disc list-inside">
+					{#each data.bookableTypes as typ}
+						<li>{data.typesMap[typ]}</li>
+					{:else}
+						<i>This mentor is not able to be booked for any sessions.</i>
+					{/each}
+				</ul>
+			{:else}
+				<i>This mentor is not able to be booked for any sessions.</i>
+			{/if}
+		</div>
+	</div>
 </div>
