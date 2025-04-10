@@ -11,7 +11,7 @@ import {
 	students,
 	users
 } from '$lib/server/db/schema';
-import { eq, gte, or } from 'drizzle-orm';
+import { eq, gte, inArray, or, and, ne } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import { fail, superValidate } from 'sveltekit-superforms';
 import { transferSchema } from '../transferSchema';
@@ -36,10 +36,20 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		redirect(307, '/schedule');
 	}
 
+	const allowedSessionTypes: string[] = sessionAndFriends.mentor.allowedSessionTypes
+		? JSON.parse(sessionAndFriends.mentor.allowedSessionTypes)
+		: [];
+
 	const dmentors = await db
 		.select()
 		.from(users)
-		.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)));
+		.where(
+			and(
+				or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)),
+				inArray(users.allowedSessionTypes, allowedSessionTypes),
+				ne(users.id, user.id)
+			)
+		);
 
 	const usersMap: Record<number, string> = {};
 
@@ -93,7 +103,7 @@ export const actions: Actions = {
 		await db.insert(pendingTransfers).values({
 			oldMentor: sessionAndFriends.session.mentor,
 			newMentor: form.data.newMentor,
-			sessionId: sessionAndFriends.session.id,
+			sessionId: sessionAndFriends.session.id
 		});
 
 		return { form };
