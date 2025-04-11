@@ -2,7 +2,7 @@
 	import * as Sidebar from '$lib/components/ui/sidebar';
 	import { version } from '$app/environment';
 	import { TowerControl } from 'lucide-svelte';
-	import { PUBLIC_FACILITY_NAME } from '$env/static/public';
+	import { clientConfig } from '$lib/config/client';
 </script>
 
 <Sidebar.Menu>
@@ -17,7 +17,7 @@
 					</div>
 					<div class="grid flex-1 text-left text-sm leading-tight">
 						<span class="truncate font-semibold">
-							{PUBLIC_FACILITY_NAME}
+							{clientConfig.facility.name_public}
 						</span>
 						<span class="truncate text-xs">Scheddy v{version}</span>
 					</div>

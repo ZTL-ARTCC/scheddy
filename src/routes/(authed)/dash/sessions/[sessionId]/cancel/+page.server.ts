@@ -9,9 +9,8 @@ import type { PageServerLoad, Actions } from './$types';
 import { appointment_canceled } from '$lib/emails/student/appointment_canceled';
 import { session_canceled } from '$lib/emails/mentor/session_canceled';
 import { sendEmail } from '$lib/email';
-import { ARTCC_EMAIL_DOMAIN } from '$env/static/private';
-import { PUBLIC_FACILITY_NAME } from '$env/static/public';
 import { DateTime } from 'luxon';
+import { serverConfig } from '$lib/config/server';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -71,8 +70,8 @@ export const actions: Actions = {
 			mentorName: sessionAndFriends.mentor.firstName + ' ' + sessionAndFriends.mentor.lastName,
 			sessionId: params.sessionId,
 			type: sessionAndFriends.sessionType?.name,
-			facilityName: PUBLIC_FACILITY_NAME,
-			emailDomain: ARTCC_EMAIL_DOMAIN,
+			facilityName: serverConfig.facility.name_public,
+			emailDomain: serverConfig.facility.mail_domain,
 			cancellationReason: reason ? reason.toString() : 'Not Specified',
 			cancellationUserLevel: roleOf(user)
 		});
@@ -84,8 +83,8 @@ export const actions: Actions = {
 			studentName: sessionAndFriends.student.firstName + ' ' + sessionAndFriends.student.lastName,
 			sessionId: params.sessionId,
 			type: sessionAndFriends.sessionType?.name,
-			facilityName: PUBLIC_FACILITY_NAME,
-			emailDomain: ARTCC_EMAIL_DOMAIN,
+			facilityName: serverConfig.facility.name_public,
+			emailDomain: serverConfig.facility.mail_domain,
 			cancellationReason: reason ? reason.toString() : 'Not Specified',
 			cancellationUserLevel: roleOf(user)
 		});

@@ -1,5 +1,3 @@
-import { env } from '$env/dynamic/private';
-
 export const baseConfig = {
 	database: {
 		url: 'mysql://ztl:ztl@localhost:3307/scheddy'
@@ -38,7 +36,7 @@ export const baseConfig = {
 		secure: true,
 		auth: {
 			user: 'you',
-			password: 'pwd',
+			pass: 'pwd',
 		},
 		from: 'Scheddy Test Server <sts@yourdomain.dev>'
 	},
@@ -47,22 +45,42 @@ export const baseConfig = {
 	},
 };
 
-// @ts-expect-error any is required
-export function recursiveOverlayConfig(config: any, current_key: string): any {
+// eslint-disable-next-line
+export function recursiveKeepPublic(config: any, current_key: string): any {
 	const copy = structuredClone(config);
 	for (const key of Object.keys(config)) {
 		const this_key = current_key + "_" + key;
 		if (typeof config[key] === 'object') {
-			copy[key] = recursiveOverlayConfig(config[key], this_key);
+			copy[key] = recursiveKeepPublic(config[key], this_key);
 		} else {
-			const env_var = this_key.toUpperCase();
+			if (!key.endsWith('_public')) {
+				delete copy[key];
+			}
+		}
+	}
+	return copy;
+}
+
+// eslint-disable-next-line
+export function recursiveOverlayConfig(config: any, current_key: string, env: any): any {
+	const copy = structuredClone(config);
+	for (const key of Object.keys(config)) {
+		const this_key = current_key + "_" + key;
+		if (typeof config[key] === 'object') {
+			copy[key] = recursiveOverlayConfig(config[key], this_key, env);
+		} else {
+			let env_var = this_key.toUpperCase();
+
+			if (env_var.endsWith("_PUBLIC")) {
+				env_var = "PUBLIC_" + env_var.replace("_PUBLIC", ""); // move the PUBLIC postfix to a prefix
+			}
+
 			if (!Object.keys(env).includes(env_var)) {
 				continue;
 			}
 			const encoded_value = env[env_var];
 			if (encoded_value !== undefined) {
 				// override base configuration
-
 
 				if (typeof config[key] === 'string') {
 					copy[key] = encoded_value;

@@ -2,7 +2,6 @@
 	import * as Card from '$lib/components/ui/card';
 	import type { PageData } from './$types';
 	import { goto, invalidateAll } from '$app/navigation';
-	import { PUBLIC_FACILITY_NAME } from '$env/static/public';
 	import { Button } from '$lib/components/ui/button';
 	import { toast } from 'svelte-sonner';
 
@@ -38,7 +37,7 @@
 				{data.user.lastName} ({data.role}) -
 				<button onclick={logout} class="hover:underline">Log out</button>
 			</p>
-			<Card.Title>Cancel appointment at {PUBLIC_FACILITY_NAME}</Card.Title>
+			<Card.Title>Cancel appointment at {clientConfig.facility.name_public}</Card.Title>
 		</Card.Header>
 		<Card.Content>
 			<h2>Are you sure?</h2>

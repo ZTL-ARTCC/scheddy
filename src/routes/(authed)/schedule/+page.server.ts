@@ -13,13 +13,12 @@ import { sendEmail } from '$lib/email';
 import { new_session } from '$lib/emails/mentor/new_session';
 import { slottificate } from '$lib/slottificate';
 import { DateTime, Interval } from 'luxon';
-import { MAX_PENDING_SESSIONS, ARTCC_EMAIL_DOMAIN, BASE_URL } from '$env/static/private';
-import { PUBLIC_FACILITY_NAME } from '$env/static/public';
 import { z } from 'zod';
 import { superValidate, message, setError } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { getTimeZones } from '@vvo/tzdb';
 import * as ics from 'ics';
+import { serverConfig } from '$lib/config/server';
 
 export const load: PageServerLoad = async ({ cookies, url }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -71,7 +70,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		}
 	}
 
-	const maxPending = Number.parseInt(MAX_PENDING_SESSIONS);
+	const maxPending = serverConfig.bookings.max_pending_sessions;
 	if (maxPending > 0 && pendingForStudent >= maxPending && !url.searchParams.has('sessionId')) {
 		// don't allow the student to book any more sessions
 		slotData = {};
@@ -163,19 +162,14 @@ export const actions: Actions = {
 			return setError(form, 'sessionType', 'Session type does not exist.');
 		}
 
-		console.log(slotData);
-
 		const slotObj = {
 			slot: form.data.slot.split('@')[0],
 			mentor: Number.parseInt(form.data.slot.split('@')[1])
 		};
 		const availableSlots = slotData[form.data.sessionType];
 
-		console.log(availableSlots);
-
 		let slotStillAvailable = false;
 		for (const availSlot of availableSlots) {
-			console.log(availSlot, slotObj);
 			if (availSlot.slot === slotObj.slot && availSlot.mentor == slotObj.mentor) {
 				slotStillAvailable = true;
 			}
@@ -220,8 +214,8 @@ export const actions: Actions = {
 			type: typename,
 			link_params: `?sessionId=${id}&reschedule=true&type=${form.data.sessionType}`,
 			reschedule: oldId != undefined,
-			facilityName: PUBLIC_FACILITY_NAME,
-			emailDomain: ARTCC_EMAIL_DOMAIN
+			facilityName: serverConfig.facility.name_public,
+			emailDomain: serverConfig.facility.mail_domain
 		});
 
 		let mentorReschedule = false;
@@ -238,8 +232,8 @@ export const actions: Actions = {
 			sessionId: id,
 			type: typename,
 			reschedule: mentorReschedule,
-			facilityName: PUBLIC_FACILITY_NAME,
-			emailDomain: ARTCC_EMAIL_DOMAIN
+			facilityName: serverConfig.facility.name_public,
+			emailDomain: serverConfig.facility.mail_domain
 		});
 
 		if (oldId == undefined) {
@@ -271,9 +265,9 @@ export const actions: Actions = {
 					start: [startUtc.year, startUtc.month, startUtc.day, startUtc.hour, startUtc.minute],
 					startInputType: 'utc',
 					duration: { hours: Math.floor(duration / 60), minutes: duration % 60 },
-					title: `${PUBLIC_FACILITY_NAME} Training Session`,
+					title: `${serverConfig.facility.name_public} Training Session`,
 					description: `${typename} with ${mentor.firstName} ${mentor.lastName} and ${user.firstName} ${user.lastName}`,
-					url: BASE_URL
+					url: serverConfig.site.base_public
 				},
 				(err: any, val: any) => {
 					if (err) {
@@ -313,8 +307,8 @@ export const actions: Actions = {
 					studentName: oldSessionData.student.firstName + ' ' + oldSessionData.student.lastName,
 					sessionId: oldId,
 					timezone: oldSessionData.mentor?.timezone,
-					facilityName: PUBLIC_FACILITY_NAME,
-					emailDomain: ARTCC_EMAIL_DOMAIN,
+					facilityName: serverConfig.facility.name_public,
+					emailDomain: serverConfig.facility.mail_domain,
 					cancellationReason: 'Student Rescheduled',
 					cancellationUserLevel: ROLE_STUDENT
 				});
