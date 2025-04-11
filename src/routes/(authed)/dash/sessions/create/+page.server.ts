@@ -74,10 +74,12 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		usersMap[user.id] = { name: user.firstName + ' ' + user.lastName };
 	}
 
+	const now = DateTime.now().setZone(mentorsMap[user.id].timezone)
+
 	const data: typeof createSchema._type = {
-		date: DateTime.now().toISODate(),
-		hour: DateTime.now().hour,
-		minute: DateTime.now().minute,
+		date: now.toISODate(),
+		hour: now.hour,
+		minute: now.minute,
 		type: sTypes.length === 0 ? '' : sTypes[0].id,
 		mentor: user.id,
 		student: u_users[0].id,
@@ -144,7 +146,7 @@ export const actions: Actions = {
 			type: form.data.type,
 			timezone: form.data.timezone,
 			createdBy: user.id,
-			createdAt: DateTime.now().toISO()
+			createdAt: now.toISO()
 		});
 
 		const mentor = await db.select().from(users).where(eq(users.id, form.data.mentor));

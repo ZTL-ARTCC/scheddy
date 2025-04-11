@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
 	const session = sessionAndFriends.session;
 
-	const start = DateTime.fromISO(session.start);
+	const start = DateTime.fromISO(session.start).setZone(session.timezone);
 
 	const sTypes = await db.select().from(sessionTypes);
 	const typesMap: Record<string, { name: string; length: number }> = {};
@@ -41,12 +41,10 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 	}
 
 	const data = {
-		date: DateTime.fromISO(session.start).toISODate(),
+		date: start.toISODate(),
 		hour: start.hour,
 		minute: start.minute,
-
 		type: session.type,
-
 		mentor: session.mentor
 	};
 
