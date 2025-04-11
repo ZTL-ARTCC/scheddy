@@ -78,14 +78,14 @@
 </table>
 
 <div class="flex flex-row flex-wrap gap-2">
-	{#if !data.targetMentor || roleOf(data.user) >= ROLE_STAFF}
+	{#if !data.newMentor || roleOf(data.user) >= ROLE_STAFF}
 		<Button href="/dash/sessions/{data.sessionInfo.session.id}/edit">Edit</Button>
 		<Button href="/dash/sessions/{data.sessionInfo.session.id}/transfer">Transfer</Button>
 		<Button href="/dash/sessions/{data.sessionInfo.session.id}/cancel" variant="destructive">
 			Cancel
 		</Button>
 	{/if}
-	{#if data.targetMentor || roleOf(data.user) >= ROLE_STAFF}
+	{#if data.newMentor}
 		<Button onclick={accept}>Accept</Button>
 		<Button onclick={decline}>Decline</Button>
 	{/if}

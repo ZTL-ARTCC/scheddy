@@ -1,4 +1,4 @@
-import { loadUserData } from '$lib/userInfo';
+import { loadUserData, type SessionAndFriends } from '$lib/userInfo';
 import { roleOf } from '$lib';
 import { ROLE_MENTOR, ROLE_STAFF } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
@@ -16,6 +16,11 @@ import type { PageServerLoad, Actions } from './$types';
 import { fail, superValidate } from 'sveltekit-superforms';
 import { transferSchema } from '../transferSchema';
 import { zod } from 'sveltekit-superforms/adapters';
+import { DateTime } from 'luxon';
+import { new_session_transfer_request } from '$lib/emails/mentor/transfer_request';
+import { PUBLIC_FACILITY_NAME } from '$env/static/public';
+import { ARTCC_EMAIL_DOMAIN, BASE_URL } from '$env/static/private';
+import { sendEmail } from '$lib/email';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -27,7 +32,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		.leftJoin(mentors, eq(mentors.id, sessions.mentor))
 		.leftJoin(students, eq(students.id, sessions.student))
 		.where(eq(sessions.id, params.sessionId));
-	const sessionAndFriends = sessionList[0];
+	const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
 	if (
 		roleOf(user) < ROLE_STAFF &&
@@ -58,7 +63,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 	}
 
 	const data = {
-		newMentor: dmentors[0].id
+		newMentor: dmentors.length === 0 ? 0 : dmentors[0].id
 	};
 
 	const form = await superValidate(data, zod(transferSchema));
@@ -86,7 +91,7 @@ export const actions: Actions = {
 			.leftJoin(mentors, eq(mentors.id, sessions.mentor))
 			.leftJoin(students, eq(students.id, sessions.student))
 			.where(eq(sessions.id, event.params.sessionId));
-		const sessionAndFriends = sessionList[0];
+		const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
 		if (
 			roleOf(user) < ROLE_STAFF &&
@@ -99,6 +104,33 @@ export const actions: Actions = {
 		if (!form.valid) {
 			return fail(400, { form });
 		}
+
+		const newMentor = await db.select().from(users).where(eq(users.id, form.data.newMentor));
+
+		const mentorEmailContent = new_session_transfer_request({
+			startTime: DateTime.fromISO(sessionAndFriends.session.start).setZone(
+				sessionAndFriends.session.timezone
+			),
+			timezone: sessionAndFriends.session.timezone,
+			studentName: sessionAndFriends.student?.firstName + ' ' + sessionAndFriends.student?.lastName,
+			mentorName: sessionAndFriends.student?.firstName + ' ' + sessionAndFriends.student?.lastName,
+			duration: sessionAndFriends.sessionType?.length,
+			sessionId: sessionAndFriends.session.id,
+			type: sessionAndFriends.sessionType?.name,
+			transferLink: `${BASE_URL}dash/sessions/${sessionAndFriends.session.id}`,
+			facilityName: PUBLIC_FACILITY_NAME,
+			emailDomain: ARTCC_EMAIL_DOMAIN
+		});
+
+		await sendEmail(
+			newMentor[0].email,
+			'Session transfer request-' +
+				DateTime.fromISO(sessionAndFriends.session.start)
+					.setZone(sessionAndFriends.session.timezone)
+					.toLocaleString(DateTime.DATETIME_HUGE),
+			mentorEmailContent.raw,
+			mentorEmailContent.html
+		);
 
 		await db.insert(pendingTransfers).values({
 			oldMentor: sessionAndFriends.session.mentor,

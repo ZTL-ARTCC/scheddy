@@ -1,4 +1,4 @@
-import { loadUserData } from '$lib/userInfo';
+import { loadUserData, type SessionAndFriends } from '$lib/userInfo';
 import { roleOf } from '$lib';
 import { ROLE_STAFF } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
@@ -31,7 +31,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		.leftJoin(mentors, eq(mentors.id, sessions.mentor))
 		.leftJoin(students, eq(students.id, sessions.student))
 		.where(eq(sessions.id, params.sessionId));
-	const sessionAndFriends = sessionList[0];
+	const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
 	const transfer = await db
 		.select()
@@ -43,7 +43,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		!(
 			user.id == sessionAndFriends.session.student ||
 			user.id == sessionAndFriends.session.mentor ||
-			user.id == transfer[0].targetMentor
+			user.id == transfer[0].newMentor
 		)
 	) {
 		redirect(307, '/schedule');
@@ -52,7 +52,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 	const createdByUser = await db
 		.select()
 		.from(users)
-		.where(eq(users.id, sessionAndFriends.session.createdBy));
+		.where(eq(users.id, sessionAndFriends.session.createdBy!));
 
 	const createdAt = sessionAndFriends.session.createdAt
 		? DateTime.fromISO(sessionAndFriends.session.createdAt).toLocaleString(DateTime.DATETIME_FULL)
@@ -62,10 +62,15 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		? `${createdByUser[0].firstName} ${createdByUser[0].lastName} at ${createdAt}`
 		: 'Not specified';
 
+	const newMentor =
+		Object.values(transfer).length > 0
+			? roleOf(user) >= ROLE_STAFF || transfer[0].newMentor == user.id
+			: false;
+
 	return {
 		sessionInfo: sessionAndFriends,
 		isMentor: user.id == sessionAndFriends.session.mentor || roleOf(user) >= ROLE_STAFF,
-		targetMentor: transfer[0] != null,
+		newMentor,
 		createdBy,
 		breadcrumbs: [
 			{ title: 'Dashboard', url: '/dash' },
@@ -85,7 +90,7 @@ export const actions: Actions = {
 			.leftJoin(mentors, eq(mentors.id, sessions.mentor))
 			.leftJoin(students, eq(students.id, sessions.student))
 			.where(eq(sessions.id, params.sessionId));
-		const sessionAndFriends = sessionList[0];
+		const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
 		const transfer = await db
 			.select()
@@ -118,7 +123,7 @@ export const actions: Actions = {
 				sessionAndFriends.session.timezone
 			),
 			timezone: sessionAndFriends.session.timezone,
-			studentName: sessionAndFriends.user?.firstName + ' ' + sessionAndFriends.user?.lastName,
+			studentName: sessionAndFriends.student?.firstName + ' ' + sessionAndFriends.student?.lastName,
 			duration: sessionAndFriends.sessionType?.length,
 			sessionId: sessionAndFriends.session.id,
 			type: sessionAndFriends.sessionType?.name,
@@ -131,7 +136,7 @@ export const actions: Actions = {
 			startTime: DateTime.fromISO(sessionAndFriends.session.start),
 			timezone: sessionAndFriends.session.timezone,
 			duration: sessionAndFriends.sessionType?.length,
-			studentName: sessionAndFriends.user?.firstName + ' ' + sessionAndFriends.user?.lastName,
+			studentName: sessionAndFriends.student?.firstName + ' ' + sessionAndFriends.student?.lastName,
 			mentorName: newMentor[0].firstName + ' ' + newMentor[0].lastName,
 			sessionId: params.sessionId,
 			type: sessionAndFriends.sessionType?.name,
@@ -151,7 +156,7 @@ export const actions: Actions = {
 		);
 
 		await sendEmail(
-			sessionAndFriends.user?.email,
+			sessionAndFriends.student.email,
 			'Appointment updated - ' +
 				DateTime.fromISO(sessionAndFriends.session.start)
 					.setZone(sessionAndFriends.session.timezone)
@@ -188,7 +193,7 @@ export const actions: Actions = {
 			.leftJoin(mentors, eq(mentors.id, sessions.mentor))
 			.leftJoin(students, eq(students.id, sessions.student))
 			.where(eq(sessions.id, params.sessionId));
-		const sessionAndFriends = sessionList[0];
+		const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
 		const transfer = await db
 			.select()
@@ -203,7 +208,7 @@ export const actions: Actions = {
 			startTime: DateTime.fromISO(sessionAndFriends.session.start),
 			timezone: sessionAndFriends.session.timezone,
 			duration: sessionAndFriends.sessionType?.length,
-			studentName: sessionAndFriends.user?.firstName + ' ' + sessionAndFriends.user?.lastName,
+			studentName: sessionAndFriends.student?.firstName + ' ' + sessionAndFriends.student?.lastName,
 			mentorName: sessionAndFriends.mentor.firstName + ' ' + sessionAndFriends.mentor.lastName,
 			sessionId: params.sessionId,
 			type: sessionAndFriends.sessionType?.name,

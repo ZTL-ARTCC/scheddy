@@ -3,10 +3,11 @@ import { roleOf } from '$lib';
 import { ROLE_MENTOR, ROLE_STAFF } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { pendingTransfers, sessions } from '$lib/server/db/schema';
+import { mentors, pendingTransfers, sessions, sessionTypes } from '$lib/server/db/schema';
 import { eq, or } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 import { DateTime } from 'luxon';
+import { alias } from 'drizzle-orm/mysql-core/alias';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -14,10 +15,16 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		redirect(307, '/schedule');
 	}
 
+	const oldMentor = alias(mentors, 'oldMentor');
+	const newMentor = alias(mentors, 'newMentor');
+
 	const query = db
 		.select()
 		.from(pendingTransfers)
-		.leftJoin(sessions, eq(sessions.id, pendingTransfers.sessionId));
+		.leftJoin(oldMentor, eq(oldMentor.id, pendingTransfers.oldMentor))
+		.leftJoin(newMentor, eq(newMentor.id, pendingTransfers.newMentor))
+		.leftJoin(sessions, eq(sessions.id, pendingTransfers.sessionId))
+		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
 
 	if (roleOf(user) < ROLE_STAFF) {
 		query.where(
@@ -25,7 +32,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		);
 	}
 
-	const pendingSessionTransfers = await query
+	const pendingSessionTransfers = await query;
 
 	pendingSessionTransfers.sort((a, b) => {
 		const a_dt = DateTime.fromISO(a.session?.start);

@@ -30,7 +30,7 @@
 		label="Mentor"
 		{form}
 		usersMap={data.usersMap}
-		name="targetMentor"
+		name="newMentor"
 		bind:value={$formData.newMentor}
 	/>
 

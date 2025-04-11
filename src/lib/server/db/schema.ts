@@ -54,7 +54,7 @@ export const sessions = mysqlTable('session', {
 	cancellationReason: text()
 });
 
-export const pendingTransfers = mysqlTable('pendingTransfers', {
+export const pendingTransfers = mysqlTable('transfers', {
 	oldMentor: int().references(() => users.id).notNull(),
 	newMentor: int().references(() => users.id).notNull(),
 	sessionId: varchar({ length: 26 }).primaryKey().notNull(),

@@ -1,11 +1,18 @@
 import { type Cookies, redirect } from '@sveltejs/kit';
-import { users, userTokens } from '$lib/server/db/schema';
+import { sessions, users, userTokens, sessionTypes } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
 
 export interface UserData {
 	user: typeof users.$inferSelect;
 	userToken: typeof userTokens.$inferSelect;
+}
+
+export interface SessionAndFriends {
+	student: typeof users.$inferSelect;
+	mentor: typeof users.$inferSelect;
+	session: typeof sessions.$inferSelect;
+	sessionType: typeof sessionTypes.$inferSelect;
 }
 
 function condFail(a: boolean): null {
