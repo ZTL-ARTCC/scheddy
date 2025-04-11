@@ -2,8 +2,8 @@
 // TODO: Fix this mess
 import { DateTime, Duration, Interval } from 'luxon';
 import { sessions, sessionTypes, users } from '$lib/server/db/schema';
-import { MAX_BOOKING_AHEAD_DAYS } from '$env/static/private';
 import type { DayAvailability, MentorAvailability } from '$lib/availability';
+import { serverConfig } from '$lib/config/server';
 
 export function slottificate(
 	sTypes: (typeof sessionTypes.$inferSelect)[],
@@ -15,7 +15,7 @@ export function slottificate(
 	const now = DateTime.utc();
 	const tomorrow = now.plus({ days: 1 });
 	const validDaysToBook: DateTime[] = [];
-	for (let i = 0; i <= Number.parseInt(MAX_BOOKING_AHEAD_DAYS); i++) {
+	for (let i = 0; i <= serverConfig.bookings.max_days_ahead; i++) {
 		validDaysToBook.push(now.plus({ hours: i * 24 }));
 	}
 

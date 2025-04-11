@@ -4,8 +4,7 @@ import { eq } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { sendEmail } from '$lib/email';
 import { reminder } from '$lib/emails/student/reminder';
-import { PUBLIC_FACILITY_NAME } from '$env/static/public';
-import { ARTCC_EMAIL_DOMAIN } from '$env/static/private';
+import { serverConfig } from '$lib/config/server';
 
 export async function GET() {
 	const sess = await db
@@ -27,8 +26,8 @@ export async function GET() {
 			sessionId: sess.session.id,
 			type: sess.sessionType.name,
 			mentorName: sess.mentor.firstName + ' ' + sess.mentor.lastName,
-			facilityName: PUBLIC_FACILITY_NAME,
-			emailDomain: ARTCC_EMAIL_DOMAIN
+			facilityName: serverConfig.facility.name_public,
+			emailDomain: serverConfig.facility.mail_domain
 		});
 
 		await sendEmail(

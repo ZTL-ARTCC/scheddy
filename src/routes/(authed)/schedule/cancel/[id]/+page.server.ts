@@ -7,8 +7,6 @@ import { mentors, sessions, sessionTypes, users, userTokens } from '$lib/server/
 import { eq } from 'drizzle-orm';
 import { redirect } from '@sveltejs/kit';
 import { appointment_canceled } from '$lib/emails/student/appointment_canceled';
-import { ARTCC_EMAIL_DOMAIN } from '$env/static/private';
-import { PUBLIC_FACILITY_NAME } from '$env/static/public';
 import { DateTime } from 'luxon';
 import { sendEmail } from '$lib/email';
 import { session_canceled } from '$lib/emails/mentor/session_canceled';
@@ -50,8 +48,8 @@ export const actions: Actions = {
 			duration: sessionData.sessionType?.length ?? 0,
 			sessionId: sessionData.session.id,
 			type: sessionData.sessionType?.name ?? 'No Type',
-			facilityName: PUBLIC_FACILITY_NAME,
-			emailDomain: ARTCC_EMAIL_DOMAIN,
+			facilityName: serverConfig.facility.name_public,
+			emailDomain: serverConfig.facility.mail_domain,
 			cancellationReason: 'Not Specified',
 			cancellationUserLevel: ROLE_STUDENT
 		});
@@ -63,8 +61,8 @@ export const actions: Actions = {
 			duration: sessionData.sessionType?.length ?? 0,
 			sessionId: sessionData.session.id,
 			type: sessionData.sessionType?.name ?? 'No Type',
-			facilityName: PUBLIC_FACILITY_NAME,
-			emailDomain: ARTCC_EMAIL_DOMAIN,
+			facilityName: serverConfig.facility.name_public,
+			emailDomain: serverConfig.facility.mail_domain,
 			cancellationReason: 'Not Specified',
 			cancellationUserLevel: ROLE_STUDENT
 		});

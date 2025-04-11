@@ -12,11 +12,10 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { createSchema } from './createSchema';
 import { ulid } from 'ulid';
 import { appointment_booked } from '$lib/emails/student/appointment_booked';
-import { PUBLIC_FACILITY_NAME } from '$env/static/public';
-import { ARTCC_EMAIL_DOMAIN } from "$env/static/private";
 import { sendEmail } from '$lib/email';
 import { getTimeZones } from '@vvo/tzdb';
 import { new_session } from '$lib/emails/mentor/new_session';
+import { serverConfig } from '$lib/config/server';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -160,8 +159,8 @@ export const actions: Actions = {
 			type: type[0].name,
 			link_params: `?sessionId=${id}&reschedule=true&type=${form.data.type}`,
 			reschedule: false,
-			facilityName: PUBLIC_FACILITY_NAME,
-			emailDomain: ARTCC_EMAIL_DOMAIN
+			facilityName: serverConfig.facility.name_public,
+			emailDomain: serverConfig.facility.mail_domain
 		});
 
 		const mentorEmailContent = new_session({
@@ -172,8 +171,8 @@ export const actions: Actions = {
 			sessionId: id,
 			type: type[0].name,
 			reschedule: false,
-			facilityName: PUBLIC_FACILITY_NAME,
-			emailDomain: ARTCC_EMAIL_DOMAIN
+			facilityName: serverConfig.facility.name_public,
+			emailDomain: serverConfig.facility.mail_domain
 		});
 
 		try {

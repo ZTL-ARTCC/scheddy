@@ -1,23 +1,8 @@
 import nodemailer, { type SendMailOptions } from 'nodemailer';
-import {
-	SMTP_HOST,
-	SMTP_PORT,
-	SMTP_SECURE,
-	SMTP_AUTH_USER,
-	SMTP_AUTH_PASS,
-	SMTP_EMAIL_FROM
-} from '$env/static/private';
 import type SMTPTransport from 'nodemailer/lib/smtp-pool';
+import { serverConfig } from '$lib/config/server';
 
-export const emailTransporter = nodemailer.createTransport({
-	host: SMTP_HOST,
-	port: SMTP_PORT,
-	secure: SMTP_SECURE === 'true',
-	auth: {
-		user: SMTP_AUTH_USER,
-		pass: SMTP_AUTH_PASS
-	}
-});
+export const emailTransporter = nodemailer.createTransport(serverConfig.smtp);
 
 export interface EmailContent {
 	raw: string;
@@ -46,7 +31,7 @@ export async function sendEmail(
 	ics?: string
 ): Promise<SMTPTransport.SentMessageInfo> {
 	const options: SendMailOptions = {
-		from: SMTP_EMAIL_FROM,
+		from: serverConfig.smtp.from,
 		to: to,
 		subject,
 		text: plaintext,
