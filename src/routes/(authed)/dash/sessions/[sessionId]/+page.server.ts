@@ -67,9 +67,14 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 			? roleOf(user) >= ROLE_STAFF || transfer[0].newMentor == user.id
 			: false;
 
+	const now = DateTime.utc();
+	const start = DateTime.fromISO(sessionAndFriends.session.start);
+	const pastSession = now > start;
+
 	return {
 		sessionInfo: sessionAndFriends,
 		isMentor: user.id == sessionAndFriends.session.mentor || roleOf(user) >= ROLE_STAFF,
+		pastSession,
 		newMentor,
 		createdBy,
 		breadcrumbs: [

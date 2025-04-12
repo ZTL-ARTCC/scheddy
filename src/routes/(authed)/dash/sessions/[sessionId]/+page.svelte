@@ -80,7 +80,9 @@
 <div class="flex flex-row flex-wrap gap-2">
 	{#if !data.newMentor || roleOf(data.user) >= ROLE_STAFF}
 		<Button href="/dash/sessions/{data.sessionInfo.session.id}/edit">Edit</Button>
-		<Button href="/dash/sessions/{data.sessionInfo.session.id}/transfer">Transfer</Button>
+		{#if !data.pastSession}
+			<Button href="/dash/sessions/{data.sessionInfo.session.id}/transfer">Transfer</Button>
+		{/if}
 		<Button href="/dash/sessions/{data.sessionInfo.session.id}/cancel" variant="destructive">
 			Cancel
 		</Button>

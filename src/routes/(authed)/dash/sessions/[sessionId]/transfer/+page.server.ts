@@ -11,7 +11,7 @@ import {
 	students,
 	users
 } from '$lib/server/db/schema';
-import { eq, gte, inArray, or, and, ne } from 'drizzle-orm';
+import { eq, gte, or, and, ne } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import { fail, superValidate } from 'sveltekit-superforms';
 import { transferSchema } from '../transferSchema';
@@ -41,20 +41,25 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		redirect(307, '/schedule');
 	}
 
-	const allowedSessionTypes: string[] = sessionAndFriends.mentor.allowedSessionTypes
-		? JSON.parse(sessionAndFriends.mentor.allowedSessionTypes)
-		: [];
-
-	const dmentors = await db
-		.select()
-		.from(users)
-		.where(
-			and(
-				or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)),
-				inArray(users.allowedSessionTypes, allowedSessionTypes),
-				ne(users.id, user.id)
+	const dmentors = (
+		await db
+			.select()
+			.from(users)
+			.where(
+				and(
+					or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)),
+					ne(users.id, user.id)
+				)
 			)
-		);
+	).filter((u) => {
+		const allowedSessionTypes: string[] = u.allowedSessionTypes
+			? JSON.parse(u.allowedSessionTypes)
+			: [];
+
+		if (allowedSessionTypes.includes(sessionAndFriends.session.type)) {
+			return u;
+		}
+	});
 
 	const usersMap: Record<number, string> = {};
 

@@ -34,7 +34,7 @@
 		bind:value={$formData.newMentor}
 	/>
 
-	<Form.Button>
+	<Form.Button disabled={$formData.newMentor == 0}>
 		{#if $delayed}
 			<LoaderCircleIcon class="animate-spin size-4" />
 		{:else}
