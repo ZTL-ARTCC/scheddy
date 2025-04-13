@@ -17,7 +17,7 @@
 		async onUpdated({ form }) {
 			if (form.valid) {
 				await goto(`/dash/mentors/${data.mentor.id}`);
-				toast.success('Bookable types updated successfully!');
+				toast.success('Bookable by student session types updated successfully!');
 			}
 		}
 	});
@@ -26,7 +26,7 @@
 
 <div class="flex flex-col gap-2">
 	<h1 class="text-2xl font-semibold">
-		Editing bookable session types - {data.mentor.firstName}
+		Editing bookable by student session types - {data.mentor.firstName}
 		{data.mentor.lastName}
 	</h1>
 

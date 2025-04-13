@@ -132,7 +132,7 @@ export const actions: Actions = {
 	default: async (event) => {
 		const { user } = (await loadUserData(event.cookies))!;
 
-		const sTypes = await db.select().from(sessionTypes);
+		const sTypes = await db.select().from(sessionTypes).where(eq(sessionTypes.bookable, true));
 		const mMentors = await db
 			.select()
 			.from(users)

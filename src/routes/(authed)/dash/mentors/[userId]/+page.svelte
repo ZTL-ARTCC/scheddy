@@ -89,7 +89,7 @@
 		</div>
 		<div class="flex flex-col gap-4">
 			<h2 class="font-semibold text-lg">
-				Bookable Session Types {#if roleOf(data.user) >= ROLE_STAFF}
+				Bookable By Students {#if roleOf(data.user) >= ROLE_STAFF}
 					<a
 						class="text-sm text-blue-500 hover:text-blue-600 transition font-semibold"
 						href="/dash/mentors/{data.mentor.id}/types/bookable_types">Update bookable types &rarr;</a

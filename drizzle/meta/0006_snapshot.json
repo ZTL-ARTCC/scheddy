@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "21412c87-67d4-4fca-b8db-95bbdf6b5c59",
+  "id": "e74fd351-dd50-4e17-825f-f770ce3b540a",
   "prevId": "b617f4f7-2f37-4f06-a3dd-00d60c45e132",
   "tables": {
     "mentor": {
@@ -236,6 +236,28 @@
         },
         "createdAt": {
           "name": "createdAt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "cancelled": {
+          "name": "cancelled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "cancellationUserLevel": {
+          "name": "cancellationUserLevel",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "cancellationReason": {
+          "name": "cancellationReason",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
