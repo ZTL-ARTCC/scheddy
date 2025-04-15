@@ -29,7 +29,7 @@ export function session_transfer_result(props: SessionTransferResultProps): Emai
 			timezone: props.timezone,
 			facilityName: props.facilityName,
 			emailDomain: props.emailDomain,
-      result: props.result
+			result: props.result
 		}),
 		html: render(TransferResult, {
 			props: props

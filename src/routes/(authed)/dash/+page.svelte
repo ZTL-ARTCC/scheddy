@@ -26,7 +26,7 @@
 
 <h1 class="text-2xl font-semibold">Good {timeofday}, {data.user.firstName}</h1>
 
-<div class="grid gap-2 md:grid-cols-2 mr-auto ">
+<div class="grid gap-2 md:grid-cols-2 mr-auto">
 	<Card.Root class="min-w-xs grow md:grow-0">
 		<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-1">
 			<Card.Title class="text-sm font-medium">Your upcoming sessions</Card.Title>
@@ -60,7 +60,9 @@
 		</Card.Header>
 		<Card.Content class="px-6 pb-6 pt-4">
 			<div class="text-2xl font-bold">{data.transferRequests}</div>
-			<a href="/dash/cal/transfer-requests" class="text-muted-foreground text-xs hover:underline underline-offset-4"
+			<a
+				href="/dash/cal/transfer-requests"
+				class="text-muted-foreground text-xs hover:underline underline-offset-4"
 				>Transfer Requests &rarr;</a
 			>
 		</Card.Content>

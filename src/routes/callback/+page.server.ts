@@ -87,11 +87,14 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 	}
 
 	// finally, load the division data from VATUSA
-	const vatusa_user_resp = await fetch(`${serverConfig.auth.vatusa.base}/user/${cid}?apikey=${serverConfig.auth.vatusa.key}`, {
-		headers: {
-			Authorization: `Bearer ${serverConfig.auth.vatusa.key}`
+	const vatusa_user_resp = await fetch(
+		`${serverConfig.auth.vatusa.base}/user/${cid}?apikey=${serverConfig.auth.vatusa.key}`,
+		{
+			headers: {
+				Authorization: `Bearer ${serverConfig.auth.vatusa.key}`
+			}
 		}
-	});
+	);
 
 	if (!vatusa_user_resp.ok) {
 		return {

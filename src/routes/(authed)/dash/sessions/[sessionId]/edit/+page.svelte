@@ -56,7 +56,7 @@
 
 <h2 class="text-xl font-semibold">Edit Session</h2>
 
-<form class="flex flex-col gap-2 max-w-sm" method="POST" action="?/edit"  use:enhance>
+<form class="flex flex-col gap-2 max-w-sm" method="POST" action="?/edit" use:enhance>
 	<p class="text-sm text-muted-foreground">
 		Enter all dates and times in {data.sessionInfo.session.timezone}, where it's currently {DateTime.now()
 			.setZone(data.sessionInfo.session.timezone)

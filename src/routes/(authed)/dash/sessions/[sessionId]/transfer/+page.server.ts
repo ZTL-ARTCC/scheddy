@@ -18,9 +18,8 @@ import { transferSchema } from '../transferSchema';
 import { zod } from 'sveltekit-superforms/adapters';
 import { DateTime } from 'luxon';
 import { new_session_transfer_request } from '$lib/emails/mentor/transfer_request';
-import { PUBLIC_FACILITY_NAME } from '$env/static/public';
-import { ARTCC_EMAIL_DOMAIN, BASE_URL } from '$env/static/private';
 import { sendEmail } from '$lib/email';
+import { serverConfig } from '$lib/config/server';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -122,9 +121,9 @@ export const actions: Actions = {
 			duration: sessionAndFriends.sessionType?.length,
 			sessionId: sessionAndFriends.session.id,
 			type: sessionAndFriends.sessionType?.name,
-			transferLink: `${BASE_URL}dash/sessions/${sessionAndFriends.session.id}`,
-			facilityName: PUBLIC_FACILITY_NAME,
-			emailDomain: ARTCC_EMAIL_DOMAIN
+			transferLink: `${serverConfig.site.base_public}dash/sessions/${sessionAndFriends.session.id}`,
+			facilityName: serverConfig.facility.name_public,
+			emailDomain: serverConfig.facility.mail_domain
 		});
 
 		await sendEmail(

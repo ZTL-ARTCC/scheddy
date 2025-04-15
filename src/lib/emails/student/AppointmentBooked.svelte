@@ -20,7 +20,6 @@
 	let title = reschedule ? 'Appointment updated' : 'Appointment booked';
 	let bookedText = 'This is your confirmation email for your upcoming session.';
 	let updatedText = 'The details for your upcoming session has changed.';
-
 </script>
 
 <h1>{title}</h1>

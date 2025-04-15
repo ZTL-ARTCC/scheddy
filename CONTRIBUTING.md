@@ -16,6 +16,7 @@ This document explains different ways to help out with Scheddy, and details abou
 - [Code Contributions](#code-contributions)
 
 ## Code of Conduct
+
 This project, all spaces surrounding it, and everyone participating in it is governed by both the [VATSIM Code of Conduct](https://vatsim.net/docs/policy/code-of-conduct) and [our own, adapted from the Contributor Covenant](CODE_OF_CONDUCT.md). By participating, you are expected to uphold the rules set out within both of these documents. Please report any unacceptable behavior to the maintainer @ <wm@ztlartcc.org>.
 
 ## I Have A Question
@@ -29,6 +30,7 @@ If you still need help, please [open an issue](https://github.com/ZTL-ARTCC/sche
 ## I Want To Contribute
 
 > ## Legal Mumbo Jumbo
+>
 > By contributing to Scheddy, you're agreeing to quite a few different things. Please check out [the dedicated section of this document](#the-paperwork) to give you an overview of your rights and responsibilities.
 
 ### Reporting Bugs
@@ -89,6 +91,7 @@ Enhancement suggestions are tracked as GitHub issues.
 ## Code Contributions
 
 This is the real meat. We greatly appreciate code contributions. To start, the basic rules:
+
 - Work on already-filed issues should be prioritized, but you are welcome to work on other stuff too.
 - If an issue has the `not approved` tag, work on it is NOT APPROVED, for whatever reason, and PRs for that issue will be ignored or closed unless you can make a very strong case as to why we should merge it anyway.
 - If an issue has the `td-only` tag, work on it is NOT APPROVED, because the issue usually relates to a large or very important part of the codebase, that should be reserved for the primary maintainer. PRs against one of these issues will be heavily scrutinized, and may take longer to review.
@@ -98,18 +101,20 @@ This is the real meat. We greatly appreciate code contributions. To start, the b
 Aside from this, work on whatever you want, and submit it via a PR. It'll be reviewed by a member of our team, and merged if it's a good fit!
 
 ## The paperwork
+
 Scheddy is licensed under the AGPL 3.0 license. By submitting any contributions to this repository, you agree to the terms of this license, and are releasing your changes into the public under the terms of this license.
 
 ### Here's what this means for you:
+
 - You are giving up any rights you may have had to claim copyright or patents on your contribution. This means: if you hold a patent, and used it to write your contribution, you are automatically granting anyone who uses the code at any point in the future, an irrevocable license to ues that patent.
 - We give up that right too. If a government, for some reason, issued us a patent on Scheddy, anyone and everyone is automatically granted an irrevocable license to use that patent.
-- If you make any changes to Scheddy, and subsequently use* or distribute them publicly**, you _MUST_ release your changes as open-source code, also under the terms of the AGPL. You must retain credit to the original authors too, along with documenting the changes you made (git commits count).
+- If you make any changes to Scheddy, and subsequently use\* or distribute them publicly\*\*, you _MUST_ release your changes as open-source code, also under the terms of the AGPL. You must retain credit to the original authors too, along with documenting the changes you made (git commits count).
 - Scheddy has no warranty. If you have trouble, that's on you. If you (to our amazement) managed to hurt yourself with Scheddy, it's on you. While we'll try to help you with software issues, we aren't guaranteeing anything.
 - You can't sue us.
 
-*for example, if your facility hosts a public Scheddy instance
+\*for example, if your facility hosts a public Scheddy instance
 
-** network use counts as distribution!
+\*\* network use counts as distribution!
 
 ### Here's what this does NOT mean for you:
 
@@ -129,32 +134,31 @@ San Francisco, CA, 94129
 Everyone is permitted to copy and distribute verbatim copies of this
 license document, but changing it is not allowed.
 
-
 Developer's Certificate of Origin 1.1
 
 By making a contribution to this project, I certify that:
 
 (a) The contribution was created in whole or in part by me and I
-    have the right to submit it under the open source license
-    indicated in the file; or
+have the right to submit it under the open source license
+indicated in the file; or
 
 (b) The contribution is based upon previous work that, to the best
-    of my knowledge, is covered under an appropriate open source
-    license and I have the right under that license to submit that
-    work with modifications, whether created in whole or in part
-    by me, under the same open source license (unless I am
-    permitted to submit under a different license), as indicated
-    in the file; or
+of my knowledge, is covered under an appropriate open source
+license and I have the right under that license to submit that
+work with modifications, whether created in whole or in part
+by me, under the same open source license (unless I am
+permitted to submit under a different license), as indicated
+in the file; or
 
 (c) The contribution was provided directly to me by some other
-    person who certified (a), (b) or (c) and I have not modified
-    it.
+person who certified (a), (b) or (c) and I have not modified
+it.
 
 (d) I understand and agree that this project and the contribution
-    are public and that a record of the contribution (including all
-    personal information I submit with it, including my sign-off) is
-    maintained indefinitely and may be redistributed consistent with
-    this project or the open source license(s) involved.
+are public and that a record of the contribution (including all
+personal information I submit with it, including my sign-off) is
+maintained indefinitely and may be redistributed consistent with
+this project or the open source license(s) involved.
 
 ### Disclaimer
 

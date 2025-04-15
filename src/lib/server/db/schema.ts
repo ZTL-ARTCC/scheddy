@@ -55,9 +55,13 @@ export const sessions = mysqlTable('session', {
 });
 
 export const pendingTransfers = mysqlTable('transfers', {
-	oldMentor: int().references(() => users.id).notNull(),
-	newMentor: int().references(() => users.id).notNull(),
-	sessionId: varchar({ length: 26 }).primaryKey().notNull(),
+	oldMentor: int()
+		.references(() => users.id)
+		.notNull(),
+	newMentor: int()
+		.references(() => users.id)
+		.notNull(),
+	sessionId: varchar({ length: 26 }).primaryKey().notNull()
 });
 
 export const students = aliasedTable(users, 'student');

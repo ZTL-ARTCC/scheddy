@@ -10,7 +10,7 @@
 	import { DateTime, Interval } from 'luxon';
 	import { roleOf } from '$lib';
 	import { ROLE_MENTOR, ROLE_STAFF } from '$lib/utils';
-	import{ clientConfig} from '$lib/config/client';
+	import { clientConfig } from '$lib/config/client';
 	import { Button } from '$lib/components/ui/button';
 
 	interface Props {
@@ -49,7 +49,8 @@
 				<button onclick={logout} class="hover:underline">Log out</button>
 			</p>
 			<Card.Title
-				>{data.reschedule ? 'Reschedule' : 'Schedule'} appointment at {clientConfig.facility.name_public}</Card.Title
+				>{data.reschedule ? 'Reschedule' : 'Schedule'} appointment at {clientConfig.facility
+					.name_public}</Card.Title
 			>
 		</Card.Header>
 		<Card.Content>

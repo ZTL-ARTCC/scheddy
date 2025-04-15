@@ -24,12 +24,12 @@ export function new_session_transfer_request(props: SessionTransferRequestProps)
 			type: props.type,
 			duration: props.duration.toString(),
 			studentName: props.studentName,
-      mentorName: props.mentorName,
+			mentorName: props.mentorName,
 			sessionId: props.sessionId,
 			timezone: props.timezone,
 			facilityName: props.facilityName,
 			emailDomain: props.emailDomain,
-      transferLink: props.transferLink
+			transferLink: props.transferLink
 		}),
 		html: render(TransferRequest, {
 			props: props

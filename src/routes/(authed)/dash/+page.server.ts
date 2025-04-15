@@ -39,10 +39,12 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		}
 	}
 
-	const transferRequests = (await db
-		.select()
-		.from(pendingTransfers)
-		.where(or(eq(pendingTransfers.oldMentor, user.id), eq(pendingTransfers.newMentor, user.id)))).length
+	const transferRequests = (
+		await db
+			.select()
+			.from(pendingTransfers)
+			.where(or(eq(pendingTransfers.oldMentor, user.id), eq(pendingTransfers.newMentor, user.id)))
+	).length;
 
 	return {
 		yourSessions,

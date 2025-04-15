@@ -15,11 +15,10 @@ import { eq } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import { DateTime } from 'luxon';
 import { session_transfer_result } from '$lib/emails/mentor/transfer_result';
-import { PUBLIC_FACILITY_NAME } from '$env/static/public';
-import { ARTCC_EMAIL_DOMAIN } from '$env/static/private';
 import { sendEmail } from '$lib/email';
 import { appointment_booked } from '$lib/emails/student/appointment_booked';
 import { new_session } from '$lib/emails/mentor/new_session';
+import { serverConfig } from '$lib/config/server';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -119,8 +118,8 @@ export const actions: Actions = {
 			type: sessionAndFriends.sessionType?.name,
 			link_params: `?sessionId=${sessionAndFriends.session.id}&reschedule=true&type=${sessionAndFriends.sessionType?.id}`,
 			reschedule: true,
-			facilityName: PUBLIC_FACILITY_NAME,
-			emailDomain: ARTCC_EMAIL_DOMAIN
+			facilityName: serverConfig.facility.name_public,
+			emailDomain: serverConfig.facility.mail_domain
 		});
 
 		const mentorEmailContent = new_session({
@@ -133,8 +132,8 @@ export const actions: Actions = {
 			sessionId: sessionAndFriends.session.id,
 			type: sessionAndFriends.sessionType?.name,
 			reschedule: false,
-			facilityName: PUBLIC_FACILITY_NAME,
-			emailDomain: ARTCC_EMAIL_DOMAIN
+			facilityName: serverConfig.facility.name_public,
+			emailDomain: serverConfig.facility.mail_domain
 		});
 
 		const oldMentorEmailContent = session_transfer_result({
@@ -145,8 +144,8 @@ export const actions: Actions = {
 			mentorName: newMentor[0].firstName + ' ' + newMentor[0].lastName,
 			sessionId: params.sessionId,
 			type: sessionAndFriends.sessionType?.name,
-			facilityName: PUBLIC_FACILITY_NAME,
-			emailDomain: ARTCC_EMAIL_DOMAIN,
+			facilityName: serverConfig.facility.name_public,
+			emailDomain: serverConfig.facility.mail_domain,
 			result: 'accepted'
 		});
 
@@ -217,8 +216,8 @@ export const actions: Actions = {
 			mentorName: sessionAndFriends.mentor.firstName + ' ' + sessionAndFriends.mentor.lastName,
 			sessionId: params.sessionId,
 			type: sessionAndFriends.sessionType?.name,
-			facilityName: PUBLIC_FACILITY_NAME,
-			emailDomain: ARTCC_EMAIL_DOMAIN,
+			facilityName: serverConfig.facility.name_public,
+			emailDomain: serverConfig.facility.mail_domain,
 			result: 'declined'
 		});
 

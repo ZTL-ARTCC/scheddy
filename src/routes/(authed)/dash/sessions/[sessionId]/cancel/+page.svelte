@@ -33,9 +33,7 @@
 
 <h2 class="text-xl font-semibold">Cancel Session</h2>
 
-<p>
-	Are you sure you wish to cancel?
-</p>
+<p>Are you sure you wish to cancel?</p>
 
 <Input placeholder="Reason... (optional)" class="w-1/2" bind:value={reason}></Input>
 

@@ -12,7 +12,7 @@
 		mentorName,
 		facilityName,
 		emailDomain,
-    transferLink
+		transferLink
 	}: SessionTransferRequestProps = $props();
 </script>
 

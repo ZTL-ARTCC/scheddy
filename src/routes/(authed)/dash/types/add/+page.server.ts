@@ -7,7 +7,7 @@ import { db } from '$lib/server/db';
 import { sessionTypes } from '$lib/server/db/schema';
 import { fail, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { typeSchema } from '../typeSchema'
+import { typeSchema } from '../typeSchema';
 import { nanoid } from 'nanoid';
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;

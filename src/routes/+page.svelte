@@ -13,7 +13,9 @@
 		</Card.Header>
 		<Card.Content>
 			<Button
-				href="{clientConfig.auth.vatsim.base_public}/oauth/authorize?response_type=code&client_id={clientConfig.auth.vatsim.client_id_public}&redirect_uri={clientConfig.site.base_public}callback"
+				href="{clientConfig.auth.vatsim
+					.base_public}/oauth/authorize?response_type=code&client_id={clientConfig.auth.vatsim
+					.client_id_public}&redirect_uri={clientConfig.site.base_public}callback"
 			>
 				Login with VATSIM
 			</Button>

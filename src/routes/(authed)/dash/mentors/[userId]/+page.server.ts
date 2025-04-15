@@ -56,7 +56,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		.where(and(eq(sessions.mentor, mentor[0].id), eq(sessions.cancelled, false)))
 		.leftJoin(students, eq(students.id, sessions.student))
 		.leftJoin(mentors, eq(mentors.id, sessions.mentor))
-		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
+		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type));
 
 	const mentorSessions = [];
 	const now = DateTime.utc();

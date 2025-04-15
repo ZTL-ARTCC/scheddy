@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		.leftJoin(oldMentor, eq(oldMentor.id, pendingTransfers.oldMentor))
 		.leftJoin(newMentor, eq(newMentor.id, pendingTransfers.newMentor))
 		.leftJoin(sessions, eq(sessions.id, pendingTransfers.sessionId))
-		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
+		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type));
 
 	if (roleOf(user) < ROLE_STAFF) {
 		query.where(
