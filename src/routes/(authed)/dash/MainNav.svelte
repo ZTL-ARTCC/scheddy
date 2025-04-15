@@ -1,5 +1,6 @@
 <script lang="ts">
 	import {
+		ArrowUpDown,
 		CalendarClockIcon,
 		CalendarIcon,
 		CalendarPlusIcon,
@@ -8,7 +9,8 @@
 		Layers2Icon,
 		LayoutGridIcon,
 		LibraryIcon,
-		UsersIcon
+		UsersIcon,
+		X
 	} from 'lucide-svelte';
 	import { ROLE_MENTOR, ROLE_STAFF, ROLE_STUDENT } from '$lib/utils';
 	import type { NestedMenuItem } from './nav';
@@ -46,6 +48,18 @@
 					url: '/dash/cal/old',
 					title: 'Past Sessions',
 					icon: HistoryIcon,
+					visible: role >= ROLE_MENTOR
+				},
+				{
+					url: '/dash/cal/cancelled',
+					title: 'Cancelled Sessions',
+					icon: X,
+					visible: role >= ROLE_MENTOR
+				},
+				{
+					url: `/dash/cal/transfer-requests`,
+					title: 'Transfer Requests',
+					icon: ArrowUpDown,
 					visible: role >= ROLE_MENTOR
 				}
 			]

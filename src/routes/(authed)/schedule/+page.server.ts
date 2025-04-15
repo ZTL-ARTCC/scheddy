@@ -28,7 +28,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		.select()
 		.from(users)
 		.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)));
-	const allSessions = await db.select().from(sessions);
+	const allSessions = await db.select().from(sessions).where(eq(sessions.cancelled, false));
 
 	let slotData;
 	let atMaxSessions;
@@ -131,12 +131,12 @@ export const actions: Actions = {
 	default: async (event) => {
 		const { user } = (await loadUserData(event.cookies))!;
 
-		const sTypes = await db.select().from(sessionTypes);
+		const sTypes = await db.select().from(sessionTypes).where(eq(sessionTypes.bookable, true));
 		const mMentors = await db
 			.select()
 			.from(users)
 			.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)));
-		const allSessions = await db.select().from(sessions);
+		const allSessions = await db.select().from(sessions).where(eq(sessions.cancelled, false));
 
 		const slotData = slottificate(sTypes, mMentors, allSessions);
 
@@ -281,7 +281,7 @@ export const actions: Actions = {
 		try {
 			await sendEmail(
 				user.email,
-				`Appointment ${oldId ? 'rescheduled' : 'booked'} - ` +
+				`Appointment ${oldId ? 'updated' : 'booked'} - ` +
 					start.setZone(form.data.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 				studentEmailContent.raw,
 				studentEmailContent.html,
@@ -290,7 +290,7 @@ export const actions: Actions = {
 
 			await sendEmail(
 				mentor.email,
-				`Session ${oldSessionData?.mentor?.id === slotObj.mentor ? 'rescheduled' : 'booked'} - ` +
+				`Session ${oldSessionData?.mentor?.id === slotObj.mentor ? 'updated' : 'booked'} - ` +
 					start.setZone(mentor.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 				mentorEmailContent.raw,
 				mentorEmailContent.html,

@@ -12,6 +12,7 @@ export const users = mysqlTable('user', {
 	rating: int().notNull(),
 	mentorAvailability: text(),
 	allowedSessionTypes: text(),
+	bookableSessionTypes: text(),
 	timezone: text()
 });
 
@@ -28,7 +29,8 @@ export const sessionTypes = mysqlTable('sessionType', {
 	category: text().notNull(),
 	length: int().notNull(),
 	order: int().notNull().default(0),
-	rating: int().notNull().default(2)
+	rating: int().notNull().default(2),
+	bookable: boolean().notNull().default(true)
 });
 
 export const sessions = mysqlTable('session', {
@@ -46,7 +48,17 @@ export const sessions = mysqlTable('session', {
 	reminded: boolean().default(false).notNull(),
 	timezone: text().notNull(),
 	createdBy: int().references(() => users.id),
-	createdAt: text()
+	createdAt: text(),
+	cancelled: boolean().notNull().default(false),
+	cancellationUserLevel: int(),
+	cancellationReason: text()
 });
+
+export const pendingTransfers = mysqlTable('transfers', {
+	oldMentor: int().references(() => users.id).notNull(),
+	newMentor: int().references(() => users.id).notNull(),
+	sessionId: varchar({ length: 26 }).primaryKey().notNull(),
+});
+
 export const students = aliasedTable(users, 'student');
 export const mentors = aliasedTable(users, 'mentor');

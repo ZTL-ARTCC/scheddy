@@ -11,6 +11,7 @@ export type TSType = {
 	order: number;
 	length: number;
 	rating: number;
+	bookable: boolean;
 };
 
 export const stColumns: ColumnDef<TSType>[] = [
@@ -35,6 +36,13 @@ export const stColumns: ColumnDef<TSType>[] = [
 		header: 'Required Rating',
 		cell: ({ row }) => {
 			return ratingIdDisplay(row.original.rating);
+		}
+	},
+	{
+		accessorKey: 'bookable',
+		header: 'Bookable',
+		cell: ({ row }) => {
+			return row.original.bookable ? 'Yes' : 'No';
 		}
 	},
 	{

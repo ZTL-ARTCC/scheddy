@@ -4,8 +4,9 @@ import { roleOf } from '$lib';
 import { ROLE_MENTOR } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { sessions } from '$lib/server/db/schema';
+import { pendingTransfers, sessions } from '$lib/server/db/schema';
 import { DateTime } from 'luxon';
+import { eq, or } from 'drizzle-orm';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -13,10 +14,10 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		redirect(307, '/schedule');
 	}
 
-	const allSessions = await db.select().from(sessions);
+	const allSessions = await db.select().from(sessions).where(eq(sessions.cancelled, false));
 
 	let yourSessions = 0;
-	const mentorsSoFar = [];
+	const mentorsSoFar: number[] = [];
 	let mentors = 0;
 	let upcoming = 0;
 
@@ -38,8 +39,14 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		}
 	}
 
+	const transferRequests = (await db
+		.select()
+		.from(pendingTransfers)
+		.where(or(eq(pendingTransfers.oldMentor, user.id), eq(pendingTransfers.newMentor, user.id)))).length
+
 	return {
 		yourSessions,
+		transferRequests,
 		mentors,
 		upcoming,
 		breadcrumbs: [{ title: 'Dashboard' }]

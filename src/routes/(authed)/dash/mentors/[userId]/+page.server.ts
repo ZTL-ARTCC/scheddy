@@ -4,7 +4,7 @@ import { ROLE_STAFF } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { sessions, sessionTypes, students, mentors, users } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 import type { MentorAvailability } from '$lib/availability';
 import { DateTime } from 'luxon';
@@ -46,14 +46,17 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 	const allowedTypes: string[] | null = mentor[0].allowedSessionTypes
 		? JSON.parse(mentor[0].allowedSessionTypes)
 		: null;
+	const bookableTypes: string[] | null = mentor[0].bookableSessionTypes
+		? JSON.parse(mentor[0].bookableSessionTypes)
+		: null;
 
 	const allSessions = await db
 		.select()
 		.from(sessions)
-		.where(eq(sessions.mentor, mentor[0].id))
+		.where(and(eq(sessions.mentor, mentor[0].id), eq(sessions.cancelled, false)))
 		.leftJoin(students, eq(students.id, sessions.student))
 		.leftJoin(mentors, eq(mentors.id, sessions.mentor))
-		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type));
+		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
 
 	const mentorSessions = [];
 	const now = DateTime.utc();
@@ -109,6 +112,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		mentor: mentor[0],
 		availability: avail,
 		allowedTypes,
+		bookableTypes,
 		typesMap,
 		mentorSessions,
 		breadcrumbs:

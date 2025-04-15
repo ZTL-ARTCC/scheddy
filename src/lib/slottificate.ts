@@ -37,10 +37,10 @@ export function slottificate(
 	for (const typ of sTypes) {
 		const slots = [];
 		for (const mentor of mentors) {
-			if (!mentor.allowedSessionTypes) continue;
+			if (!mentor.bookableSessionTypes) continue;
 			if (!mentor.mentorAvailability) continue;
 
-			const allowedTypes = JSON.parse(mentor.allowedSessionTypes);
+			const allowedTypes = JSON.parse(mentor.bookableSessionTypes);
 			if (!allowedTypes) continue;
 			if (!allowedTypes.includes(typ.id)) continue;
 

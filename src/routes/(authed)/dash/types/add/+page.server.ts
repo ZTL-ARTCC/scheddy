@@ -7,14 +7,14 @@ import { db } from '$lib/server/db';
 import { sessionTypes } from '$lib/server/db/schema';
 import { fail, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { addSchema } from './addSchema';
+import { typeSchema } from '../typeSchema'
 import { nanoid } from 'nanoid';
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
 	if (roleOf(user) < ROLE_STAFF) {
 		redirect(307, '/schedule');
 	}
-	const form = await superValidate(zod(addSchema));
+	const form = await superValidate(zod(typeSchema));
 
 	return {
 		form,
@@ -27,7 +27,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 };
 export const actions: Actions = {
 	default: async (event) => {
-		const form = await superValidate(event, zod(addSchema));
+		const form = await superValidate(event, zod(typeSchema));
 		const { user } = (await loadUserData(event.cookies))!;
 		if (roleOf(user) < ROLE_STAFF) {
 			redirect(307, '/schedule');
@@ -42,7 +42,8 @@ export const actions: Actions = {
 			length: form.data.length,
 			order: form.data.order,
 			rating: form.data.rating,
-			category: form.data.category
+			category: form.data.category,
+			bookable: form.data.bookable
 		});
 
 		return { form };
