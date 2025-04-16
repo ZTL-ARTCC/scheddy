@@ -5,7 +5,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Popover from '$lib/components/ui/popover';
 	import { cn } from '$lib/utils';
-	import { CalendarIcon } from 'lucide-svelte';
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
 	import { Calendar } from '$lib/components/ui/calendar';
 	import SpecificDateAvailabilityControl from './SpecificDateAvailabilityControl.svelte';
 

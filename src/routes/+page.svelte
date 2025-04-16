@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { version } from '$app/environment';
-	import { HeartIcon } from 'lucide-svelte';
+	import HeartIcon from '@lucide/svelte/icons/heart';
 	import * as Card from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { clientConfig } from '$lib/config/client';
