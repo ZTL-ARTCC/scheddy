@@ -4,7 +4,8 @@
 	import * as Form from '$lib/components/ui/form';
 	import * as Select from '$lib/components/ui/select';
 	import { version } from '$app/environment';
-	import { HeartIcon, LoaderCircle } from 'lucide-svelte';
+	import HeartIcon from '@lucide/svelte/icons/heart';
+	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { superForm } from 'sveltekit-superforms';
 	import { DateTime, Interval } from 'luxon';

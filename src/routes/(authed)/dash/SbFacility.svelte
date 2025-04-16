@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as Sidebar from '$lib/components/ui/sidebar';
 	import { version } from '$app/environment';
-	import { TowerControl } from 'lucide-svelte';
+	import TowerControl from '@lucide/svelte/icons/tower-control';
 	import { clientConfig } from '$lib/config/client';
 </script>
 

@@ -5,7 +5,7 @@
 	import * as Form from '$lib/components/ui/form';
 	import { toast } from 'svelte-sonner';
 	import { Switch } from '$lib/components/ui/switch';
-	import { LoaderCircleIcon } from 'lucide-svelte';
+	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 
 	interface Props {
 		data: PageData;
