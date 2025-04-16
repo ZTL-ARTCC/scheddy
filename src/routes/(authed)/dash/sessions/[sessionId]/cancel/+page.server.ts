@@ -1,4 +1,4 @@
-import { loadUserData } from '$lib/userInfo';
+import { loadUserData, type SessionAndFriends } from '$lib/userInfo';
 import { roleOf } from '$lib';
 import { ROLE_STAFF } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
@@ -22,7 +22,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		.leftJoin(mentors, eq(mentors.id, sessions.mentor))
 		.leftJoin(students, eq(students.id, sessions.student))
 		.where(eq(sessions.id, params.sessionId));
-	const sessionAndFriends = sessionList[0];
+	const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
 	if (
 		roleOf(user) < ROLE_STAFF &&
@@ -52,7 +52,7 @@ export const actions: Actions = {
 			.leftJoin(mentors, eq(mentors.id, sessions.mentor))
 			.leftJoin(students, eq(students.id, sessions.student))
 			.where(eq(sessions.id, params.sessionId));
-		const sessionAndFriends = sessionList[0];
+		const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
 		if (
 			roleOf(user) < ROLE_STAFF &&
@@ -91,7 +91,7 @@ export const actions: Actions = {
 
 		try {
 			await sendEmail(
-				user.email,
+				sessionAndFriends.student.email,
 				'Appointment canceled - ' +
 					DateTime.fromISO(sessionAndFriends.session.start)
 						.setZone(sessionAndFriends.session.timezone)

@@ -1,9 +1,9 @@
 import type { PageServerLoad, Actions } from './$types';
-import { loadUserData } from '$lib/userInfo';
+import { loadUserData, type SessionAndFriends } from '$lib/userInfo';
 import { ROLE_STUDENT, roleString } from '$lib/utils';
 import { roleOf } from '$lib';
 import { db } from '$lib/server/db';
-import { mentors, sessions, sessionTypes, users, userTokens } from '$lib/server/db/schema';
+import { mentors, sessions, sessionTypes, students } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { redirect } from '@sveltejs/kit';
 import { appointment_canceled } from '$lib/emails/student/appointment_canceled';
@@ -27,27 +27,26 @@ export const actions: Actions = {
 	default: async (event) => {
 		const { user } = (await loadUserData(event.cookies))!;
 
-		const sessionData = (
-			await db
-				.select()
-				.from(sessions)
-				.leftJoin(mentors, eq(sessions.mentor, mentors.id))
-				.leftJoin(users, eq(sessions.student, users.id))
-				.leftJoin(sessionTypes, eq(sessions.type, sessionTypes.id))
-				.where(eq(sessions.id, event.params.id))
-		)[0];
+		const sessionList = await db
+			.select()
+			.from(sessions)
+			.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
+			.leftJoin(mentors, eq(mentors.id, sessions.mentor))
+			.leftJoin(students, eq(students.id, sessions.student))
+			.where(eq(sessions.id, event.params.id));
+		const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
-		if (sessionData.session.student != user.id) {
+		if (sessionAndFriends.session.student != user.id) {
 			return redirect(307, '/schedule');
 		}
 
 		const studentEmailContent = appointment_canceled({
-			startTime: DateTime.fromISO(sessionData.session.start),
-			timezone: sessionData.session.timezone,
-			mentorName: sessionData.mentor?.firstName + ' ' + sessionData.mentor?.lastName,
-			duration: sessionData.sessionType?.length ?? 0,
-			sessionId: sessionData.session.id,
-			type: sessionData.sessionType?.name ?? 'No Type',
+			startTime: DateTime.fromISO(sessionAndFriends.session.start),
+			timezone: sessionAndFriends.session.timezone,
+			mentorName: sessionAndFriends.mentor?.firstName + ' ' + sessionAndFriends.mentor?.lastName,
+			duration: sessionAndFriends.sessionType?.length ?? 0,
+			sessionId: sessionAndFriends.session.id,
+			type: sessionAndFriends.sessionType?.name,
 			facilityName: serverConfig.facility.name_public,
 			emailDomain: serverConfig.facility.mail_domain,
 			cancellationReason: 'Not Specified',
@@ -55,12 +54,13 @@ export const actions: Actions = {
 		});
 
 		const mentorEmailContent = session_canceled({
-			startTime: DateTime.fromISO(sessionData.session.start),
-			timezone: sessionData.mentor?.timezone ?? 'America/New York',
-			studentName: sessionData.user?.firstName + ' ' + sessionData.user?.firstName,
-			duration: sessionData.sessionType?.length ?? 0,
-			sessionId: sessionData.session.id,
-			type: sessionData.sessionType?.name ?? 'No Type',
+			startTime: DateTime.fromISO(sessionAndFriends.session.start),
+			timezone: sessionAndFriends.mentor?.timezone,
+			studentName:
+				sessionAndFriends.student?.firstName + ' ' + sessionAndFriends.student?.firstName,
+			duration: sessionAndFriends.sessionType?.length ?? 0,
+			sessionId: sessionAndFriends.session.id,
+			type: sessionAndFriends.sessionType?.name,
 			facilityName: serverConfig.facility.name_public,
 			emailDomain: serverConfig.facility.mail_domain,
 			cancellationReason: 'Not Specified',
@@ -69,20 +69,20 @@ export const actions: Actions = {
 
 		try {
 			await sendEmail(
-				sessionData.user?.email,
+				sessionAndFriends.student?.email,
 				'Appointment canceled - ' +
-					DateTime.fromISO(sessionData.session.start)
-						.setZone(sessionData.session.timezone)
+					DateTime.fromISO(sessionAndFriends.session.start)
+						.setZone(sessionAndFriends.session.timezone)
 						.toLocaleString(DateTime.DATETIME_HUGE),
 				studentEmailContent.raw,
 				studentEmailContent.html
 			);
 
 			await sendEmail(
-				sessionData.mentor?.email,
+				sessionAndFriends.mentor?.email,
 				'Session canceled - ' +
-					DateTime.fromISO(sessionData.session.start)
-						.setZone(sessionData.mentor.timezone)
+					DateTime.fromISO(sessionAndFriends.session.start)
+						.setZone(sessionAndFriends.mentor.timezone)
 						.toLocaleString(DateTime.DATETIME_HUGE),
 				mentorEmailContent.raw,
 				mentorEmailContent.html

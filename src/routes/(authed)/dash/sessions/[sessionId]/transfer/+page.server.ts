@@ -128,7 +128,7 @@ export const actions: Actions = {
 
 		await sendEmail(
 			newMentor[0].email,
-			'Session transfer request-' +
+			'Session transfer request - ' +
 				DateTime.fromISO(sessionAndFriends.session.start)
 					.setZone(sessionAndFriends.session.timezone)
 					.toLocaleString(DateTime.DATETIME_HUGE),
