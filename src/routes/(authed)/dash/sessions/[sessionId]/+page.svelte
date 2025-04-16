@@ -43,6 +43,17 @@
 		toast.success('Session declined successfully!');
 		await invalidateAll();
 	}
+
+	async function cancel_request() {
+		await fetch('?/cancel', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		});
+		toast.success('Session transfer request cancelled successfully!');
+		await invalidateAll();
+	}
 </script>
 
 <h2 class="text-xl font-semibold">Session Information</h2>
@@ -80,12 +91,15 @@
 <div class="flex flex-row flex-wrap gap-2">
 	{#if !data.newMentor || roleOf(data.user) >= ROLE_STAFF}
 		<Button href="/dash/sessions/{data.sessionInfo.session.id}/edit">Edit</Button>
-		{#if !data.pastSession}
-			<Button href="/dash/sessions/{data.sessionInfo.session.id}/transfer">Transfer</Button>
-		{/if}
 		<Button href="/dash/sessions/{data.sessionInfo.session.id}/cancel" variant="destructive">
 			Cancel
 		</Button>
+		{#if !data.pastSession && !data.pendingTransfer}
+			<Button href="/dash/sessions/{data.sessionInfo.session.id}/transfer">Transfer</Button>
+		{/if}
+		{#if data.pendingTransfer}
+			<Button onclick={cancel_request} variant="destructive">Cancel Transfer Request</Button>
+		{/if}
 	{/if}
 	{#if data.newMentor}
 		<Button onclick={accept}>Accept</Button>

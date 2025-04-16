@@ -61,10 +61,10 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		? `${createdByUser[0].firstName} ${createdByUser[0].lastName} at ${createdAt}`
 		: 'Not specified';
 
+	const pendingTransfer = Object.values(transfer).length > 0;
+
 	const newMentor =
-		Object.values(transfer).length > 0
-			? roleOf(user) >= ROLE_STAFF || transfer[0].newMentor == user.id
-			: false;
+		pendingTransfer && (roleOf(user) >= ROLE_STAFF || transfer[0].newMentor === user.id);
 
 	const now = DateTime.utc();
 	const start = DateTime.fromISO(sessionAndFriends.session.start);
@@ -74,6 +74,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		sessionInfo: sessionAndFriends,
 		isMentor: user.id == sessionAndFriends.session.mentor || roleOf(user) >= ROLE_STAFF,
 		pastSession,
+		pendingTransfer,
 		newMentor,
 		createdBy,
 		breadcrumbs: [
@@ -232,5 +233,24 @@ export const actions: Actions = {
 		);
 
 		await db.delete(pendingTransfers).where(eq(pendingTransfers.sessionId, transfer[0].sessionId));
+	},
+	cancel: async ({ cookies, params }) => {
+		const { user } = (await loadUserData(cookies))!;
+		const sessionList = await db
+			.select()
+			.from(sessions)
+			.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
+			.leftJoin(mentors, eq(mentors.id, sessions.mentor))
+			.leftJoin(students, eq(students.id, sessions.student))
+			.where(eq(sessions.id, params.sessionId));
+		const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
+
+		if (roleOf(user) < ROLE_STAFF && user.id != sessionAndFriends.session.mentor) {
+			redirect(307, '/schedule');
+		}
+
+		await db
+			.delete(pendingTransfers)
+			.where(eq(pendingTransfers.sessionId, sessionAndFriends.session.id));
 	}
 };
