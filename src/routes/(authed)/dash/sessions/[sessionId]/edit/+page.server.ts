@@ -23,10 +23,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		.where(eq(sessions.id, params.sessionId));
 	const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
-	if (
-		roleOf(user) < ROLE_STAFF &&
-		!(user.id == sessionAndFriends.session.student || user.id == sessionAndFriends.session.mentor)
-	) {
+	if (roleOf(user) < ROLE_STAFF && user.id == sessionAndFriends.session.mentor) {
 		redirect(307, '/schedule');
 	}
 
@@ -98,10 +95,7 @@ export const actions: Actions = {
 			.where(eq(sessions.id, event.params.sessionId));
 		const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
-		if (
-			roleOf(user) < ROLE_STAFF &&
-			!(user.id == sessionAndFriends.session.student || user.id == sessionAndFriends.session.mentor)
-		) {
+		if (roleOf(user) < ROLE_STAFF && !(user.id == sessionAndFriends.session.mentor)) {
 			redirect(307, '/schedule');
 		}
 
