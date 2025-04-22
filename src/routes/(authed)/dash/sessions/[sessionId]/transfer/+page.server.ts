@@ -37,7 +37,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		redirect(307, '/schedule');
 	}
 
-	const dmentors = (
+	const mentorsList = (
 		await db
 			.select()
 			.from(users)
@@ -59,12 +59,12 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
 	const usersMap: Record<number, string> = {};
 
-	for (const user of dmentors) {
+	for (const user of mentorsList) {
 		usersMap[user.id] = user.firstName + ' ' + user.lastName;
 	}
 
 	const data = {
-		newMentor: dmentors.length === 0 ? 0 : dmentors[0].id
+		newMentor: mentorsList.length === 0 ? 0 : mentorsList[0].id
 	};
 
 	const form = await superValidate(data, zod(transferSchema));

@@ -59,12 +59,12 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
 	const form = await superValidate(data, zod(editSchema));
 
-	const dmentors = await db
+	const mentorsList = await db
 		.select()
 		.from(users)
 		.where(or(gte(users.roleOverride, ROLE_MENTOR), gte(users.role, ROLE_MENTOR)));
 	const usersMap: Record<number, string> = {};
-	for (const user of dmentors) {
+	for (const user of mentorsList) {
 		usersMap[user.id] = user.firstName + ' ' + user.lastName;
 	}
 

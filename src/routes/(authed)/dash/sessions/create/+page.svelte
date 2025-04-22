@@ -68,16 +68,11 @@
 	};
 
 	const calculateMentorAvailability = (sessionStart: DateTime, sessiondEnd: DateTime) => {
-		if (!data.mentorsMap[$formData.mentor]) return false;
-		if (!Object.keys(data.mentorsMap[$formData.mentor]).includes('availability')) {
-			return false;
-		}
-		if (Object.keys(data.typesMap).length === 0) {
-			return false;
-		}
+		const mentor = data.mentorsMap[$formData.mentor];
+		if (!mentor || Object.keys(data.typesMap).length === 0) return false;
 
-		const availability: MentorAvailability | null = data.mentorsMap[$formData.mentor].availability
-			? JSON.parse(data.mentorsMap[$formData.mentor].availability as string)
+		const availability: MentorAvailability | null = mentor.availability
+			? JSON.parse(mentor.availability as string)
 			: null;
 
 		if (!availability) return false;
@@ -110,11 +105,11 @@
 		'This session falls during an existing session this mentor has booked. Are you sure you want to create it?';
 
 	const isMentorAvailable = $derived.by(() => {
-		const s_date = DateTime.fromISO($formData.date, {
+		const sessionDate = DateTime.fromISO($formData.date, {
 			zone: $formData.timezone
 		});
 
-		const start = s_date.set({ hour: $formData.hour, minute: $formData.minute });
+		const start = sessionDate.set({ hour: $formData.hour, minute: $formData.minute });
 		const end = start.plus({ minutes: data.typesMap[$formData.type].length });
 
 		for (const session of data.mentorSessions) {

@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 	const { user } = (await loadUserData(cookies))!;
 
 	const sTypes = await db.select().from(sessionTypes);
-	const mMentors = await db
+	const mentorsList = await db
 		.select()
 		.from(users)
 		.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)));
@@ -76,7 +76,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		slotData = {};
 		atMaxSessions = true;
 	} else {
-		slotData = slottificate(sTypes, mMentors, allSessions);
+		slotData = slottificate(sTypes, mentorsList, allSessions);
 		atMaxSessions = false;
 	}
 
@@ -132,13 +132,13 @@ export const actions: Actions = {
 		const { user } = (await loadUserData(event.cookies))!;
 
 		const sTypes = await db.select().from(sessionTypes).where(eq(sessionTypes.bookable, true));
-		const mMentors = await db
+		const mentorsList = await db
 			.select()
 			.from(users)
 			.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)));
 		const allSessions = await db.select().from(sessions).where(eq(sessions.cancelled, false));
 
-		const slotData = slottificate(sTypes, mMentors, allSessions);
+		const slotData = slottificate(sTypes, mentorsList, allSessions);
 
 		const timezones = getTimeZones();
 
@@ -200,7 +200,7 @@ export const actions: Actions = {
 		const oldSessionData = oldId
 			? {
 					session: oldSession,
-					mentor: mMentors.find((m) => m.id === oldSession?.mentor),
+					mentor: mentorsList.find((m) => m.id === oldSession?.mentor),
 					student: (await db.select().from(users).where(eq(users.id, oldSession?.student)))[0]
 				}
 			: null;

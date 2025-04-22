@@ -43,14 +43,14 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		typesMap[type.id] = type;
 	}
 
-	const u_users = await db.select().from(users);
+	const usersList = await db.select().from(users);
 
-	let dmentors: (typeof users.$inferSelect)[];
+	let mentorsList: (typeof users.$inferSelect)[];
 
 	if (roleOf(user) >= ROLE_STAFF) {
-		dmentors = u_users.filter((u) => roleOf(u) >= ROLE_MENTOR);
+		mentorsList = usersList.filter((u) => roleOf(u) >= ROLE_MENTOR);
 	} else {
-		dmentors = [user];
+		mentorsList = [user];
 	}
 
 	const mentorsMap: Record<
@@ -62,7 +62,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		}
 	> = {};
 
-	for (const user of dmentors) {
+	for (const user of mentorsList) {
 		mentorsMap[user.id] = {
 			name: user.firstName + ' ' + user.lastName,
 			availability: user.mentorAvailability,
@@ -71,7 +71,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	}
 
 	const usersMap: Record<number, { name: string }> = {};
-	for (const user of u_users) {
+	for (const user of usersList) {
 		usersMap[user.id] = { name: user.firstName + ' ' + user.lastName };
 	}
 
@@ -83,7 +83,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		minute: now.minute,
 		type: sTypes.length === 0 ? '' : sTypes[0].id,
 		mentor: user.id,
-		student: u_users[0].id,
+		student: usersList[0].id,
 		timezone: mentorsMap[user.id].timezone
 	};
 
