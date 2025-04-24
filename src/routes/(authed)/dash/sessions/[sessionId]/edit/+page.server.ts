@@ -10,6 +10,7 @@ import { DateTime } from 'luxon';
 import { fail, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { editSchema } from './editSchema';
+import type { DayAvailability, MentorAvailability } from '$lib/availability';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -54,7 +55,8 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		hour: start.hour,
 		minute: start.minute,
 		type: session.type,
-		mentor: session.mentor
+		mentor: session.mentor,
+		addExecption: false
 	};
 
 	const form = await superValidate(data, zod(editSchema));
@@ -117,6 +119,54 @@ export const actions: Actions = {
 
 		if (roleOf(user) >= ROLE_STAFF) {
 			data.mentor = form.data.mentor;
+		}
+
+		if (form.data.addException) {
+			const availability: MentorAvailability | null = sessionAndFriends.mentor.mentorAvailability
+				? JSON.parse(sessionAndFriends.mentor.mentorAvailability as string)
+				: null;
+
+			const oldDateStart = DateTime.fromISO(sessionAndFriends.session.start).setZone(
+				sessionAndFriends.session.timezone
+			);
+
+			const oldDateEnd = oldDateStart.plus({
+				minutes: sessionAndFriends.sessionType.length
+			});
+
+			const timeObj = [
+				{
+					start: {
+						hour: oldDateStart.hour,
+						minute: oldDateStart.minute
+					},
+					end: {
+						hour: oldDateEnd.hour,
+						minute: oldDateEnd.minute
+					}
+				}
+			];
+
+			const key = oldDateStart.toUTC().toISO() as string;
+
+			if (availability) {
+				if (availability.exceptions[key]) {
+					availability.exceptions[key].extraRecords = timeObj;
+				} else {
+					availability.exceptions[key] = {
+						...timeObj[0],
+						available: false,
+						extraRecords: null
+					};
+				}
+			}
+
+			await db
+				.update(mentors)
+				.set({
+					mentorAvailability: JSON.stringify(availability)
+				})
+				.where(eq(mentors.id, sessionAndFriends.session.mentor));
 		}
 
 		await db.update(sessions).set(data).where(eq(sessions.id, event.params.sessionId));

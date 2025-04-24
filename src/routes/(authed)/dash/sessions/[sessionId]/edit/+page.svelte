@@ -9,6 +9,7 @@
 	import { superForm } from 'sveltekit-superforms';
 	import * as Popover from '$lib/components/ui/popover';
 	import * as Form from '$lib/components/ui/form';
+	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import {
 		DateFormatter,
 		type DateValue,
@@ -53,6 +54,18 @@
 		$formData.hour = String($formData.hour).padStart(2, '0');
 		$formData.minute = String($formData.minute).padStart(2, '0');
 	}
+
+	const reschedule = $derived.by(() => {
+		const originalDate = DateTime.fromISO(data.sessionInfo.session.start);
+		const newDate = DateTime.fromISO($formData.date)
+			.setZone(data.sessionInfo.session.timezone)
+			.set({
+				hour: $formData.hour,
+				minute: $formData.minute
+			});
+
+		return originalDate !== newDate;
+	});
 </script>
 
 <h2 class="text-xl font-semibold">Edit Session</h2>
@@ -139,6 +152,14 @@
 			</Form.Control>
 			<Form.Description>Minutes (MM)</Form.Description>
 			<Form.FieldErrors />
+		</Form.Field>
+		<Form.Field {form} name="addException" class="my-auto ml-4">
+			<Form.Control>
+				<div class="flex items-center space-x-2">
+					<Checkbox bind:checked={$formData.addException} hidden={!reschedule} />
+					<Form.Label hidden={!reschedule}>Add Exception</Form.Label>
+				</div>
+			</Form.Control>
 		</Form.Field>
 	</div>
 
