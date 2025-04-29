@@ -76,26 +76,27 @@
 			<DataDisplay icon={PencilIcon} label="Created By">
 				{data.createdBy}
 			</DataDisplay>
-			{#if data.sessionInfo.session.cancelled}
-				<DataDisplay icon={X} label="Cancelled">
-					{roleString(data.sessionInfo.session.cancellationUserLevel ?? 0)}:
-					{data.sessionInfo.session.cancellationReason}
-				</DataDisplay>
-			{/if}
+		{/if}
+		{#if data.sessionInfo.session.cancelled}
+			<DataDisplay icon={X} label="Cancelled">
+				{roleString(data.sessionInfo.session.cancellationUserLevel ?? 0)}:
+				{data.sessionInfo.session.cancellationReason}
+			</DataDisplay>
 		{/if}
 	</tbody>
 </table>
 
 <div class="flex flex-row flex-wrap gap-2">
-	{#if !data.newMentor || roleOf(data.user) >= ROLE_STAFF}
+	{#if data.isMentor}
 		<Button href="/dash/sessions/{data.sessionInfo.session.id}/edit">Edit</Button>
-		<Button href="/dash/sessions/{data.sessionInfo.session.id}/cancel" variant="destructive">
-			Cancel
-		</Button>
-		{#if !data.pastSession && !data.pendingTransfer}
-			<Button href="/dash/sessions/{data.sessionInfo.session.id}/transfer">Transfer</Button>
+		{#if !data.pastSession}
+			<Button href="/dash/sessions/{data.sessionInfo.session.id}/cancel" variant="destructive">
+				Cancel
+			</Button>
 		{/if}
-		{#if data.pendingTransfer}
+		{#if !data.pendingTransfer}
+			<Button href="/dash/sessions/{data.sessionInfo.session.id}/transfer">Transfer</Button>
+		{:else}
 			<Button onclick={cancel_request} variant="destructive">Cancel Transfer Request</Button>
 		{/if}
 	{/if}

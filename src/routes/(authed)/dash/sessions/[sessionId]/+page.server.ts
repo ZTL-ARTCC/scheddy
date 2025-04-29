@@ -63,8 +63,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
 	const pendingTransfer = Object.values(transfer).length > 0;
 
-	const newMentor =
-		pendingTransfer && (roleOf(user) >= ROLE_STAFF || transfer[0].newMentor === user.id);
+	const newMentor = pendingTransfer && transfer[0].newMentor === user.id;
 
 	const now = DateTime.utc();
 	const start = DateTime.fromISO(sessionAndFriends.session.start);

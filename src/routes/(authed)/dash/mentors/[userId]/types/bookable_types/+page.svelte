@@ -54,7 +54,7 @@
 					{/if}
 				</Form.Button>
 			{:else}
-				<i>This mentor is not able to teach any sessions.</i>
+				<i>This mentor is not able to be booked for any sessions.</i>
 			{/if}
 		</div>
 	</form>
