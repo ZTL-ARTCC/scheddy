@@ -26,7 +26,8 @@
 				$formData.exceptions[dateAdd.toString()] = {
 					available: false,
 					start: { hour: 0, minute: 0 },
-					end: { hour: 0, minute: 0 }
+					end: { hour: 0, minute: 0 },
+					extraRecords: []
 				};
 			}
 		}
