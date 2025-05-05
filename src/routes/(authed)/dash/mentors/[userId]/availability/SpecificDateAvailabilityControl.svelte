@@ -63,7 +63,7 @@
 	{#if $formData.exceptions[dayId].available}
 		<div class="flex flex-row gap-4 ml-7 mt-2">
 			<div class="flex flex-row gap-2">
-				<Form.Field {form} name="{dayId}.start.hour">
+				<Form.Field {form} name="exceptions.{dayId}.start.hour">
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label>From</Form.Label>
@@ -79,7 +79,7 @@
 					<Form.FieldErrors />
 				</Form.Field>
 				<span class="mt-10">:</span>
-				<Form.Field {form} name="{dayId}.start.minute">
+				<Form.Field {form} name="exceptions.{dayId}.start.minute">
 					<Form.Control>
 						{#snippet children({ props })}
 							<!-- required for spacing. it's cursed -->
@@ -99,7 +99,7 @@
 			</div>
 			<Separator orientation="vertical" />
 			<div class="flex flex-row gap-2">
-				<Form.Field {form} name="{dayId}.end.hour">
+				<Form.Field {form} name="exceptions.{dayId}.end.hour">
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label>To</Form.Label>
@@ -115,7 +115,7 @@
 					<Form.FieldErrors />
 				</Form.Field>
 				<span class="mt-10">:</span>
-				<Form.Field {form} name="{dayId}.end.minute">
+				<Form.Field {form} name="exceptions.{dayId}.end.minute">
 					<Form.Control>
 						{#snippet children({ props })}
 							<!-- required for spacing. it's cursed -->
@@ -142,7 +142,7 @@
 		{#each $formData.exceptions[dayId].extraRecords as record, i}
 			<div class="flex flex-row gap-4 ml-7 mt-2">
 				<div class="flex flex-row gap-2">
-					<Form.Field {form} name="{dayId}.extraRecords[{i}].start.hour">
+					<Form.Field {form} name="exceptions.{dayId}.extraRecords[{i}].start.hour">
 						<Form.Control>
 							{#snippet children({ props })}
 								<Form.Label>From</Form.Label>
@@ -153,7 +153,7 @@
 						<Form.FieldErrors />
 					</Form.Field>
 					<span class="mt-10">:</span>
-					<Form.Field {form} name="{dayId}.extraRecords[{i}].start.minute">
+					<Form.Field {form} name="exceptions.{dayId}.extraRecords[{i}].start.minute">
 						<Form.Control>
 							{#snippet children({ props })}
 								<!-- required for spacing. it's cursed -->
@@ -168,7 +168,7 @@
 				</div>
 				<Separator orientation="vertical" />
 				<div class="flex flex-row gap-2">
-					<Form.Field {form} name="{dayId}.extraRecords[{i}].end.hour">
+					<Form.Field {form} name="exceptions.{dayId}.extraRecords[{i}].end.hour">
 						<Form.Control>
 							{#snippet children({ props })}
 								<Form.Label>To</Form.Label>
@@ -179,7 +179,7 @@
 						<Form.FieldErrors />
 					</Form.Field>
 					<span class="mt-10">:</span>
-					<Form.Field {form} name="{dayId}.extraRecords[{i}].end.minute">
+					<Form.Field {form} name="exceptions.{dayId}.extraRecords[{i}].end.minute">
 						<Form.Control>
 							{#snippet children({ props })}
 								<!-- required for spacing. it's cursed -->

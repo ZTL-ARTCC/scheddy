@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import SuperDebug, { superForm } from 'sveltekit-superforms';
+	import { superForm } from 'sveltekit-superforms';
 	import { goto } from '$app/navigation';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { availSchema } from './availSchema';
