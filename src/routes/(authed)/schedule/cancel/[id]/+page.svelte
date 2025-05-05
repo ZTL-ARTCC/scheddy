@@ -4,6 +4,7 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
 	import { toast } from 'svelte-sonner';
+	import { clientConfig } from '$lib/config/client';
 
 	interface Props {
 		data: PageData;

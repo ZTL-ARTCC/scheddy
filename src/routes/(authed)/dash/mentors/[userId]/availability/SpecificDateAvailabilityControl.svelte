@@ -5,17 +5,15 @@
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
 	import { Separator } from '$lib/components/ui/separator';
-	import type { DayAvailability } from '$lib/availability';
 	import { Button } from '$lib/components/ui/button';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
 
 	interface Props {
 		dayId: string;
-		dayName: string;
 		form: SuperForm<Infer<AvailSchema>>;
 	}
-	let { dayId, dayName, form }: Props = $props();
+	let { dayId, form }: Props = $props();
 
 	const { form: formData } = $derived(form);
 

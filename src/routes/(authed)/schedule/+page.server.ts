@@ -269,6 +269,7 @@ export const actions: Actions = {
 					description: `${typename} with ${mentor.firstName} ${mentor.lastName} and ${user.firstName} ${user.lastName}`,
 					url: serverConfig.site.base_public
 				},
+				// eslint-disable-next-line
 				(err: any, val: any) => {
 					if (err) {
 						rej(err);
