@@ -82,5 +82,4 @@
 		<SpecificDateAvailability {form} />
 	</div>
 	<Form.Button class="mt-2 w-full">Set Availability</Form.Button>
-	<SuperDebug data={$formData} />
 </form>
