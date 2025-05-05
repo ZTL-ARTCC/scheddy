@@ -30,6 +30,24 @@
 							).padStart(2, '0')}</b
 						></span
 					>
+					{#if data.exceptions[dayId].extraRecords}
+						{#each data.exceptions[dayId].extraRecords as record}
+							<span class="text-sm text-muted-foreground"
+								>and from <b
+									>{String(record.start.hour).padStart(2, '0')}:{String(
+										record.start.minute
+									).padStart(2, '0')}</b
+								>
+								to
+								<b
+									>{String(record.end.hour).padStart(2, '0')}:{String(record.end.minute).padStart(
+										2,
+										'0'
+									)}</b
+								></span
+							>
+						{/each}
+					{/if}
 				{:else}
 					<span class="text-sm text-muted-foreground">unavailable</span>
 				{/if}

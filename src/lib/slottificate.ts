@@ -84,23 +84,35 @@ export function slottificate(
 
 				// convert the availability back to an interval
 				if (todaysAvail && todaysAvail.available) {
-					// we are available
-					const start = dayInMentorsTz.set({
-						hour: todaysAvail.start.hour,
-						minute: todaysAvail.start.minute,
-						second: 0,
-						millisecond: 0
-					});
-					const end = dayInMentorsTz.set({
-						hour: todaysAvail.end.hour,
-						minute: todaysAvail.end.minute,
-						second: 0,
-						millisecond: 0
-					});
+					// we are available, list our intervals
 
-					const interval = Interval.fromDateTimes(start, end);
+					const availableIntervalsStruct: {
+						start: { hour: number; minute: number };
+						end: { hour: number; minute: number };
+					}[] = [];
+					availableIntervalsStruct.push(todaysAvail);
+					if (todaysAvail.extraRecords) {
+						availableIntervalsStruct.push(...todaysAvail.extraRecords);
+					}
 
-					availablePeriodsMentorsTime.push(interval);
+					for (const rawInterval of availableIntervalsStruct) {
+						const start = dayInMentorsTz.set({
+							hour: rawInterval.start.hour,
+							minute: rawInterval.start.minute,
+							second: 0,
+							millisecond: 0
+						});
+						const end = dayInMentorsTz.set({
+							hour: rawInterval.end.hour,
+							minute: rawInterval.end.minute,
+							second: 0,
+							millisecond: 0
+						});
+
+						const interval = Interval.fromDateTimes(start, end);
+
+						availablePeriodsMentorsTime.push(interval);
+					}
 				}
 			}
 
@@ -140,6 +152,10 @@ export function slottificate(
 			const minimumLength = typ.length!;
 
 			for (const period of thisMentorAvailability) {
+				/* TODO: This leaves out a LOT of possible slots...
+				 * really should rework this at some point.
+				 * I'm just scared to mess with this code, since it currently
+				 * functions -XD */
 				individualSlots.push(...period.splitBy(Duration.fromObject({ minutes: minimumLength })));
 			}
 

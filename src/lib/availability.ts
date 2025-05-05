@@ -12,6 +12,7 @@ export interface DayAvailability {
 	available: boolean;
 	start: Time;
 	end: Time;
+	extraRecords: { start: Time; end: Time }[] | null;
 }
 export interface Time {
 	hour: number;

@@ -8,7 +8,13 @@ export const time = z.object({
 export const dayAvailability = z.object({
 	available: z.coerce.boolean(),
 	start: time,
-	end: time
+	end: time,
+	extraRecords: z
+		.object({
+			start: time,
+			end: time
+		})
+		.array()
 });
 export type DayAvailability = typeof dayAvailability;
 
