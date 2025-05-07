@@ -22,7 +22,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select';
 	import UserSelector from '$lib/ui/UserSelector.svelte';
-	import type { DayAvailability, MentorAvailability } from '$lib/availability';
+	import type { DayAvailability, MentorAvailability, Time } from '$lib/availability';
 
 	interface Props {
 		data: PageData;
@@ -49,23 +49,28 @@
 		sessionStart: DateTime,
 		sessionEnd: DateTime
 	) => {
-		const dayAvailabilityStart = sessionStart.set({
-			hour: mentorAvailability.start.hour,
-			minute: mentorAvailability.start.minute - 1
-		});
-		const dayAvailabilityEnd = sessionStart.set({
-			hour: mentorAvailability.end.hour,
-			minute: mentorAvailability.end.minute + 1
-		});
+		const intervalHelper = (start: Time, end: Time) => {
+			const dayAvailabilityStart = sessionStart.set({
+				hour: start.hour,
+				minute: start.minute - 1
+			});
+			const dayAvailabilityEnd = sessionEnd.set({
+				hour: end.hour,
+				minute: end.minute + 1
+			});
 
-		const dayAvailabilityInterval = Interval.fromDateTimes(
-			dayAvailabilityStart,
-			dayAvailabilityEnd
-		);
+			return Interval.fromDateTimes(dayAvailabilityStart, dayAvailabilityEnd);
+		};
 
-		return (
-			dayAvailabilityInterval.contains(sessionStart) && dayAvailabilityInterval.contains(sessionEnd)
-		);
+		const intervals = [intervalHelper(mentorAvailability.start, mentorAvailability.end)];
+
+		if (mentorAvailability.extraRecords) {
+			for (const record of mentorAvailability.extraRecords) {
+				intervals.push(intervalHelper(record.start, record.end));
+			}
+		}
+
+		return intervals.some((i) => i.contains(sessionStart) && i.contains(sessionEnd));
 	};
 
 	const calculateMentorAvailability = (sessionStart: DateTime, sessiondEnd: DateTime) => {
@@ -85,11 +90,18 @@
 		)
 			return false;
 
-		const dayAvailability = availability[
+		const startDayAvailability = availability[
 			sessionStart.weekdayLong?.toLowerCase()
 		] as DayAvailability;
 
-		if (availableInterval(dayAvailability, sessionStart, sessiondEnd)) {
+		const endDayAvailability = availability[
+			sessiondEnd.weekdayLong?.toLowerCase()
+		] as DayAvailability;
+
+		if (
+			availableInterval(startDayAvailability, sessionStart, sessiondEnd) &&
+			availableInterval(endDayAvailability, sessionStart, sessiondEnd)
+		) {
 			return true;
 		} else {
 			for (const exception in availability.exceptions) {
