@@ -107,6 +107,9 @@
 		'This session falls during an existing session this mentor has booked. Are you sure you want to create it?';
 
 	const isMentorAvailable = $derived.by(() => {
+		if (!data.mentorSessions || Object.keys(data.typesMap).length === 0)
+			return { status: false, message: '' };
+
 		const sessionDate = DateTime.fromISO($formData.date, {
 			zone: $formData.timezone
 		});
@@ -301,7 +304,11 @@
 			{/if}
 		</Form.Button>
 	{:else}
-		<Form.Button type="button" onclick={() => (dialogOpen = true)} hidden={$formData.type === ''}>
+		<Form.Button
+			type="button"
+			onclick={() => (dialogOpen = true)}
+			hidden={$formData.type === '' || $formData.student === 0}
+		>
 			Create Session
 		</Form.Button>
 	{/if}
@@ -331,7 +338,7 @@
 				</Form.Button>
 				<Form.Button
 					class="w-full"
-					variant="destructive"
+					variant="outline"
 					onclick={() => {
 						dialogOpen = false;
 					}}

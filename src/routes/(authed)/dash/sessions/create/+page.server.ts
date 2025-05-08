@@ -83,7 +83,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		minute: now.minute,
 		type: sTypes.length === 0 ? '' : sTypes[0].id,
 		mentor: user.id,
-		student: usersList[0].id,
+		student: 0,
 		timezone: mentorsMap[user.id].timezone
 	};
 
