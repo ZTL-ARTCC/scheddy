@@ -4,7 +4,7 @@ import { ROLE_STAFF } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { sessionTypes, users } from '$lib/server/db/schema';
-import { eq, inArray } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import { fail, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
@@ -25,18 +25,11 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		redirect(307, '/dash');
 	}
 
-	const allowedTypes: string[] | null = mentor[0].allowedSessionTypes
-		? JSON.parse(mentor[0].allowedSessionTypes)
-		: null;
-
 	const bookableTypes: string[] | null = mentor[0].bookableSessionTypes
 		? JSON.parse(mentor[0].bookableSessionTypes)
 		: null;
 
-	const validTypes = await db
-		.select()
-		.from(sessionTypes)
-		.where(inArray(sessionTypes.id, allowedTypes));
+	const validTypes = await db.select().from(sessionTypes);
 
 	const bookable: Record<string, boolean> = {};
 	const typesMap: Record<string, string> = {};

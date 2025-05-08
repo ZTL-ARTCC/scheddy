@@ -33,7 +33,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	} else {
 		const allowedTypes: string[] = user.allowedSessionTypes
 			? JSON.parse(user.allowedSessionTypes)
-			: null;
+			: [];
 
 		sTypes = await db.select().from(sessionTypes).where(inArray(sessionTypes.id, allowedTypes));
 	}
@@ -166,8 +166,8 @@ export const actions: Actions = {
 
 		const mentor =
 			roleOf(user) >= ROLE_STAFF
-				? [user]
-				: await db.select().from(users).where(eq(users.id, mentorId));
+				? await db.select().from(users).where(eq(users.id, mentorId))
+				: [user];
 		const student = await db.select().from(users).where(eq(users.id, form.data.student));
 		const type = await db.select().from(sessionTypes).where(eq(sessionTypes.id, form.data.type));
 

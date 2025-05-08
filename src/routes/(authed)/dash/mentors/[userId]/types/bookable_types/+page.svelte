@@ -45,17 +45,13 @@
 					<Form.FieldErrors />
 				</Form.Field>
 			{/each}
-			{#if Object.entries(data.typesMap).length !== 0}
-				<Form.Button>
-					{#if $delayed}
-						<LoaderCircleIcon class="size-4 animate-spin" />
-					{:else}
-						Update
-					{/if}
-				</Form.Button>
-			{:else}
-				<i>This mentor is not able to be booked for any sessions.</i>
-			{/if}
+			<Form.Button>
+				{#if $delayed}
+					<LoaderCircleIcon class="size-4 animate-spin" />
+				{:else}
+					Update
+				{/if}
+			</Form.Button>
 		</div>
 	</form>
 </div>

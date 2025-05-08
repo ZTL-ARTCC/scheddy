@@ -39,7 +39,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 	} else {
 		const allowedTypes: string[] = user.allowedSessionTypes
 			? JSON.parse(user.allowedSessionTypes)
-			: null;
+			: [];
 
 		sTypes = await db.select().from(sessionTypes).where(inArray(sessionTypes.id, allowedTypes));
 	}
