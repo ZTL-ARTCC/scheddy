@@ -25,7 +25,7 @@
 </script>
 
 <div class="flex flex-col gap-2">
-	<h1 class="text-2xl font-semibold">
+	<h1 class="text-2xl font-semibold mb-2">
 		Editing allowed session types - {data.mentor.firstName}
 		{data.mentor.lastName}
 	</h1>
@@ -45,7 +45,7 @@
 					<Form.FieldErrors />
 				</Form.Field>
 			{/each}
-			<Form.Button>
+			<Form.Button class="w-1/5 mr-auto">
 				{#if $delayed}
 					<LoaderCircleIcon class="size-4 animate-spin" />
 				{:else}
