@@ -94,7 +94,7 @@ export const actions: Actions = {
 			.where(eq(sessions.id, event.params.sessionId));
 		const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
-		if (roleOf(user) < ROLE_STAFF && user.id == sessionAndFriends.session.mentor) {
+		if (roleOf(user) < ROLE_STAFF && !(user.id == sessionAndFriends.session.mentor)) {
 			redirect(307, '/schedule');
 		}
 
@@ -111,7 +111,7 @@ export const actions: Actions = {
 			),
 			timezone: sessionAndFriends.session.timezone,
 			studentName: sessionAndFriends.student?.firstName + ' ' + sessionAndFriends.student?.lastName,
-			mentorName: sessionAndFriends.student?.firstName + ' ' + sessionAndFriends.student?.lastName,
+			mentorName: sessionAndFriends.mentor?.firstName + ' ' + sessionAndFriends.mentor?.lastName,
 			duration: sessionAndFriends.sessionType?.length,
 			sessionId: sessionAndFriends.session.id,
 			type: sessionAndFriends.sessionType?.name,
@@ -124,7 +124,7 @@ export const actions: Actions = {
 			newMentor[0].email,
 			'Session transfer request - ' +
 				DateTime.fromISO(sessionAndFriends.session.start)
-					.setZone(sessionAndFriends.session.timezone)
+					.setZone(sessionAndFriends.mentor.timezone)
 					.toLocaleString(DateTime.DATETIME_HUGE),
 			mentorEmailContent.raw,
 			mentorEmailContent.html

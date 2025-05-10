@@ -102,6 +102,6 @@
 	{/if}
 	{#if data.newMentor}
 		<Button onclick={accept}>Accept</Button>
-		<Button onclick={decline}>Decline</Button>
+		<Button variant="destructive" onclick={decline}>Decline</Button>
 	{/if}
 </div>
