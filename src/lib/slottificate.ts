@@ -2,7 +2,7 @@
 // TODO: Fix this mess
 import { DateTime, Duration, Interval } from 'luxon';
 import { sessions, sessionTypes, users } from '$lib/server/db/schema';
-import type { DayAvailability, MentorAvailability } from '$lib/availability';
+import type { DayAvailability, ExceptionAvailability, MentorAvailability } from '$lib/availability';
 import { serverConfig } from '$lib/config/server';
 
 export function slottificate(
@@ -65,33 +65,29 @@ export function slottificate(
 			for (const validDay of validDaysToBook) {
 				const dayInMentorsTz = validDay.setZone(mentor.timezone);
 
-				let todaysAvail: DayAvailability | null = null;
+				let weekdayAvail: DayAvailability | null = null;
+				let exceptionAvailability: ExceptionAvailability | null = null;
 				// do they have a date exception set?
 
 				const exceptionDateKey = dayInMentorsTz.toFormat('yyyy-MM-dd');
 				if (Object.keys(availability.exceptions).includes(exceptionDateKey)) {
-					todaysAvail = availability.exceptions[exceptionDateKey];
+					exceptionAvailability = availability.exceptions[exceptionDateKey];
 				} else {
 					// no exception, use weekday availability
-					if (dayInMentorsTz.weekday == 1) todaysAvail = availability.monday;
-					else if (dayInMentorsTz.weekday == 2) todaysAvail = availability.tuesday;
-					else if (dayInMentorsTz.weekday == 3) todaysAvail = availability.wednesday;
-					else if (dayInMentorsTz.weekday == 4) todaysAvail = availability.thursday;
-					else if (dayInMentorsTz.weekday == 5) todaysAvail = availability.friday;
-					else if (dayInMentorsTz.weekday == 6) todaysAvail = availability.saturday;
-					else if (dayInMentorsTz.weekday == 7) todaysAvail = availability.sunday;
+					if (dayInMentorsTz.weekday == 1) weekdayAvail = availability.monday;
+					else if (dayInMentorsTz.weekday == 2) weekdayAvail = availability.tuesday;
+					else if (dayInMentorsTz.weekday == 3) weekdayAvail = availability.wednesday;
+					else if (dayInMentorsTz.weekday == 4) weekdayAvail = availability.thursday;
+					else if (dayInMentorsTz.weekday == 5) weekdayAvail = availability.friday;
+					else if (dayInMentorsTz.weekday == 6) weekdayAvail = availability.saturday;
+					else if (dayInMentorsTz.weekday == 7) weekdayAvail = availability.sunday;
 				}
 
-				// convert the availability back to an interval
-				if (todaysAvail && todaysAvail.available) {
-					// we are available, list our intervals
+				const weekDayIntervals: Interval[] = [];
+				const exceptionIntervals: { available: boolean; interval: Interval }[] = [];
 
-					const availableIntervalsStruct: {
-						start: { hour: number; minute: number };
-						end: { hour: number; minute: number };
-					}[] = todaysAvail.slots;
-
-					for (const rawInterval of availableIntervalsStruct) {
+				if (weekdayAvail && weekdayAvail.available) {
+					for (const rawInterval of weekdayAvail.slots) {
 						const start = dayInMentorsTz.set({
 							hour: rawInterval.start.hour,
 							minute: rawInterval.start.minute,
@@ -107,7 +103,51 @@ export function slottificate(
 
 						const interval = Interval.fromDateTimes(start, end);
 
-						availablePeriodsMentorsTime.push(interval);
+						weekDayIntervals.push(interval);
+					}
+
+					if (exceptionAvailability && exceptionAvailability.available) {
+						for (const rawInterval of exceptionAvailability.slots) {
+							const start = dayInMentorsTz.set({
+								hour: rawInterval.start.hour,
+								minute: rawInterval.start.minute,
+								second: 0,
+								millisecond: 0
+							});
+							const end = dayInMentorsTz.set({
+								hour: rawInterval.end.hour,
+								minute: rawInterval.end.minute,
+								second: 0,
+								millisecond: 0
+							});
+
+							const interval = Interval.fromDateTimes(start, end);
+
+							exceptionIntervals.push({
+								available: rawInterval.available,
+								interval
+							});
+						}
+					}
+
+					for (const interval of weekDayIntervals) {
+						for (const exceptionInterval of exceptionIntervals) {
+							if (interval.overlaps(exceptionInterval.interval)) {
+								const intersection = interval.intersection(exceptionInterval.interval);
+
+								if (exceptionInterval.available && intersection) {
+									availablePeriodsMentorsTime.push(intersection);
+								} else if (!exceptionInterval.available && intersection) {
+									unavailablePeriodsMentorsTime.push(intersection);
+								}
+							} else {
+								if (exceptionInterval.available) {
+									availablePeriodsMentorsTime.push(interval);
+								} else {
+									unavailablePeriodsMentorsTime.push(interval);
+								}
+							}
+						}
 					}
 				}
 			}

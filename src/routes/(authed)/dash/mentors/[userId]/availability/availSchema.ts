@@ -21,8 +21,7 @@ export const dayAvailability = z.object({
 		])
 });
 
-export const exceptionAvailability = z.object({
-	available: z.coerce.boolean(),
+export const exceptionAvailability = dayAvailability.extend({
 	slots: z
 		.object({
 			available: z.coerce.boolean(),
