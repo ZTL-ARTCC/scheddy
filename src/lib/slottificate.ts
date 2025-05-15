@@ -89,11 +89,7 @@ export function slottificate(
 					const availableIntervalsStruct: {
 						start: { hour: number; minute: number };
 						end: { hour: number; minute: number };
-					}[] = [];
-					availableIntervalsStruct.push(todaysAvail);
-					if (todaysAvail.extraRecords) {
-						availableIntervalsStruct.push(...todaysAvail.extraRecords);
-					}
+					}[] = todaysAvail.slots;
 
 					for (const rawInterval of availableIntervalsStruct) {
 						const start = dayInMentorsTz.set({

@@ -69,25 +69,38 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		}
 	});
 
-	let ex_changed = false;
+	let exChanged = false;
+
+	const timeNow = DateTime.now().setZone(mentor[0].timezone as string);
 
 	if (avail?.exceptions) {
 		for (const ex in avail.exceptions) {
-			const ex_date = DateTime.fromISO(ex).setZone(mentor[0].timezone).set({
-				hour: avail.exceptions[ex].start.hour,
-				minute: avail.exceptions[ex].start.minute
+			const exDates = avail.exceptions[ex].slots.map((slot) => {
+				const date = DateTime.fromISO(ex)
+					.setZone(mentor[0].timezone as string)
+					.set({
+						hour: slot.start.hour,
+						minute: slot.start.minute
+					});
+				return date < timeNow ? null : date;
 			});
 
-			const time_now = DateTime.now();
+			if (exDates.length !== 0) {
+				exChanged = true;
 
-			if (ex_date < time_now) {
-				delete avail.exceptions[ex];
-				ex_changed = true;
+				const filteredExDates = exDates.filter((date) => date !== null);
+				if (filteredExDates.length === 0) {
+					delete avail.exceptions[ex];
+				} else {
+					avail.exceptions[ex].slots = avail.exceptions[ex].slots.filter((_, i) => {
+						return exDates[i] !== null;
+					});
+				}
 			}
 		}
 	}
 
-	if (ex_changed) {
+	if (exChanged) {
 		await db
 			.update(users)
 			.set({

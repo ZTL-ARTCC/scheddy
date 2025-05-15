@@ -6,13 +6,16 @@ export interface MentorAvailability {
 	thursday: DayAvailability;
 	friday: DayAvailability;
 	saturday: DayAvailability;
-	exceptions: Record<string, DayAvailability>;
+	exceptions: Record<string, ExceptionAvailability>;
 }
+
 export interface DayAvailability {
 	available: boolean;
-	start: Time;
-	end: Time;
-	extraRecords: { start: Time; end: Time }[] | null;
+	slots: { start: Time; end: Time }[];
+}
+
+export interface ExceptionAvailability extends DayAvailability {
+	slots: { available: boolean; start: Time; end: Time }[];
 }
 export interface Time {
 	hour: number;

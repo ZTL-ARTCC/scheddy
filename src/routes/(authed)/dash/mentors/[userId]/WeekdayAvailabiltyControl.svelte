@@ -2,9 +2,10 @@
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import type { MentorAvailability } from '$lib/availability';
 	import { Label } from '$lib/components/ui/label';
+	import type { DayOfWeek } from '$lib/utils';
 
 	interface Props {
-		dayId: string;
+		dayId: DayOfWeek;
 		dayName: string;
 		data: MentorAvailability;
 	}
@@ -18,37 +19,21 @@
 			<Label>
 				{dayName}
 				{#if data[dayId].available}
-					<span class="text-sm text-muted-foreground"
-						>from <b
-							>{String(data[dayId].start.hour).padStart(2, '0')}:{String(
-								data[dayId].start.minute
-							).padStart(2, '0')}</b
-						>
-						to
-						<b
-							>{String(data[dayId].end.hour).padStart(2, '0')}:{String(
-								data[dayId].end.minute
-							).padStart(2, '0')}</b
-						></span
-					>
-					{#if data[dayId].extraRecords}
-						{#each data[dayId].extraRecords as record}
-							<span class="text-sm text-muted-foreground"
-								>and from <b
-									>{String(record.start.hour).padStart(2, '0')}:{String(
-										record.start.minute
-									).padStart(2, '0')}</b
-								>
-								to
-								<b
-									>{String(record.end.hour).padStart(2, '0')}:{String(record.end.minute).padStart(
-										2,
-										'0'
-									)}</b
-								></span
-							>
-						{/each}
-					{/if}
+					{#each data[dayId].slots as _, i}
+						<span class="text-sm text-muted-foreground">
+							from <b>
+								{String(data[dayId].slots[i].start.hour).padStart(2, '0')}:{String(
+									data[dayId].slots[i].start.minute
+								).padStart(2, '0')}
+							</b>
+							to
+							<b>
+								{String(data[dayId].slots[i].end.hour).padStart(2, '0')}:{String(
+									data[dayId].slots[i].end.minute
+								).padStart(2, '0')}
+							</b>
+						</span>
+					{/each}
 				{:else}
 					<span class="text-sm text-muted-foreground">unavailable</span>
 				{/if}

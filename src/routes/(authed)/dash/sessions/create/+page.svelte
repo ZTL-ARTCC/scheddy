@@ -62,12 +62,10 @@
 			return Interval.fromDateTimes(dayAvailabilityStart, dayAvailabilityEnd);
 		};
 
-		const intervals = [intervalHelper(mentorAvailability.start, mentorAvailability.end)];
+		const intervals: Interval[] = [];
 
-		if (mentorAvailability.extraRecords) {
-			for (const record of mentorAvailability.extraRecords) {
-				intervals.push(intervalHelper(record.start, record.end));
-			}
+		for (const slot of mentorAvailability.slots) {
+			intervals.push(intervalHelper(slot.start, slot.end));
 		}
 
 		return intervals.some((i) => i.contains(sessionStart) && i.contains(sessionEnd));

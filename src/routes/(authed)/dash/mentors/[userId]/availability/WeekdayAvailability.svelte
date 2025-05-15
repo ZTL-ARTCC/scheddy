@@ -2,6 +2,7 @@
 	import type { Infer, SuperForm } from 'sveltekit-superforms';
 	import type { AvailSchema } from './availSchema';
 	import WeekdayAvailabiltyControl from './WeekdayAvailabiltyControl.svelte';
+	import { type DayOfWeek } from '$lib/utils';
 
 	interface Props {
 		form: SuperForm<Infer<AvailSchema>>;
@@ -28,6 +29,6 @@
 		NOT available on that day.
 	</p>
 	{#each days as day (day.id)}
-		<WeekdayAvailabiltyControl {form} dayId={day.id} dayName={day.name} />
+		<WeekdayAvailabiltyControl {form} dayId={day.id as DayOfWeek} dayName={day.name} />
 	{/each}
 </div>

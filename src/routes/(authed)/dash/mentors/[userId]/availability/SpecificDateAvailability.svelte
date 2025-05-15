@@ -4,7 +4,7 @@
 	import { DateFormatter, type DateValue, getLocalTimeZone, today } from '@internationalized/date';
 	import { Button } from '$lib/components/ui/button';
 	import * as Popover from '$lib/components/ui/popover';
-	import { cn } from '$lib/utils';
+	import { cn, type DayOfWeek } from '$lib/utils';
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
 	import { Calendar } from '$lib/components/ui/calendar';
 	import SpecificDateAvailabilityControl from './SpecificDateAvailabilityControl.svelte';
@@ -25,9 +25,7 @@
 			if (!Object.keys($formData.exceptions).includes(dateAdd.toString())) {
 				$formData.exceptions[dateAdd.toString()] = {
 					available: false,
-					start: { hour: 0, minute: 0 },
-					end: { hour: 0, minute: 0 },
-					extraRecords: []
+					slots: [{ available: false, start: { hour: 0, minute: 0 }, end: { hour: 0, minute: 0 } }]
 				};
 			}
 		}
@@ -67,6 +65,6 @@
 		<Button onclick={addException}>Add override &rarr;</Button>
 	</div>
 	{#each Object.keys($formData.exceptions) as dateId}
-		<SpecificDateAvailabilityControl dayId={dateId} {form} />
+		<SpecificDateAvailabilityControl dayId={dateId as DayOfWeek} {form} />
 	{/each}
 </div>

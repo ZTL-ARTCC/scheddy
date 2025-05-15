@@ -17,37 +17,21 @@
 			<Label>
 				{dayId}
 				{#if data.exceptions[dayId].available}
-					<span class="text-sm text-muted-foreground"
-						>from <b
-							>{String(data.exceptions[dayId].start.hour).padStart(2, '0')}:{String(
-								data.exceptions[dayId].start.minute
-							).padStart(2, '0')}</b
-						>
-						to
-						<b
-							>{String(data.exceptions[dayId].end.hour).padStart(2, '0')}:{String(
-								data.exceptions[dayId].end.minute
-							).padStart(2, '0')}</b
-						></span
-					>
-					{#if data.exceptions[dayId].extraRecords}
-						{#each data.exceptions[dayId].extraRecords as record}
-							<span class="text-sm text-muted-foreground"
-								>and from <b
-									>{String(record.start.hour).padStart(2, '0')}:{String(
-										record.start.minute
-									).padStart(2, '0')}</b
-								>
-								to
-								<b
-									>{String(record.end.hour).padStart(2, '0')}:{String(record.end.minute).padStart(
-										2,
-										'0'
-									)}</b
-								></span
-							>
-						{/each}
-					{/if}
+					{#each data.exceptions[dayId].slots as _, i}
+						<span class="text-sm text-muted-foreground">
+							from <b>
+								{String(data.exceptions[dayId].slots[i].start.hour).padStart(2, '0')}:{String(
+									data.exceptions[dayId].slots[i].start.minute
+								).padStart(2, '0')}
+							</b>
+							to
+							<b>
+								{String(data.exceptions[dayId].slots[i].end.hour).padStart(2, '0')}:{String(
+									data.exceptions[dayId].slots[i].end.minute
+								).padStart(2, '0')}
+							</b>
+						</span>
+					{/each}
 				{:else}
 					<span class="text-sm text-muted-foreground">unavailable</span>
 				{/if}

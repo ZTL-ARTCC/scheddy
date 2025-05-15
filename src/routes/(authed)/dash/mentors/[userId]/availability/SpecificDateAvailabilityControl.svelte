@@ -8,9 +8,10 @@
 	import { Button } from '$lib/components/ui/button';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
+	import type { DayOfWeek } from '$lib/utils';
 
 	interface Props {
-		dayId: string;
+		dayId: DayOfWeek;
 		form: SuperForm<Infer<AvailSchema>>;
 	}
 	let { dayId, form }: Props = $props();
@@ -18,18 +19,12 @@
 	const { form: formData } = $derived(form);
 
 	function pad() {
-		$formData.exceptions[dayId].start.hour = Number(
-			String($formData.exceptions[dayId].start.hour).padStart(2, '0')
-		);
-		$formData.exceptions[dayId].start.minute = Number(
-			String($formData.exceptions[dayId].start.minute).padStart(2, '0')
-		);
-		$formData.exceptions[dayId].end.hour = Number(
-			String($formData.exceptions[dayId].end.hour).padStart(2, '0')
-		);
-		$formData.exceptions[dayId].end.minute = Number(
-			String($formData.exceptions[dayId].end.minute).padStart(2, '0')
-		);
+		$formData.exceptions[dayId].slots.forEach((slot) => {
+			slot.start.hour = Number(String(slot.start.hour).padStart(2, '0'));
+			slot.start.minute = Number(String(slot.start.minute).padStart(2, '0'));
+			slot.end.hour = Number(String(slot.end.hour).padStart(2, '0'));
+			slot.end.minute = Number(String(slot.end.minute).padStart(2, '0'));
+		});
 	}
 </script>
 
@@ -63,7 +58,7 @@
 	{#if $formData.exceptions[dayId].available}
 		<div class="flex flex-row gap-4 ml-7 mt-2">
 			<div class="flex flex-row gap-2">
-				<Form.Field {form} name="exceptions.{dayId}.start.hour">
+				<Form.Field {form} name="exceptions.{dayId}.slots[0].start.hour">
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label>From</Form.Label>
@@ -71,7 +66,7 @@
 								onblur={pad}
 								{...props}
 								type="number"
-								bind:value={$formData.exceptions[dayId].start.hour}
+								bind:value={$formData.exceptions[dayId].slots[0].start.hour}
 							/>
 						{/snippet}
 					</Form.Control>
@@ -79,7 +74,7 @@
 					<Form.FieldErrors />
 				</Form.Field>
 				<span class="mt-10">:</span>
-				<Form.Field {form} name="exceptions.{dayId}.start.minute">
+				<Form.Field {form} name="exceptions.{dayId}.slots[0].start.minute">
 					<Form.Control>
 						{#snippet children({ props })}
 							<!-- required for spacing. it's cursed -->
@@ -89,7 +84,7 @@
 								onblur={pad}
 								{...props}
 								type="number"
-								bind:value={$formData.exceptions[dayId].start.minute}
+								bind:value={$formData.exceptions[dayId].slots[0].start.minute}
 							/>
 						{/snippet}
 					</Form.Control>
@@ -99,7 +94,7 @@
 			</div>
 			<Separator orientation="vertical" />
 			<div class="flex flex-row gap-2">
-				<Form.Field {form} name="exceptions.{dayId}.end.hour">
+				<Form.Field {form} name="exceptions.{dayId}.slots[0].end.hour">
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label>To</Form.Label>
@@ -107,7 +102,7 @@
 								onblur={pad}
 								{...props}
 								type="number"
-								bind:value={$formData.exceptions[dayId].end.hour}
+								bind:value={$formData.exceptions[dayId].slots[0].end.hour}
 							/>
 						{/snippet}
 					</Form.Control>
@@ -115,7 +110,7 @@
 					<Form.FieldErrors />
 				</Form.Field>
 				<span class="mt-10">:</span>
-				<Form.Field {form} name="exceptions.{dayId}.end.minute">
+				<Form.Field {form} name="exceptions.{dayId}.slots[0].end.minute">
 					<Form.Control>
 						{#snippet children({ props })}
 							<!-- required for spacing. it's cursed -->
@@ -125,7 +120,7 @@
 								onblur={pad}
 								{...props}
 								type="number"
-								bind:value={$formData.exceptions[dayId].end.minute}
+								bind:value={$formData.exceptions[dayId].slots[0].end.minute}
 							/>
 						{/snippet}
 					</Form.Control>
@@ -139,83 +134,86 @@
 				</Button>
 			</div>
 		</div>
-		{#each $formData.exceptions[dayId].extraRecords as record, i}
-			<div class="flex flex-row gap-4 ml-7 mt-2">
-				<div class="flex flex-row gap-2">
-					<Form.Field {form} name="exceptions.{dayId}.extraRecords[{i}].start.hour">
-						<Form.Control>
-							{#snippet children({ props })}
-								<Form.Label>From</Form.Label>
-								<Input onblur={pad} {...props} type="number" bind:value={record.start.hour} />
-							{/snippet}
-						</Form.Control>
-						<Form.Description>Hours (HH)</Form.Description>
-						<Form.FieldErrors />
-					</Form.Field>
-					<span class="mt-10">:</span>
-					<Form.Field {form} name="exceptions.{dayId}.extraRecords[{i}].start.minute">
-						<Form.Control>
-							{#snippet children({ props })}
-								<!-- required for spacing. it's cursed -->
-								<!-- eslint-disable-next-line no-irregular-whitespace -->
-								<Form.Label>​</Form.Label>
-								<Input onblur={pad} {...props} type="number" bind:value={record.start.minute} />
-							{/snippet}
-						</Form.Control>
-						<Form.Description>Minutes (MM)</Form.Description>
-						<Form.FieldErrors />
-					</Form.Field>
+		{#each $formData.exceptions[dayId].slots as slot, i}
+			{#if i > 0}
+				<div class="flex flex-row gap-4 ml-7 mt-2">
+					<div class="flex flex-row gap-2">
+						<Form.Field {form} name="exceptions.{dayId}.slots[{i}].start.hour">
+							<Form.Control>
+								{#snippet children({ props })}
+									<Form.Label>From</Form.Label>
+									<Input onblur={pad} {...props} type="number" bind:value={slot.start.hour} />
+								{/snippet}
+							</Form.Control>
+							<Form.Description>Hours (HH)</Form.Description>
+							<Form.FieldErrors />
+						</Form.Field>
+						<span class="mt-10">:</span>
+						<Form.Field {form} name="exceptions.{dayId}.slots[{i}].start.minute">
+							<Form.Control>
+								{#snippet children({ props })}
+									<!-- required for spacing. it's cursed -->
+									<!-- eslint-disable-next-line no-irregular-whitespace -->
+									<Form.Label>​</Form.Label>
+									<Input onblur={pad} {...props} type="number" bind:value={slot.start.minute} />
+								{/snippet}
+							</Form.Control>
+							<Form.Description>Minutes (MM)</Form.Description>
+							<Form.FieldErrors />
+						</Form.Field>
+					</div>
+					<Separator orientation="vertical" />
+					<div class="flex flex-row gap-2">
+						<Form.Field {form} name="exceptions.{dayId}.slots[{i}].end.hour">
+							<Form.Control>
+								{#snippet children({ props })}
+									<Form.Label>To</Form.Label>
+									<Input onblur={pad} {...props} type="number" bind:value={slot.end.hour} />
+								{/snippet}
+							</Form.Control>
+							<Form.Description>Hours (HH)</Form.Description>
+							<Form.FieldErrors />
+						</Form.Field>
+						<span class="mt-10">:</span>
+						<Form.Field {form} name="exceptions.{dayId}.slots[{i}].end.minute">
+							<Form.Control>
+								{#snippet children({ props })}
+									<!-- required for spacing. it's cursed -->
+									<!-- eslint-disable-next-line no-irregular-whitespace -->
+									<Form.Label>​</Form.Label>
+									<Input onblur={pad} {...props} type="number" bind:value={slot.end.minute} />
+								{/snippet}
+							</Form.Control>
+							<Form.Description>Minutes (MM)</Form.Description>
+							<Form.FieldErrors />
+						</Form.Field>
+					</div>
+					<div class="mt-6">
+						<Button
+							onclick={() => {
+								$formData.exceptions[dayId].slots.splice(i);
+								$formData.exceptions[dayId].slots = $formData.exceptions[dayId].slots;
+							}}
+							variant="destructive"
+							size="icon"
+						>
+							<TrashIcon class="w-4 h-4" />
+						</Button>
+					</div>
 				</div>
-				<Separator orientation="vertical" />
-				<div class="flex flex-row gap-2">
-					<Form.Field {form} name="exceptions.{dayId}.extraRecords[{i}].end.hour">
-						<Form.Control>
-							{#snippet children({ props })}
-								<Form.Label>To</Form.Label>
-								<Input onblur={pad} {...props} type="number" bind:value={record.end.hour} />
-							{/snippet}
-						</Form.Control>
-						<Form.Description>Hours (HH)</Form.Description>
-						<Form.FieldErrors />
-					</Form.Field>
-					<span class="mt-10">:</span>
-					<Form.Field {form} name="exceptions.{dayId}.extraRecords[{i}].end.minute">
-						<Form.Control>
-							{#snippet children({ props })}
-								<!-- required for spacing. it's cursed -->
-								<!-- eslint-disable-next-line no-irregular-whitespace -->
-								<Form.Label>​</Form.Label>
-								<Input onblur={pad} {...props} type="number" bind:value={record.end.minute} />
-							{/snippet}
-						</Form.Control>
-						<Form.Description>Minutes (MM)</Form.Description>
-						<Form.FieldErrors />
-					</Form.Field>
-				</div>
-				<div class="mt-6">
-					<Button
-						onclick={() => {
-							$formData.exceptions[dayId].extraRecords.splice(i);
-							$formData.exceptions[dayId].extraRecords = $formData.exceptions[dayId].extraRecords;
-						}}
-						variant="destructive"
-						size="icon"
-					>
-						<TrashIcon class="w-4 h-4" />
-					</Button>
-				</div>
-			</div>
+			{/if}
 		{/each}
 
 		<div class="ml-7">
 			<Button
 				variant="outline"
 				onclick={() => {
-					$formData.exceptions[dayId].extraRecords.push({
+					$formData.exceptions[dayId].slots.push({
+						available: false,
 						start: { hour: 0, minute: 0 },
 						end: { hour: 0, minute: 0 }
 					});
-					$formData.exceptions[dayId].extraRecords = $formData.exceptions[dayId].extraRecords;
+					$formData.exceptions[dayId].slots = $formData.exceptions[dayId].slots;
 				}}
 			>
 				<PlusIcon class="w-4 h-4 mr-2" />
