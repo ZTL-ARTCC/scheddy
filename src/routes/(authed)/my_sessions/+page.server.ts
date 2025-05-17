@@ -6,6 +6,7 @@ import { and, eq, gte } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { roleOf } from '$lib';
 import { roleString } from '$lib/utils';
+import { serverConfig } from '$lib/config/server';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
