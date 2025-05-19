@@ -10,6 +10,7 @@ import { appointment_canceled } from '$lib/emails/student/appointment_canceled';
 import { DateTime } from 'luxon';
 import { sendEmail } from '$lib/email';
 import { session_canceled } from '$lib/emails/mentor/session_canceled';
+import { serverConfig } from '$lib/config/server';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
