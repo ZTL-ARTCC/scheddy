@@ -97,6 +97,7 @@ export function recursiveOverlayConfig(config: any, current_key: string, env: an
 						`Invalid overlay configuration in ${env_var}: expected ${typeof config[key]} found ${typeof value}`
 					);
 				}
+				copy[key] = value;
 			}
 		}
 	}
