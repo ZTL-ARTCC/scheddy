@@ -43,12 +43,6 @@
 			visible: role >= ROLE_MENTOR,
 			children: [
 				{
-					url: '/dash/cal/old',
-					title: 'Past Sessions',
-					icon: HistoryIcon,
-					visible: role >= ROLE_MENTOR
-				},
-				{
 					url: '/dash/cal/cancelled',
 					title: 'Cancelled Sessions',
 					icon: X,
