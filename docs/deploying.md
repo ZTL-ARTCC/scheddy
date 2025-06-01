@@ -1,16 +1,16 @@
 # Deploying Scheddy
 
 > **Important Caveat**
-> 
+>
 > Scheddy can currently only load user information from **VATUSA.**
-> 
+>
 > If you wish to use this software outside of VATUSA, it's easy to adapt - the authentication backend is only used in
 > one routine and can be easily replaced.
-> 
+>
 > Ping Tyler Donia on the vatsim.dev Discord and I'd be happy to help you integrate Scheddy with your vACC/Division's
 > authentication system.
 
-Scheddy is easy to deploy *with some minimal sysadmin experience.*
+Scheddy is easy to deploy _with some minimal sysadmin experience._
 Give yourself an hour or so to get Scheddy up and running for your facility.
 
 If you have trouble, ping me on vatsim.dev or post a Discussion on GitHub - I'm happy to help!
@@ -27,6 +27,7 @@ will play nice together.
 ZTL runs Scheddy in production on the cheapest EC2 VM available, and it works great. Scheddy is fairly lightweight, and does not need much!
 
 On your VPS, have the following tooling installed:
+
 - [bun](https://bun.sh) version 1.2 or later
 - [Git](https://git-scm.com)
 - A reverse proxy of some kind (we like [Caddy](https://caddyserver.com), but others have had success with [nginx](https://nginx.org))

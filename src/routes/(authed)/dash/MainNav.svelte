@@ -4,7 +4,6 @@
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
 	import CalendarPlusIcon from '@lucide/svelte/icons/calendar-plus';
 	import GraduationCapIcon from '@lucide/svelte/icons/graduation-cap';
-	import HistoryIcon from '@lucide/svelte/icons/history';
 	import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
 	import LibraryIcon from '@lucide/svelte/icons/library';
 	import Layers2Icon from '@lucide/svelte/icons/layers-2';

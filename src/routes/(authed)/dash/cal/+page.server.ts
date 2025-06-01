@@ -4,9 +4,9 @@ import { ROLE_MENTOR } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { mentors, sessions, sessionTypes, students, users } from '$lib/server/db/schema';
-import { and, eq, gte, or } from 'drizzle-orm';
+import { eq, gte, or } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
-import CalendarItem from "./CalendarItem.svelte";
+import CalendarItem from './CalendarItem.svelte';
 import { DateTime } from 'luxon';
 import { render } from 'svelte/server';
 
@@ -15,8 +15,6 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	if (roleOf(user) < ROLE_MENTOR) {
 		redirect(307, '/schedule');
 	}
-
-	const now = DateTime.utc().toISO();
 
 	const mentorSessions = await db
 		.select()
@@ -47,7 +45,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		return {
 			calendarContent: render(CalendarItem, { props: u }),
 			...u
-		}
+		};
 	});
 
 	return {
