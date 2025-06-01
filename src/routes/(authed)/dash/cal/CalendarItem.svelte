@@ -7,8 +7,7 @@
 		session: typeof sessions.$inferSelect;
 		sessionType: typeof sessionTypes.$inferSelect;
 	}
-	let { student, mentor, session, sessionType }: Props = $props();
-
+	let { student, mentor, sessionType }: Props = $props();
 </script>
 
 <p>{sessionType.name}</p>
