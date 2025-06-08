@@ -60,10 +60,15 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		timezone: z.enum(timezones.map((u) => u.name))
 	});
 
+	let canReschedule = false;
+
 	const data = {};
 	if (url.searchParams.has('sessionId')) {
 		const id = url.searchParams.get('sessionId');
 		const session = (await db.select().from(sessions).where(eq(sessions.id, id)))[0];
+		const sessionTime = DateTime.fromISO(session.start);
+		canReschedule = sessionTime.diffNow().as('hours') > 24;
+
 		if (!DateTime.fromISO(session.start).diffNow(['hours']).hours < 24) {
 			data.sessionType = session.type;
 			data.timezone = session.timezone;
@@ -123,7 +128,8 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		sessionMap,
 		timezones,
 		reschedule: url.searchParams.has('sessionId'),
-		oldId: url.searchParams.get('sessionId')
+		oldId: url.searchParams.get('sessionId'),
+		canReschedule
 	};
 };
 

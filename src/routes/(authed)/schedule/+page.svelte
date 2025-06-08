@@ -55,7 +55,9 @@
 			>
 		</Card.Header>
 		<Card.Content>
-			{#if done}
+			{#if data.reschedule && !data.canReschedule}
+				<p>As it is within 24 hours, please contact your mentor to reschedule.</p>
+			{:else if done}
 				<p>{$message}</p>
 			{:else if !data.atMaxSessions}
 				<form class="text-left flex flex-col gap-4" method="POST" use:enhance>

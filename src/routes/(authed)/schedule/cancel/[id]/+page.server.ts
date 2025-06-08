@@ -21,7 +21,10 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		return redirect(307, '/schedule');
 	}
 
-	return { user, role: roleString(roleOf(user)) };
+	const sessionTime = DateTime.fromISO(session.start);
+	const canCancel = sessionTime.diffNow().as('hours') > 24;
+
+	return { user, role: roleString(roleOf(user)), canCancel };
 };
 
 export const actions: Actions = {

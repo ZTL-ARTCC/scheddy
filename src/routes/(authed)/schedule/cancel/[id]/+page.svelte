@@ -41,11 +41,18 @@
 			<Card.Title>Cancel appointment at {clientConfig.facility.name_public}</Card.Title>
 		</Card.Header>
 		<Card.Content>
-			<h2>Are you sure?</h2>
-			<div class="flex flex-row gap-4 mt-4">
-				<Button href="/my_sessions" class="flex-1" variant="outline">Nevermind</Button>
-				<Button onclick={del} class="flex-1" variant="destructive">Yes, I'm sure</Button>
-			</div>
+			{#if data.canCancel}
+				<h2>Are you sure?</h2>
+				<div class="flex flex-row gap-4 mt-4">
+					<Button href="/my_sessions" class="flex-1" variant="outline">Nevermind</Button>
+					<Button onclick={del} class="flex-1" variant="destructive">Yes, I'm sure</Button>
+				</div>
+			{:else}
+				<p>
+					As it is within 24 hours of your session time, please contact your mentor directly to
+					cancel.
+				</p>
+			{/if}
 		</Card.Content>
 	</Card.Root>
 </div>
