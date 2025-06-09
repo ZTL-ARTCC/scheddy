@@ -11,15 +11,17 @@
 	} from '@event-calendar/core';
 	import { DateTime } from 'luxon';
 	import { goto } from '$app/navigation';
+	import { roleOf } from '$lib';
+	import { ROLE_STAFF } from '$lib/utils';
 
 	interface Props {
 		data: PageData;
 	}
 	let { data }: Props = $props();
 
-	let container;
+	let container: HTMLDivElement;
 
-	let options = $derived({
+	let options: Calendar.Options = $derived({
 		view: 'timeGridWeek',
 		buttonText: {
 			listWeek: 'Week - List',
@@ -33,6 +35,7 @@
 		})(),
 		headerToolbar: {
 			start: 'title',
+			center: '',
 			end: 'timeGridWeek,timeGridDay,listWeek today prev,next'
 		},
 		resources: data.mentors.map((u) => {
@@ -42,11 +45,15 @@
 			};
 		}),
 		eventClick: async (info) => {
-			await goto(`/dash/sessions/${info.event.id}`);
+			if (info.event.resourceIds[0] == data.user.id || roleOf(data.user) >= ROLE_STAFF) {
+				await goto(`/dash/sessions/${info.event.id}`);
+			}
 		},
-		eventMouseEnter: () => {
+		eventMouseEnter: (info) => {
 			console.log('here');
-			container.style.cursor = 'pointer';
+			if (info.event.resourceIds[0] == data.user.id || roleOf(data.user) >= ROLE_STAFF) {
+				container.style.cursor = 'pointer';
+			}
 		},
 		eventMouseLeave: () => {
 			container.style.cursor = 'auto';
