@@ -28,6 +28,7 @@
 		"@tailwindcss/vite": "^4.0.11",
 		"@tanstack/table-core": "^8.21.2",
 		"@types/eslint": "^9.6.1",
+		"@types/event-calendar__core": "^4.4.0",
 		"@types/luxon": "^3.4.2",
 		"@types/nodemailer": "^6.4.17",
 		"@vvo/tzdb": "^6.161.0",
