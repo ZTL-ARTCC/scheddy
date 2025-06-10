@@ -6,10 +6,11 @@ import { db } from '$lib/server/db';
 import { mentors, sessions, sessionTypes, students, users } from '$lib/server/db/schema';
 import { eq, gte, inArray, or } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
-import { DateTime } from 'luxon';
+import { DateTime, Interval } from 'luxon';
 import { fail, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { editSchema } from './editSchema';
+import type { DayAvailability, MentorAvailability } from '$lib/availability';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -120,6 +121,130 @@ export const actions: Actions = {
 		}
 
 		await db.update(sessions).set(data).where(eq(sessions.id, event.params.sessionId));
+
+		const getAvailabilityIntervals = (
+			availability: DayAvailability,
+			dateMentor: DateTime
+		): Interval[] => {
+			const start = dateMentor.set({
+				hour: availability.start.hour,
+				minute: availability.start.minute
+			});
+
+			const end = dateMentor.set({
+				hour: availability.end.hour,
+				minute: availability.end.minute
+			});
+
+			const intervals: Interval[] = [Interval.fromDateTimes(start, end)];
+
+			for (const extraException of availability.extraRecords || []) {
+				const extraStart = dateMentor.set({
+					hour: extraException.start.hour,
+					minute: extraException.start.minute
+				});
+
+				const extraEnd = dateMentor.set({
+					hour: extraException.end.hour,
+					minute: extraException.end.minute
+				});
+
+				intervals.push(Interval.fromDateTimes(extraStart, extraEnd));
+			}
+
+			return intervals;
+		};
+
+		const createAvailabilityFromIntervals = (intervals: Interval<true>[]): DayAvailability => {
+			const availability: DayAvailability = {
+				available: true,
+				start: { hour: 0, minute: 0 },
+				end: { hour: 0, minute: 0 },
+				extraRecords: []
+			};
+
+			if (intervals.length === 0) {
+				availability.available = false;
+				return availability;
+			}
+
+			availability.start = {
+				hour: intervals[0].start.hour,
+				minute: intervals[0].start.minute
+			};
+
+			availability.end = {
+				hour: intervals[0].end.hour,
+				minute: intervals[0].end.minute
+			};
+
+			for (const interval of intervals.slice(1)) {
+				const timeObj = {
+					start: {
+						hour: interval.start.hour,
+						minute: interval.start.minute
+					},
+					end: {
+						hour: interval.end.hour,
+						minute: interval.end.minute
+					}
+				};
+
+				availability.extraRecords?.push(timeObj);
+			}
+
+			return availability;
+		};
+
+		if (form.data.addException) {
+			const availability: MentorAvailability = JSON.parse(
+				sessionAndFriends.mentor.mentorAvailability || '{}'
+			);
+
+			const dateSession = DateTime.fromISO(sessionAndFriends.session.start, {
+				zone: sessionAndFriends.session.timezone
+			});
+			const dateMentor = dateSession.setZone(sessionAndFriends.mentor.timezone);
+			const dateMentorStr = dateMentor.toFormat('yyyy-MM-dd');
+
+			const dayOfWeek = dateMentor.weekdayLong?.toLowerCase();
+
+			let dayAvailability: DayAvailability | undefined;
+
+			if (availability.exceptions && availability.exceptions[dateMentorStr]) {
+				dayAvailability = availability.exceptions[dateMentorStr];
+			} else if (availability[dayOfWeek]) {
+				dayAvailability = availability[dayOfWeek];
+			}
+
+			if (dayAvailability) {
+				const availabilityIntervals = getAvailabilityIntervals(dayAvailability, dateMentor);
+
+				const sessionInterval = Interval.fromDateTimes(
+					dateMentor,
+					dateSession
+						.plus({ minutes: sessionAndFriends.sessionType.length })
+						.setZone(sessionAndFriends.mentor.timezone)
+				);
+
+				const carvedIntervals: Interval[] = [];
+
+				for (const interval of availabilityIntervals) {
+					carvedIntervals.push(...interval.difference(sessionInterval));
+				}
+
+				const newDayAvailability = createAvailabilityFromIntervals(carvedIntervals);
+
+				availability.exceptions[dateMentorStr] = newDayAvailability;
+
+				await db
+					.update(users)
+					.set({ mentorAvailability: JSON.stringify(availability) })
+					.where(eq(users.id, sessionAndFriends.session.mentor));
+			}
+
+			await db.update(sessions).set(data).where(eq(sessions.id, event.params.sessionId));
+		}
 
 		return { form };
 	}
