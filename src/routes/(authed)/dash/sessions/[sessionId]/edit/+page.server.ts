@@ -197,14 +197,14 @@ export const actions: Actions = {
 		};
 
 		if (form.data.addException) {
-			const availability: MentorAvailability = JSON.parse(
-				sessionAndFriends.mentor.mentorAvailability || '{}'
-			);
+			const availability: MentorAvailability = sessionAndFriends.mentor.mentorAvailability
+				? JSON.parse(sessionAndFriends.mentor.mentorAvailability)
+				: {};
 
 			const dateSession = DateTime.fromISO(sessionAndFriends.session.start, {
 				zone: sessionAndFriends.session.timezone
 			});
-			const dateMentor = dateSession.setZone(sessionAndFriends.mentor.timezone);
+			const dateMentor = dateSession.setZone(sessionAndFriends.mentor.timezone as string);
 			const dateMentorStr = dateMentor.toFormat('yyyy-MM-dd');
 
 			const dayOfWeek = dateMentor.weekdayLong?.toLowerCase();
@@ -224,7 +224,7 @@ export const actions: Actions = {
 					dateMentor,
 					dateSession
 						.plus({ minutes: sessionAndFriends.sessionType.length })
-						.setZone(sessionAndFriends.mentor.timezone)
+						.setZone(sessionAndFriends.mentor.timezone as string)
 				);
 
 				const carvedIntervals: Interval[] = [];
