@@ -22,6 +22,7 @@
 	import * as Select from '$lib/components/ui/select';
 	import UserSelector from '$lib/ui/UserSelector.svelte';
 	import { roleOf } from '$lib';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 
 	interface Props {
 		data: PageData;
@@ -139,6 +140,16 @@
 			</Form.Control>
 			<Form.Description>Minutes (MM)</Form.Description>
 			<Form.FieldErrors />
+		</Form.Field>
+		<Form.Field {form} name="addException" class="m-auto">
+			<Form.Control>
+				{#snippet children({ props })}
+					<div class="flex flex-row align-middle gap-x-2">
+						<Form.Label>Add Exception</Form.Label>
+						<Checkbox {...props} bind:checked={$formData.addException} />
+					</div>
+				{/snippet}
+			</Form.Control>
 		</Form.Field>
 	</div>
 

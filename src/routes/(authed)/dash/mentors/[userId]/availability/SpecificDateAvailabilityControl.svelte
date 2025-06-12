@@ -8,6 +8,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
+	import { DateTime } from 'luxon';
 
 	interface Props {
 		dayId: string;
@@ -31,19 +32,29 @@
 			String($formData.exceptions[dayId].end.minute).padStart(2, '0')
 		);
 	}
+
+	function copy() {
+		const weekdayLong = DateTime.fromISO(dayId).toLocaleString({ weekday: 'long' });
+		$formData.exceptions[dayId] = { ...$formData[weekdayLong.toLowerCase()] };
+	}
 </script>
 
 <div class="rounded-md border p-4">
 	<Form.Field
 		{form}
 		name="exceptions.{dayId}.available"
-		class="flex flex-row items-start space-x-3 space-y-0"
+		class="flex flex-row items-center space-x-3 space-y-0"
 	>
 		<Form.Control>
 			{#snippet children({ props })}
 				<Checkbox onblur={pad} {...props} bind:checked={$formData.exceptions[dayId].available} />
 				<div class="flex-1 leading-none flex flex-row justify-between mt-0.5">
-					<Form.Label>{dayId}</Form.Label>
+					<div>
+						<Form.Label>{dayId}</Form.Label>
+						<Button class="text-xs h-min py-1 px-2 ml-2" onclick={copy}>
+							Copy Weekday Availability
+						</Button>
+					</div>
 					<Button
 						onclick={() => {
 							delete $formData.exceptions[dayId];
