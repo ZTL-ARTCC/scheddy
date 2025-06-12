@@ -151,9 +151,11 @@ export const actions: Actions = {
 
 		const id = ulid();
 
+		const mentorId = roleOf(user) >= ROLE_STAFF ? form.data.mentor : user.id;
+
 		await db.insert(sessions).values({
 			id,
-			mentor: form.data.mentor,
+			mentor: mentorId,
 			student: form.data.student,
 			start: date.toUTC().toString(),
 			type: form.data.type,

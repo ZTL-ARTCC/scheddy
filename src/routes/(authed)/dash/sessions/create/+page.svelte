@@ -17,12 +17,13 @@
 		parseDate,
 		today
 	} from '@internationalized/date';
-	import { cn } from '$lib/utils';
+	import { cn, ROLE_STAFF } from '$lib/utils';
 	import { Calendar } from '$lib/components/ui/calendar';
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select';
 	import UserSelector from '$lib/ui/UserSelector.svelte';
 	import type { DayAvailability, MentorAvailability, Time } from '$lib/availability';
+	import { roleOf } from '$lib';
 
 	interface Props {
 		data: PageData;
@@ -291,13 +292,15 @@
 		<Form.FieldErrors />
 	</Form.Field>
 
-	<UserSelector
-		label="Mentor"
-		{form}
-		usersMap={mentorMap}
-		name="mentor"
-		bind:value={$formData.mentor}
-	/>
+	{#if roleOf(data.user) >= ROLE_STAFF}
+		<UserSelector
+			label="Mentor"
+			{form}
+			usersMap={mentorMap}
+			name="mentor"
+			bind:value={$formData.mentor}
+		/>
+	{/if}
 
 	<UserSelector label="Student" {form} {usersMap} name="student" bind:value={$formData.student} />
 

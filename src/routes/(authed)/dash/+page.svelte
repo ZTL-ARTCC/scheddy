@@ -63,7 +63,7 @@
 		<Card.Content class="px-6 pb-6 pt-4">
 			<div class="text-2xl font-bold">{data.transferRequests}</div>
 			<a
-				href="/dash/cal/transfer-requests"
+				href="/dash/cal/transfer_requests"
 				class="text-muted-foreground text-xs hover:underline underline-offset-4"
 				>Transfer Requests &rarr;</a
 			>
