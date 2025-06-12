@@ -120,8 +120,6 @@ export const actions: Actions = {
 			data.mentor = form.data.mentor;
 		}
 
-		await db.update(sessions).set(data).where(eq(sessions.id, event.params.sessionId));
-
 		const getAvailabilityIntervals = (
 			availability: DayAvailability,
 			dateMentor: DateTime
@@ -242,9 +240,9 @@ export const actions: Actions = {
 					.set({ mentorAvailability: JSON.stringify(availability) })
 					.where(eq(users.id, sessionAndFriends.session.mentor));
 			}
-
-			await db.update(sessions).set(data).where(eq(sessions.id, event.params.sessionId));
 		}
+
+		await db.update(sessions).set(data).where(eq(sessions.id, event.params.sessionId));
 
 		return { form };
 	}
