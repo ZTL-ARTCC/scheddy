@@ -19,6 +19,6 @@
 <Toaster richColors />
 <ModeWatcher />
 
-<div class="min-w-screen min-h-screen">
+<div class="min-h-screen">
 	{@render children()}
 </div>
