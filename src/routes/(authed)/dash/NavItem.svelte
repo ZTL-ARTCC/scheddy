@@ -2,7 +2,7 @@
 	import type { NestedMenuItem } from './nav';
 	import * as Collapsible from '$lib/components/ui/collapsible';
 	import * as Sidebar from '$lib/components/ui/sidebar';
-	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
+	import { ChevronRightIcon } from '@lucide/svelte';
 	// yes, this imports itself
 	import NavItem from './NavItem.svelte';
 	import { page } from '$app/state';

@@ -2,12 +2,12 @@
 	import { useSidebar } from '$lib/components/ui/sidebar';
 	import * as Sidebar from '$lib/components/ui/sidebar';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
-	import SunIcon from '@lucide/svelte/icons/sun';
-	import MoonIcon from '@lucide/svelte/icons/moon';
-	import SunMoonIcon from '@lucide/svelte/icons/sun-moon';
-	import UserIcon from '@lucide/svelte/icons/user';
-	import LogOutIcon from '@lucide/svelte/icons/log-out';
+	import { ChevronsUpDown } from '@lucide/svelte';
+	import { SunIcon } from '@lucide/svelte';
+	import { MoonIcon } from '@lucide/svelte';
+	import { SunMoonIcon } from '@lucide/svelte';
+	import { UserIcon } from '@lucide/svelte';
+	import { LogOutIcon } from '@lucide/svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { setMode, systemPrefersMode } from 'mode-watcher';
 

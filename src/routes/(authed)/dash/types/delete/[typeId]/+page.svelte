@@ -4,7 +4,7 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { toast } from 'svelte-sonner';
 	import * as Form from '$lib/components/ui/form';
-	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+	import { LoaderCircle } from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
 
 	interface Props {

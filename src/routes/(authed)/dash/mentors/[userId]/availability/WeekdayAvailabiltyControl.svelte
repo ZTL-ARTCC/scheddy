@@ -6,8 +6,8 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Separator } from '$lib/components/ui/separator';
 	import { Button } from '$lib/components/ui/button';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import TrashIcon from '@lucide/svelte/icons/trash';
+	import { PlusIcon } from '@lucide/svelte';
+	import { TrashIcon } from '@lucide/svelte';
 
 	interface Props {
 		dayId: string;

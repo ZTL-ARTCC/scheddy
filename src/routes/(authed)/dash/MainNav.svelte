@@ -1,14 +1,14 @@
 <script lang="ts">
-	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
-	import CalendarClockIcon from '@lucide/svelte/icons/calendar-clock';
-	import CalendarIcon from '@lucide/svelte/icons/calendar';
-	import CalendarPlusIcon from '@lucide/svelte/icons/calendar-plus';
-	import GraduationCapIcon from '@lucide/svelte/icons/graduation-cap';
-	import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
-	import LibraryIcon from '@lucide/svelte/icons/library';
-	import Layers2Icon from '@lucide/svelte/icons/layers-2';
-	import UsersIcon from '@lucide/svelte/icons/users';
-	import X from '@lucide/svelte/icons/x';
+	import { ArrowUpDown } from '@lucide/svelte';
+	import { CalendarClockIcon } from '@lucide/svelte';
+	import { CalendarIcon } from '@lucide/svelte';
+	import { CalendarPlusIcon } from '@lucide/svelte';
+	import { GraduationCapIcon } from '@lucide/svelte';
+	import { LayoutGridIcon } from '@lucide/svelte';
+	import { LibraryIcon } from '@lucide/svelte';
+	import { Layers2Icon } from '@lucide/svelte';
+	import { UsersIcon } from '@lucide/svelte';
+	import { X } from '@lucide/svelte';
 	import { ROLE_MENTOR, ROLE_STAFF, ROLE_STUDENT } from '$lib/utils';
 	import type { NestedMenuItem } from './nav';
 	import NavSection from './NavSection.svelte';

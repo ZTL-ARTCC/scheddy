@@ -1,12 +1,12 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { DateTime } from 'luxon';
-	import CalendarDaysIcon from '@lucide/svelte/icons/calendar-days';
-	import ClockIcon from '@lucide/svelte/icons/clock';
-	import GraduationCapIcon from '@lucide/svelte/icons/graduation-cap';
-	import IdCardIcon from '@lucide/svelte/icons/id-card';
-	import PencilIcon from '@lucide/svelte/icons/pencil';
-	import X from '@lucide/svelte/icons/x';
+	import { CalendarDaysIcon } from '@lucide/svelte';
+	import { ClockIcon } from '@lucide/svelte';
+	import { GraduationCapIcon } from '@lucide/svelte';
+	import { IdCardIcon } from '@lucide/svelte';
+	import { PencilIcon } from '@lucide/svelte';
+	import { X } from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
 	import DataDisplay from './DataDisplay.svelte';
 	import { roleOf } from '$lib';
