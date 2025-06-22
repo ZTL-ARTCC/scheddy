@@ -6,5 +6,5 @@ export const editSchema = z.object({
 	minute: z.coerce.number(),
 	type: z.string(),
 	mentor: z.coerce.number(),
-	addException: z.boolean(),
+	addException: z.boolean()
 });
