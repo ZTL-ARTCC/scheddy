@@ -3,9 +3,10 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Form from '$lib/components/ui/form';
 	import * as Select from '$lib/components/ui/select';
+	import * as Alert from '$lib/components/ui/alert';
 	import { version } from '$app/environment';
 	import { HeartIcon } from '@lucide/svelte';
-	import { LoaderCircle } from '@lucide/svelte';
+	import { LoaderCircle, CheckCircle2, CircleAlert } from '@lucide/svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { superForm } from 'sveltekit-superforms';
 	import { DateTime, Interval } from 'luxon';
@@ -13,6 +14,7 @@
 	import { ROLE_MENTOR, ROLE_STAFF } from '$lib/utils';
 	import { clientConfig } from '$lib/config/client';
 	import { Button } from '$lib/components/ui/button';
+	import { Separator } from '$lib/components/ui/separator';
 
 	interface Props {
 		data: PageData;
@@ -42,8 +44,8 @@
 </script>
 
 <div class="min-w-screen min-h-screen flex flex-col align-middle justify-center items-center">
-	<Card.Root class="max-w-xl mx-4 text-center px-4 py-2">
-		<Card.Header>
+	<Card.Root class="max-w-xl mx-4 px-4 py-2">
+		<Card.Header class="text-center">
 			<p class="text-sm text-right text-slate-500 mb-1">
 				Logged in as {data.user.firstName}
 				{data.user.lastName} ({data.role}) -
@@ -56,19 +58,39 @@
 		</Card.Header>
 		<Card.Content>
 			{#if data.reschedule && !data.canReschedule}
-				<p>As it is within 24 hours, please contact your mentor to reschedule.</p>
+				{@const start = DateTime.fromISO(data.oldSession.start)}
+				{@const diff = Math.floor(start.diffNow().as('hours'))}
+				<Alert.Root variant="destructive">
+					<CircleAlert class="size-4" />
+					<Alert.Title>Too late to make changes</Alert.Title>
+					<Alert.Description>
+						Your session is in {diff} hour{diff === 1 ? '' : 's'}. Please contact your mentor to reschedule.
+					</Alert.Description>
+				</Alert.Root>
 			{:else if done}
-				<p>{$message}</p>
+				{#if $message.result === 'success'}
+					<Alert.Root class="border-green-50 bg-green-50 text-green-900 dark:border-green-950 dark:bg-green-950/20 dark:text-green-700">
+						<CheckCircle2 />
+						<Alert.Title>Session {data.reschedule ? 'rescheduled' : 'booked'} 🥳</Alert.Title>
+						<Alert.Description>You'll receive a confirmation email shortly and you should see the session on your dashboard soon.</Alert.Description>
+					</Alert.Root>
+				{:else}
+					<Alert.Root variant="destructive">
+						<CircleAlert class="size-4" />
+						<Alert.Title>Could not book session</Alert.Title>
+						<Alert.Description>{$message.message}</Alert.Description>
+					</Alert.Root>
+				{/if}
 			{:else if !data.atMaxSessions}
 				<form class="text-left flex flex-col gap-4" method="POST" use:enhance>
-					<div class={data.reschedule ? 'hidden' : ''}>
+					<div class="{data.reschedule ? 'hidden' : ''}">
 						<!-- Step 1: Always shown - session type -->
 						<Form.Field {form} name="sessionType">
 							<Form.Control>
 								{#snippet children({ props })}
 									<Form.Label>Session Type</Form.Label>
 									<Select.Root type="single" bind:value={$formData.sessionType} name={props.name}>
-										<Select.Trigger {...props}>
+										<Select.Trigger class="w-full" {...props}>
 											{$formData.sessionType && data.sessionMap[$formData.sessionType]
 												? `${data.sessionMap[$formData.sessionType].name} (${data.sessionMap[$formData.sessionType].length} minutes)`
 												: 'Select a session type'}
@@ -103,7 +125,7 @@
 								{#snippet children({ props })}
 									<Form.Label>Timezone</Form.Label>
 									<Select.Root type="single" bind:value={$formData.timezone} name={props.name}>
-										<Select.Trigger {...props}>
+										<Select.Trigger class="w-full" {...props}>
 											{$formData.timezone ? $formData.timezone : 'Select a timezone'}
 										</Select.Trigger>
 										<Select.Content>
@@ -124,7 +146,7 @@
 								{#snippet children({ props })}
 									<Form.Label>{data.reschedule ? 'New date' : 'Date'} & time</Form.Label>
 									<Select.Root type="single" bind:value={$formData.slot} name={props.name}>
-										<Select.Trigger {...props}>
+										<Select.Trigger class="w-full" {...props}>
 											{#if $formData.slot}
 												{#each slots as slot}
 													{#if `${slot.slot}@${slot.mentor}` === $formData.slot}
@@ -164,13 +186,17 @@
 						</Form.Field>
 					{/if}
 
+					{#if data.reschedule && !($formData.slot && $formData.slot !== '')}
+						<div class="flex flex-row gap-2 w-full">
+							<Separator class="shrink align-middle mt-2" />
+							<p class="text-muted-foreground text-xs align-middle">or</p>
+							<Separator class="shrink align-middle mt-2" />
+						</div>
+					{/if}
+
 					<!-- Step 3: Submit button -->
+					{#if data.reschedule || $formData.slot && $formData.slot !== ''}
 					<div class="flex flex-row gap-4">
-						{#if data.reschedule}
-							<Button href="/schedule/cancel/{data.oldId}" class="flex-1" variant="ghost"
-								>Cancel Session</Button
-							>
-						{/if}
 						{#if $formData.slot && $formData.slot !== ''}
 							<Form.Button class="flex-2">
 								{#if $delayed}
@@ -179,27 +205,39 @@
 									{data.reschedule ? 'Reschedule' : 'Schedule'} &rarr;
 								{/if}
 							</Form.Button>
+						{:else if data.reschedule}
+							<Button href="/schedule/cancel/{data.oldId}" class="flex-1" variant="outline"
+							>Cancel Session</Button
+							>
 						{/if}
 					</div>
+						{/if}
 				</form>
 			{:else}
-				<p>
+				<p class="text-center">
 					You have reached your facility's limit for maximum booked sessions. Contact your training
 					staff if you believe this to be in error.
 				</p>
 			{/if}
+
+
 		</Card.Content>
 		<Card.Footer class="text-sm text-muted-foreground justify-center flex flex-col gap-2">
-			<div class="flex flex-row gap-4 text-primary font-semibold">
-				<a class="hover:underline underline-offset-4" href="/my_sessions">My Bookings</a>
-				{#if roleOf(data.user) >= ROLE_MENTOR}
-					<a class="hover:underline underline-offset-4" href="/dash/mentors/{data.user.id}"
+			<div class="flex flex-col">
+				{#if data.reschedule}
+					<span class="text-xs text-muted-foreground">Modifying session #{data.oldSession.id}</span>
+				{/if}
+				<div class="flex flex-row gap-4 text-primary font-semibold">
+					<a class="hover:underline underline-offset-4" href="/my_sessions">My Bookings</a>
+					{#if roleOf(data.user) >= ROLE_MENTOR}
+						<a class="hover:underline underline-offset-4" href="/dash/mentors/{data.user.id}"
 						>My Schedule</a
-					>
-				{/if}
-				{#if roleOf(data.user) >= ROLE_STAFF}
-					<a class="hover:underline underline-offset-4" href="/dash">Administration</a>
-				{/if}
+						>
+					{/if}
+					{#if roleOf(data.user) >= ROLE_STAFF}
+						<a class="hover:underline underline-offset-4" href="/dash">Administration</a>
+					{/if}
+				</div>
 			</div>
 
 			<a
