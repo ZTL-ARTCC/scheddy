@@ -60,8 +60,7 @@ export const actions: Actions = {
 		const mentorEmailContent = session_canceled({
 			startTime: DateTime.fromISO(sessionAndFriends.session.start),
 			timezone: sessionAndFriends.mentor?.timezone,
-			studentName:
-				sessionAndFriends.student?.firstName + ' ' + sessionAndFriends.student?.firstName,
+			studentName: sessionAndFriends.student?.firstName + ' ' + sessionAndFriends.student?.lastName,
 			duration: sessionAndFriends.sessionType?.length ?? 0,
 			sessionId: sessionAndFriends.session.id,
 			type: sessionAndFriends.sessionType?.name,
