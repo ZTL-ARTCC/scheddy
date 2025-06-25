@@ -4,8 +4,8 @@
 	import * as Command from '$lib/components/ui/command';
 	import * as Form from '$lib/components/ui/form';
 	import { buttonVariants } from '$lib/components/ui/button';
-	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
-	import Check from '@lucide/svelte/icons/check';
+	import { ChevronsUpDown } from '@lucide/svelte';
+	import { Check } from '@lucide/svelte';
 	import { cn } from '$lib/utils';
 	import { computeCommandScore, useId } from 'bits-ui';
 
