@@ -25,6 +25,8 @@
 	});
 
 	const { form: formData, enhance, delayed } = form;
+
+	$inspect($formData);
 </script>
 
 <form class="max-w-3xl" method="POST" use:enhance>
@@ -87,9 +89,9 @@
 	</Form.Field>
 	<Form.Field {form} name="bookable" class="mb-2">
 		<Form.Control>
-			{#snippet children()}
+			{#snippet children({ props })}
 				<Form.Label>Bookable</Form.Label>
-				<Checkbox bind:checked={$formData.bookable} />
+				<Checkbox {...props} bind:checked={$formData.bookable} />
 			{/snippet}
 		</Form.Control>
 		<Form.FieldErrors />
