@@ -1,0 +1,1 @@
+export type BookingMessage = { result: 'success' } | { result: 'error', message: string };

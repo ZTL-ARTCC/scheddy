@@ -14,11 +14,12 @@ import { new_session } from '$lib/emails/mentor/new_session';
 import { slottificate } from '$lib/slottificate';
 import { DateTime, Interval } from 'luxon';
 import { z } from 'zod';
-import { superValidate, message, setError } from 'sveltekit-superforms';
+import { superValidate, message, setError, type Infer } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { getTimeZones } from '@vvo/tzdb';
 import * as ics from 'ics';
 import { serverConfig } from '$lib/config/server';
+import type { BookingMessage } from './types';
 
 export const load: PageServerLoad = async ({ cookies, url }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -63,6 +64,8 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 	let canReschedule = false;
 
 	const data = {};
+	let oldSession: session.$inferSelect | null = null;
+
 	if (url.searchParams.has('sessionId')) {
 		const id = url.searchParams.get('sessionId');
 		const session = (await db.select().from(sessions).where(eq(sessions.id, id)))[0];
@@ -73,6 +76,8 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 			data.sessionType = session.type;
 			data.timezone = session.timezone;
 		}
+
+		oldSession = session;
 	}
 
 	const maxPending = serverConfig.bookings.max_pending_sessions;
@@ -85,7 +90,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		atMaxSessions = false;
 	}
 
-	const form = await superValidate(data, zod(schema));
+	const form = await superValidate<Infer<typeof schema>, BookingMessage>(data, zod(schema));
 
 	const categories: { category: string; items: { id: string; name: string; order: number }[] }[] =
 		[];
@@ -129,7 +134,8 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		timezones,
 		reschedule: url.searchParams.has('sessionId'),
 		oldId: url.searchParams.get('sessionId'),
-		canReschedule
+		canReschedule,
+		oldSession
 	};
 };
 
@@ -156,7 +162,7 @@ export const actions: Actions = {
 			timezone: z.enum(timezones.map((u) => u.name))
 		});
 
-		const form = await superValidate(event, zod(schema));
+		const form = await superValidate<Infer<typeof schema>, BookingMessage>(event, zod(schema));
 
 		if (!form.valid) {
 			return fail(400, {
@@ -336,7 +342,7 @@ export const actions: Actions = {
 
 		return message(
 			form,
-			"Session booked 🥳 You'll receive a confirmation email shortly and you should see the session on your dashboard soon."
+			{ result: 'success' },
 		);
 	}
 };

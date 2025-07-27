@@ -2,8 +2,8 @@
 	import type { PageData } from './$types';
 	import { DateTime, Interval } from 'luxon';
 	import { goto } from '$app/navigation';
-	import CalendarIcon from '@lucide/svelte/icons/calendar';
-	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
+	import { CalendarIcon } from '@lucide/svelte';
+	import { LoaderCircleIcon } from '@lucide/svelte';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms';
