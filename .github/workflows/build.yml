@@ -62,11 +62,11 @@ jobs:
           remote_user: ${{ secrets.SERVER_USERNAME }}
           remote_key: ${{ secrets.SERVER_PRIVATE_KEY }}
       - name: Zip for release
-        run: tar cJvf scheddy.tar.xz .
+        run: tar cJvf /tmp/scheddy.tar.xz *
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: scheddy.tar.xz
+          artifacts: /tmp/scheddy.tar.xz
           artifactErrorsFailBuild: false
           draft: true
           generateReleaseNotes: true
