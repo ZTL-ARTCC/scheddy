@@ -23,7 +23,7 @@ import { serverConfig } from '$lib/config/server';
 export const load: PageServerLoad = async ({ cookies, url }) => {
 	const { user } = (await loadUserData(cookies))!;
 
-	const sTypes = await db.select().from(sessionTypes);
+	const sTypes = await db.select().from(sessionTypes).where(eq(sessionTypes.bookable, true));
 	const mentorsList = await db
 		.select()
 		.from(users)

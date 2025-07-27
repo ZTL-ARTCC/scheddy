@@ -61,11 +61,20 @@ jobs:
           remote_host: ${{ secrets.SERVER_HOST }}
           remote_user: ${{ secrets.SERVER_USERNAME }}
           remote_key: ${{ secrets.SERVER_PRIVATE_KEY }}
-      - name: Upload artifact for release
-        uses: actions/upload-artifact@v4
+      - name: Zip for release
+        run: tar cJvf scheddy.tar.xz .
+      - name: Create release
+        uses: ncipollo/release-action@v1
         with:
-          name: scheddy_bundle
-          path: .
+          artifacts: scheddy.tar.xz
+          artifactErrorsFailBuild: false
+          draft: true
+          generateReleaseNotes: true
+      #- name: Upload artifact for release
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: scheddy_bundle
+      #    path: .
       - name: Run database migrations
         run: bun drizzle-kit migrate
       - name: Start main server
