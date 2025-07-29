@@ -13,7 +13,9 @@ export const users = mysqlTable('user', {
 	mentorAvailability: text(),
 	allowedSessionTypes: text(),
 	bookableSessionTypes: text(),
-	timezone: text()
+	timezone: text(),
+
+	allowBookings: boolean().notNull().default(true),
 });
 
 export const userTokens = mysqlTable('userToken', {

@@ -57,6 +57,8 @@
 		<Card.Content>
 			{#if data.reschedule && !data.canReschedule}
 				<p>As it is within 24 hours, please contact your mentor to reschedule.</p>
+			{:else if data.blocked}
+				<p>You are not permitted to book new sessions at this time. Please contact your facility staff for more information.</p>
 			{:else if done}
 				<p>{$message}</p>
 			{:else if !data.atMaxSessions}

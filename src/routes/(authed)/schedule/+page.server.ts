@@ -129,7 +129,8 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		timezones,
 		reschedule: url.searchParams.has('sessionId'),
 		oldId: url.searchParams.get('sessionId'),
-		canReschedule
+		canReschedule,
+		blocked: !user.allowBookings
 	};
 };
 
@@ -163,6 +164,8 @@ export const actions: Actions = {
 				form
 			});
 		}
+
+		if (!user.allowBookings) return fail(403, { form });
 
 		if (!slotData[form.data.sessionType]) {
 			return setError(form, 'sessionType', 'Session type does not exist.');
