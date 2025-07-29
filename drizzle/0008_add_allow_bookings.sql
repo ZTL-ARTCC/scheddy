@@ -1,0 +1,1 @@
+ALTER TABLE `user` ADD `allowBookings` boolean DEFAULT true NOT NULL;

@@ -8,6 +8,7 @@
 	import LibraryIcon from '@lucide/svelte/icons/library';
 	import Layers2Icon from '@lucide/svelte/icons/layers-2';
 	import UsersIcon from '@lucide/svelte/icons/users';
+	import UserLockIcon from '@lucide/svelte/icons/user-lock';
 	import X from '@lucide/svelte/icons/x';
 	import { ROLE_MENTOR, ROLE_STAFF, ROLE_STUDENT } from '$lib/utils';
 	import type { NestedMenuItem } from './nav';
@@ -87,6 +88,12 @@
 					url: '/dash/users/set',
 					title: 'Add/Update Override',
 					icon: Layers2Icon,
+					visible: role >= ROLE_STAFF
+				},
+				{
+					url: '/dash/users/blocked',
+					title: 'Blocked Users',
+					icon: UserLockIcon,
 					visible: role >= ROLE_STAFF
 				}
 			]
