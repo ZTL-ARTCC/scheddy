@@ -78,7 +78,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 				minute: avail.exceptions[ex].start.minute
 			});
 
-			const time_now = DateTime.now();
+			const time_now = DateTime.now().setZone(mentor[0].timezone).minus({ day: 1 });
 
 			if (ex_date < time_now) {
 				delete avail.exceptions[ex];
