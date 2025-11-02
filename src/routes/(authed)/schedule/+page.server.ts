@@ -4,7 +4,7 @@ import { ROLE_MENTOR, ROLE_STUDENT, roleString } from '$lib/utils';
 import { roleOf } from '$lib';
 import { db } from '$lib/server/db';
 import { sessions, sessionTypes, users } from '$lib/server/db/schema';
-import { eq, gte, or } from 'drizzle-orm';
+import { eq, gte, and, or, lte } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import { ulid } from 'ulid';
 import { appointment_booked } from '$lib/emails/student/appointment_booked';
@@ -23,7 +23,10 @@ import { serverConfig } from '$lib/config/server';
 export const load: PageServerLoad = async ({ cookies, url }) => {
 	const { user } = (await loadUserData(cookies))!;
 
-	const sTypes = await db.select().from(sessionTypes).where(eq(sessionTypes.bookable, true));
+	const sTypes = await db
+		.select()
+		.from(sessionTypes)
+		.where(and(eq(sessionTypes.bookable, true), lte(sessionTypes.rating, user.rating)));
 	const mentorsList = await db
 		.select()
 		.from(users)
