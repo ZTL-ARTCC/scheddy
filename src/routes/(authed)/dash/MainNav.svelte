@@ -13,6 +13,7 @@
 	import { ROLE_MENTOR, ROLE_STAFF, ROLE_STUDENT } from '$lib/utils';
 	import type { NestedMenuItem } from './nav';
 	import NavSection from './NavSection.svelte';
+	import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
 
 	interface Props {
 		role: number;
@@ -94,6 +95,12 @@
 					url: '/dash/users/blocked',
 					title: 'Blocked Users',
 					icon: UserLockIcon,
+					visible: role >= ROLE_STAFF
+				},
+				{
+					url: '/dash/users/resync',
+					title: 'Resync User',
+					icon: RefreshCwIcon,
 					visible: role >= ROLE_STAFF
 				}
 			]
