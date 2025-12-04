@@ -13,7 +13,7 @@ export async function GET() {
 		.leftJoin(mentors, eq(mentors.id, sessions.mentor))
 		.leftJoin(students, eq(students.id, sessions.student))
 		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
-		.where(and(eq(sessions.reminded, false)), eq(sessions.cancelled, false));
+		.where(and(eq(sessions.reminded, false), eq(sessions.cancelled, false)));
 
 	const sessWithin24h = sess.filter((u) => {
 		return DateTime.fromISO(u.session.start) <= DateTime.now().plus({ hours: 24 });
