@@ -19,7 +19,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { getTimeZones } from '@vvo/tzdb';
 import * as ics from 'ics';
 import { serverConfig } from '$lib/config/server';
-import * as age from "age-encryption";
+import * as age from 'age-encryption';
 
 export const load: PageServerLoad = async ({ cookies, url }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -142,7 +142,10 @@ export const actions: Actions = {
 	default: async (event) => {
 		const { user } = (await loadUserData(event.cookies))!;
 
-		const sTypes = await db.select().from(sessionTypes).where(eq(sessionTypes.bookable, true));
+		const sTypes = await db
+			.select()
+			.from(sessionTypes)
+			.where(and(eq(sessionTypes.bookable, true), lte(sessionTypes.rating, user.rating)));
 		const mentorsList = await db
 			.select()
 			.from(users)
@@ -202,27 +205,37 @@ export const actions: Actions = {
 					availableSlots
 				};
 				const debugString = JSON.stringify(debugInfo);
-				const e = new age.Encrypter()
-				e.addRecipient("age1xt7wu3rv0hjlksl79c7l36cgpnsg8y673ct0ahx6s5438vzhqq4s8826pr"); // Tyler @ ZTL - Scheddy project lead
+				const e = new age.Encrypter();
+				e.addRecipient('age1xt7wu3rv0hjlksl79c7l36cgpnsg8y673ct0ahx6s5438vzhqq4s8826pr'); // Tyler @ ZTL - Scheddy project lead
 				const ciphertext = await e.encrypt(debugString);
 				const armored = age.armor.encode(ciphertext);
-				const debugStringWithPrelude = "An internal error occurred while processing a booking request. If you are " +
-					"comfortable doing so, please send the following encrypted debug information to the Scheddy " +
-					"team in the VATUSA discord server, #scheddy. It includes extensive information and is more " +
-					"or less a database dump. Feel free to ask questions about what this dump contains before " +
-					"sending it. Only the Scheddy development team holds the keys to decrypt this blob. " +
+				const debugStringWithPrelude =
+					'An internal error occurred while processing a booking request. If you are ' +
+					'comfortable doing so, please send the following encrypted debug information to the Scheddy ' +
+					'team in the VATUSA discord server, #scheddy. It includes extensive information and is more ' +
+					'or less a database dump. Feel free to ask questions about what this dump contains before ' +
+					'sending it. Only the Scheddy development team holds the keys to decrypt this blob. ' +
 					`Thank you! Your help with debugging is appreciated. With <3 from ZTL, Tyler\n\n${armored}`;
 
 				// Upload it to a pastebin for later review
 				const r = await fetch('https://paste.c-net.org', {
 					method: 'POST',
-					body: debugStringWithPrelude,
+					body: debugStringWithPrelude
 				});
 				const url = await r.text();
 
-				return setError(form, 'slot', 'An internal error has occurred. Please REPORT THIS ERROR to your facility\'s webmaster and include the following link: ' + url);
+				return setError(
+					form,
+					'slot',
+					"Someone else has already booked this slot. Please REPORT THIS ERROR to your facility's webmaster and include the following link: " +
+						url
+				);
 			} else {
-				return setError(form, 'slot', 'An internal error has occurred. Please REPORT THIS ERROR to your facility\'s webmaster.');
+				return setError(
+					form,
+					'slot',
+					'Someone else has already booked this slot. Please reload the page and choose another.'
+				);
 			}
 		}
 

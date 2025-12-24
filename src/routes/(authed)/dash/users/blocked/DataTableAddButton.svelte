@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import * as Dialog from "$lib/components/ui/dialog";
+	import * as Dialog from '$lib/components/ui/dialog';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -12,12 +12,12 @@
 
 	async function add() {
 		let data = new URLSearchParams();
-		data.set("id", id.toString());
-		await fetch("?/add", {
+		data.set('id', id.toString());
+		await fetch('?/add', {
 			method: 'POST',
 			body: data.toString(),
 			headers: {
-				"Content-Type": "application/x-www-form-urlencoded"
+				'Content-Type': 'application/x-www-form-urlencoded'
 			}
 		});
 		await invalidateAll();

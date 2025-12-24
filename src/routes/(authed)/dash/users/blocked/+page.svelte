@@ -8,8 +8,6 @@
 	let { data }: Props = $props();
 </script>
 
-<i class="ml-1"
-	>The following users will be barred from booking new sessions:</i
->
+<i class="ml-1">The following users will be barred from booking new sessions:</i>
 
 <DataTable class="max-w-5xl" columns={userColumns} data={data.users} />

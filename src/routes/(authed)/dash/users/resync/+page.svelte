@@ -16,7 +16,7 @@
 		async onUpdated({ form }) {
 			if (form.valid) {
 				await goto('/dash/users');
-				toast.success('The user\'s role has been updated.');
+				toast.success("The user's role has been updated.");
 			}
 		}
 	});

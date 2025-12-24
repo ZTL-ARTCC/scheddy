@@ -12,12 +12,12 @@
 
 	async function remove() {
 		let data = new URLSearchParams();
-		data.set("id", id);
-		await fetch("?/remove", {
+		data.set('id', id);
+		await fetch('?/remove', {
 			method: 'POST',
 			body: data.toString(),
 			headers: {
-				"Content-Type": "application/x-www-form-urlencoded"
+				'Content-Type': 'application/x-www-form-urlencoded'
 			}
 		});
 		await invalidateAll();

@@ -16,10 +16,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	return {
 		user,
 		users: await db.select().from(users).where(ne(users.allowBookings, true)),
-		breadcrumbs: [
-			{ title: 'Dashboard', url: '/dash' },
-			{ title: 'Blocked Users' }
-		]
+		breadcrumbs: [{ title: 'Dashboard', url: '/dash' }, { title: 'Blocked Users' }]
 	};
 };
 export const actions: Actions = {

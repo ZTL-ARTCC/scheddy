@@ -62,7 +62,7 @@ export const actions: Actions = {
 		if (!vatusa_user_resp.ok) {
 			setError(form, 'id', 'Failed to load user data from VATUSA.');
 			return {
-				form,
+				form
 			};
 		}
 
