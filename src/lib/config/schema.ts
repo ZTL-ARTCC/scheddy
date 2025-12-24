@@ -41,7 +41,8 @@ export const baseConfig = {
 		from: 'Scheddy Test Server <sts@yourdomain.dev>'
 	},
 	metrics: {
-		dsn_public: 'https://ce463d975d42f1a39ec94cbf87405e46@sentry.coredoes.dev/2'
+		dsn_public: 'https://ce463d975d42f1a39ec94cbf87405e46@sentry.coredoes.dev/2',
+		enable_failure_uploads: false
 	}
 };
 

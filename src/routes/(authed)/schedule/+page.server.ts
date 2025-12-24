@@ -19,6 +19,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { getTimeZones } from '@vvo/tzdb';
 import * as ics from 'ics';
 import { serverConfig } from '$lib/config/server';
+import * as age from "age-encryption";
 
 export const load: PageServerLoad = async ({ cookies, url }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -188,7 +189,41 @@ export const actions: Actions = {
 		}
 
 		if (!slotStillAvailable) {
-			return setError(form, 'slot', 'Slot is no longer available. Please choose another.');
+			if (serverConfig.metrics.enable_failure_uploads) {
+				// Error message of pain and despair
+				// Dump a ton of debug information, encrypt it to ZTL, and upload it for reference.
+				const debugInfo = {
+					sTypes,
+					mentorsList,
+					allSessions,
+					slotData,
+					submission: form.data,
+					slotObj,
+					availableSlots
+				};
+				const debugString = JSON.stringify(debugInfo);
+				const e = new age.Encrypter()
+				e.addRecipient("age1xt7wu3rv0hjlksl79c7l36cgpnsg8y673ct0ahx6s5438vzhqq4s8826pr"); // Tyler @ ZTL - Scheddy project lead
+				const ciphertext = await e.encrypt(debugString);
+				const armored = age.armor.encode(ciphertext);
+				const debugStringWithPrelude = "An internal error occurred while processing a booking request. If you are " +
+					"comfortable doing so, please send the following encrypted debug information to the Scheddy " +
+					"team in the VATUSA discord server, #scheddy. It includes extensive information and is more " +
+					"or less a database dump. Feel free to ask questions about what this dump contains before " +
+					"sending it. Only the Scheddy development team holds the keys to decrypt this blob. " +
+					`Thank you! Your help with debugging is appreciated. With <3 from ZTL, Tyler\n\n${armored}`;
+
+				// Upload it to a pastebin for later review
+				const r = await fetch('https://paste.c-net.org', {
+					method: 'POST',
+					body: debugStringWithPrelude,
+				});
+				const url = await r.text();
+
+				return setError(form, 'slot', 'An internal error has occurred. Please REPORT THIS ERROR to your facility\'s webmaster and include the following link: ' + url);
+			} else {
+				return setError(form, 'slot', 'An internal error has occurred. Please REPORT THIS ERROR to your facility\'s webmaster.');
+			}
 		}
 
 		const interval = Interval.fromISO(slotObj.slot);
