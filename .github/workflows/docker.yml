@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  REGISTRY: scheddy.coredoes.dev
+  REGISTRY: http://scheddy.coredoes.dev
   IMAGE_NAME: scheddy
 
 jobs:
