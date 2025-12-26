@@ -26,13 +26,12 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 
 	const sTypes = await db
 		.select()
-		.from(sessionTypes)
-		.where(and(eq(sessionTypes.bookable, true), lte(sessionTypes.rating, user.rating)));
+		.from(sessionTypes); // DO *NOT* ADD ADDITIONAL CONSTRAINTS TO THIS CALL
 	const mentorsList = await db
 		.select()
 		.from(users)
 		.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)));
-	const allSessions = await db.select().from(sessions).where(eq(sessions.cancelled, false));
+	const allSessions = await db.select().from(sessions).where(eq(sessions.cancelled, false)); // DO *NOT* ADD ADDITIONAL CONSTRAINTS TO THIS CALL
 
 	let slotData;
 	let atMaxSessions;
@@ -100,7 +99,9 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 
 	const sessionMap: Record<string, { name: string; length: number }> = {};
 
-	for (const sessionType of sTypes) {
+	const sTypesFiltered = sTypes.filter((u) => user.rating >= u.rating).filter((u) => u.bookable);
+
+	for (const sessionType of sTypesFiltered) {
 		sessionMap[sessionType.id] = sessionType;
 
 		if (categories.length === 0) {
@@ -124,7 +125,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 	return {
 		user,
 		role: roleString(roleOf(user)),
-		sessionTypes: sTypes.filter((u) => u.rating >= user.rating),
+		sessionTypes: sTypesFiltered,
 		categories,
 		slotData,
 		atMaxSessions,
@@ -144,13 +145,12 @@ export const actions: Actions = {
 
 		const sTypes = await db
 			.select()
-			.from(sessionTypes)
-			.where(and(eq(sessionTypes.bookable, true), lte(sessionTypes.rating, user.rating)));
+			.from(sessionTypes);// DO *NOT* ADD ADDITIONAL CONSTRAINTS TO THIS CALL
 		const mentorsList = await db
 			.select()
 			.from(users)
 			.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)));
-		const allSessions = await db.select().from(sessions).where(eq(sessions.cancelled, false));
+		const allSessions = await db.select().from(sessions).where(eq(sessions.cancelled, false)); // DO *NOT* ADD ADDITIONAL CONSTRAINTS TO THIS CALL
 
 		const slotData = slottificate(sTypes, mentorsList, allSessions);
 
@@ -250,6 +250,12 @@ export const actions: Actions = {
 			if (typ.id === form.data.sessionType) {
 				duration = typ.length;
 				typename = typ.name;
+				if (!typ.bookable) {
+					return setError(form, 'sessionType', 'Facility policy does not currently allow this session type to be booked. Please reload the page.');
+				}
+				if (user.rating < typ.rating) {
+					return setError(form, 'sessionType', 'You do not hold the rating necessary to book this session type. Please reload the page.');
+				}
 			}
 		}
 
