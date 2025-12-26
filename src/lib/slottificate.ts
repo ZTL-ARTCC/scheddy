@@ -9,7 +9,7 @@ export function slottificate(
 	sTypes: (typeof sessionTypes.$inferSelect)[],
 	mentors: (typeof users.$inferSelect)[],
 	allSessions: (typeof sessions.$inferSelect)[]
-): Record<string, { slot: Interval; mentor: number }[]> {
+): Record<string, { slot: string; mentor: number }[]> {
 	const slotData: Record<string, { slot: Interval; mentor: number }[]> = {};
 
 	const now = DateTime.utc();
@@ -63,7 +63,7 @@ export function slottificate(
 
 			// figure out their availability for each day
 			for (const validDay of validDaysToBook) {
-				const dayInMentorsTz = validDay.setZone(mentor.timezone);
+				const dayInMentorsTz = validDay.setZone(mentor.timezone ?? 'UTC');
 
 				let todaysAvail: DayAvailability | null = null;
 				// do they have a date exception set?
@@ -173,7 +173,7 @@ export function slottificate(
 			slots.push(
 				...validSlots.map((u) => {
 					return {
-						slot: u.toISO(),
+						slot: u,
 						mentor: mentor.id
 					};
 				})
@@ -182,8 +182,9 @@ export function slottificate(
 
 		// sort chronologically
 		slots.sort((a, b) => {
-			const a_dt = Interval.fromISO(a.slot);
-			const b_dt = Interval.fromISO(b.slot);
+			const a_dt = a.slot;
+			const b_dt = b.slot;
+			if (!a_dt.start || !b_dt.start) { return 0; }
 			if (a_dt.start < b_dt.start) {
 				return -1;
 			} else if (a_dt.start > b_dt.start) {
@@ -196,5 +197,44 @@ export function slottificate(
 		slotData[typ.id] = slots;
 	}
 
-	return slotData;
+	// final sanity check: drop any overlapping slots
+	const sanityCheckedSlotData: Record<string, { slot: string; mentor: number }[]> = {};
+	for (const typId of Object.keys(slotData)) {
+		const slotsThisType = slotData[typId];
+		const validSlots: { slot: string, mentor: number }[] = [];
+		for (const slot of slotsThisType) {
+			// check for overlap of existing sessions this mentor
+			const mentorsOtherSessions: (typeof sessions.$inferSelect)[] =
+				sessionsByMentor[slot.mentor] || [];
+
+			const unavailablePeriodsMentorsTime: Interval[] = [];
+
+			// create a list of blocked off periods
+			for (const otherSess of mentorsOtherSessions) {
+				const start = DateTime.fromISO(otherSess.start);
+				const end = start.plus({ minutes: typelengths[otherSess.type]! });
+
+				unavailablePeriodsMentorsTime.push(Interval.fromDateTimes(start, end));
+			}
+
+			// Check for overlaps
+			let hasAnyOverlap = false;
+			for (const unavailablePeriod of unavailablePeriodsMentorsTime) {
+				if (unavailablePeriod.overlaps(slot.slot)) {
+					hasAnyOverlap = false;
+					break;
+				}
+			}
+			if (!hasAnyOverlap) {
+				// Valid
+				validSlots.push({
+					slot: slot.slot.toISO(),
+					mentor: slot.mentor
+				});
+			}
+		}
+		sanityCheckedSlotData[typId] = validSlots;
+	}
+
+	return sanityCheckedSlotData;
 }
