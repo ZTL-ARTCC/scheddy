@@ -9,19 +9,14 @@
 		sessionId,
 		type,
 		timezone,
-		reschedule,
 		facilityName,
 		emailDomain
 	}: NewSessionProps = $props();
-
-	let title = reschedule ? 'Session updated' : 'New session booked';
-	let bookedText = 'A student has booked an appointment. Here are the details:';
-	let updatedText = 'The details for your session has changed.';
 </script>
 
-<h1>{title}</h1>
+<h1>New session booked</h1>
 
-<p>{reschedule ? updatedText : bookedText}</p>
+<p>A student has booked an appointment. Here are the details:</p>
 <p><b>Session type:</b> {type}</p>
 <p><b>Date/time:</b> {startTime.toLocaleString(DateTime.DATETIME_HUGE)}</p>
 <p><b>Timezone:</b> {timezone}</p>
