@@ -12,7 +12,6 @@
 	import { roleOf } from '$lib';
 	import { ROLE_MENTOR, ROLE_STAFF } from '$lib/utils';
 	import { clientConfig } from '$lib/config/client';
-	import { Button } from '$lib/components/ui/button';
 
 	interface Props {
 		data: PageData;
@@ -49,24 +48,30 @@
 				{data.user.lastName} ({data.role}) -
 				<button onclick={logout} class="hover:underline">Log out</button>
 			</p>
-			<Card.Title
-				>{data.reschedule ? 'Reschedule' : 'Schedule'} appointment at {clientConfig.facility
-					.name_public}</Card.Title
-			>
+			<Card.Title>Schedule appointment at {clientConfig.facility.name_public}</Card.Title>
 		</Card.Header>
 		<Card.Content>
-			{#if data.reschedule && !data.canReschedule}
-				<p>As it is within 24 hours, please contact your mentor to reschedule.</p>
-			{:else if data.blocked}
+			{#if data.blocked}
 				<p>
 					You are not permitted to book new sessions at this time. Please contact your facility
 					staff for more information.
 				</p>
 			{:else if done}
 				<p>{$message}</p>
-			{:else if !data.atMaxSessions}
+			{:else if data.atMaxSessions}
+				<p>
+					You have reached your facility's limit for maximum booked sessions. Contact your training
+					staff if you believe this to be in error.
+				</p>
+			{:else if data.cooldown}
+				<p>
+					You have recently booked a session. Please wait <span class="font-bold"
+						>{data.cooldownRemaining}</span
+					> before attempting to book another session.
+				</p>
+			{:else}
 				<form class="text-left flex flex-col gap-4" method="POST" use:enhance>
-					<div class={data.reschedule ? 'hidden' : ''}>
+					<div>
 						<!-- Step 1: Always shown - session type -->
 						<Form.Field {form} name="sessionType">
 							<Form.Control>
@@ -127,7 +132,7 @@
 						<Form.Field {form} name="slot">
 							<Form.Control>
 								{#snippet children({ props })}
-									<Form.Label>{data.reschedule ? 'New date' : 'Date'} & time</Form.Label>
+									<Form.Label>Date & time</Form.Label>
 									<Select.Root type="single" bind:value={$formData.slot} name={props.name}>
 										<Select.Trigger {...props}>
 											{#if $formData.slot}
@@ -142,7 +147,7 @@
 													{/if}
 												{/each}
 											{:else}
-												Select a {data.reschedule ? 'new' : ''} time and date
+												Select a time and date
 											{/if}
 										</Select.Trigger>
 										<Select.Content>
@@ -170,28 +175,16 @@
 					{/if}
 
 					<!-- Step 3: Submit button -->
-					<div class="flex flex-row gap-4">
-						{#if data.reschedule}
-							<Button href="/schedule/cancel/{data.oldId}" class="flex-1" variant="ghost"
-								>Cancel Session</Button
-							>
-						{/if}
-						{#if $formData.slot && $formData.slot !== ''}
-							<Form.Button class="flex-2">
-								{#if $delayed}
-									<LoaderCircle class="w-4 h-4 animate-spin" />
-								{:else}
-									{data.reschedule ? 'Reschedule' : 'Schedule'} &rarr;
-								{/if}
-							</Form.Button>
-						{/if}
-					</div>
+					{#if $formData.slot && $formData.slot !== ''}
+						<Form.Button class="flex-2">
+							{#if $delayed}
+								<LoaderCircle class="w-4 h-4 animate-spin" />
+							{:else}
+								Schedule &rarr;
+							{/if}
+						</Form.Button>
+					{/if}
 				</form>
-			{:else}
-				<p>
-					You have reached your facility's limit for maximum booked sessions. Contact your training
-					staff if you believe this to be in error.
-				</p>
 			{/if}
 		</Card.Content>
 		<Card.Footer class="text-sm text-muted-foreground justify-center flex flex-col gap-2">
