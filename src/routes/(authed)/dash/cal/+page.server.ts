@@ -4,11 +4,9 @@ import { ROLE_MENTOR } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { mentors, sessions, sessionTypes, students, users } from '$lib/server/db/schema';
-import { eq, gte, or } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
-import CalendarItem from './CalendarItem.svelte';
 import { DateTime } from 'luxon';
-import { render } from 'svelte/server';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -24,11 +22,6 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
 		.where(eq(sessions.cancelled, false));
 
-	const allmentors = await db
-		.select()
-		.from(users)
-		.where(or(gte(users.role, ROLE_MENTOR), gte(users.roleOverride, ROLE_MENTOR)));
-
 	mentorSessions.sort((a, b) => {
 		const a_dt = DateTime.fromISO(a.session.start);
 		const b_dt = DateTime.fromISO(b.session.start);
@@ -41,17 +34,11 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		}
 	});
 
-	const mentorSessionsInjectedItem = mentorSessions.map((u) => {
-		return {
-			calendarContent: render(CalendarItem, { props: u }),
-			...u
-		};
-	});
-
 	return {
 		user,
-		mentorSessions: mentorSessionsInjectedItem,
-		mentors: allmentors,
+		mentorSessions,
+		usersArr: await db.select().from(users),
+		sessionTypesArr: await db.select().from(sessionTypes),
 		breadcrumbs: [{ title: 'Dashboard', url: '/dash' }, { title: 'Facility Calendar' }]
 	};
 };

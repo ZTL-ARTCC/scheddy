@@ -1,147 +1,153 @@
 <script lang="ts">
-	import type { PageData } from './$types';
-	import {
-		TimeGrid,
-		DayGrid,
-		List,
-		ResourceTimeline,
-		ResourceTimeGrid,
-		Interaction,
-		Calendar
-	} from '@event-calendar/core';
 	import { DateTime } from 'luxon';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import ButtonGroup from '$lib/components/ui/button-group/button-group.svelte';
+	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
+	import ChevronRight from '@lucide/svelte/icons/chevron-right';
+	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
+	import CalendarItem from './CalendarItem.svelte';
+	import type { PageData } from '../$types';
+	import Plus from '@lucide/svelte/icons/plus';
 	import { goto } from '$app/navigation';
-	import { roleOf } from '$lib';
-	import { ROLE_STAFF } from '$lib/utils';
+	import { cn } from '$lib/utils';
 
 	interface Props {
 		data: PageData;
 	}
+
 	let { data }: Props = $props();
 
-	let container: HTMLDivElement;
-
-	let options: Calendar.Options = $derived({
-		view: 'timeGridWeek',
-		buttonText: {
-			listWeek: 'Week - List',
-			timeGridDay: 'Day',
-			timeGridWeek: 'Week',
-			today: 'Jump to today'
-		},
-		scrollTime: (() => {
-			const now = DateTime.now();
-			return now.toObject();
-		})(),
-		headerToolbar: {
-			start: 'title',
-			center: '',
-			end: 'timeGridWeek,timeGridDay,listWeek today prev,next'
-		},
-		resources: data.mentors.map((u) => {
-			return {
-				id: u.id,
-				title: u.firstName + ' ' + u.lastName
-			};
-		}),
-		eventClick: async (info) => {
-			if (info.event.resourceIds[0] == data.user.id || roleOf(data.user) >= ROLE_STAFF) {
-				await goto(`/dash/sessions/${info.event.id}`);
-			}
-		},
-		eventMouseEnter: (info) => {
-			console.log('here');
-			if (info.event.resourceIds[0] == data.user.id || roleOf(data.user) >= ROLE_STAFF) {
-				container.style.cursor = 'pointer';
-			}
-		},
-		eventMouseLeave: () => {
-			container.style.cursor = 'auto';
-		},
-		events: data.mentorSessions.map((u) => {
-			const cyrb53 = (str, seed = 0) => {
-				let h1 = 0xdeadbeef ^ seed,
-					h2 = 0x41c6ce57 ^ seed;
-				for (let i = 0, ch; i < str.length; i++) {
-					ch = str.charCodeAt(i);
-					h1 = Math.imul(h1 ^ ch, 2654435761);
-					h2 = Math.imul(h2 ^ ch, 1597334677);
-				}
-				h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
-				h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-				h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
-				h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-
-				return 4294967296 * (2097151 & h2) + (h1 >>> 0);
-			};
-
-			const selector = cyrb53(u.sessionType.id) % 17;
-			const backgroundColors = [
-				'#991b1b',
-				'#9a3412',
-				'#92400e',
-				'#854d0e',
-				'#3f6212',
-				'#166534',
-				'#065f46',
-				'#115e59',
-				'#155e75',
-				'#075985',
-				'#1e40af',
-				'#3730a3',
-				'#5b21b6',
-				'#6b21a8',
-				'#86198f',
-				'#9d174d',
-				'#9f1239'
-			];
-			const foregroundColors = [
-				'#fef2f2',
-				'#fff7ed',
-				'#fffbeb',
-				'#fefce8',
-				'#f7fee7',
-				'#f0fdf4',
-				'#ecfdf5',
-				'#f0fdfa',
-				'#ecfeff',
-				'#f0f9ff',
-				'#eff6ff',
-				'#eef2ff',
-				'#f5f3ff',
-				'#faf5ff',
-				'#fdf4ff',
-				'#fdf2f8',
-				'#fff1f2'
-			];
-
-			return {
-				id: u.session.id,
-				resourceIds: [u.mentor.id],
-				start: new Date(u.session.start),
-				end: new Date(new Date(u.session.start).getTime() + 60000 * u.sessionType.length),
-				editable: false,
-				startEditable: false,
-				durationEditable: false,
-				title: u.calendarContent,
-				backgroundColor: backgroundColors[selector],
-				textColor: foregroundColors[selector]
-			};
-		}),
-		slotHeight: 32,
-		nowIndicator: true
-	});
+	const today = DateTime.now();
+	let selectedDay = $state(DateTime.now());
+	let selectedWeekStart = $derived.by(() =>
+		selectedDay.minus({ days: selectedDay.weekday % 7 }).startOf('day')
+	);
+	let selectedWeekEnd = $derived.by(() => selectedWeekStart.plus({ days: 6 }).endOf('day'));
+	let view = $state('week');
 </script>
 
-<div bind:this={container} class="ec-dark">
-	<Calendar
-		plugins={[TimeGrid, DayGrid, List, ResourceTimeline, ResourceTimeGrid, Interaction]}
-		{options}
-	/>
-</div>
+<div class="flex flex-col w-full h-full border-2 rounded-xl">
+	<!-- Header -->
+	<div class="flex w-full items-center justify-between border-b px-6 py-4">
+		<div class="flex flex-col">
+			<h1 class="text-base font-semibold">
+				{#if view === 'week'}
+					{selectedWeekStart.monthShort}
+					{selectedWeekStart.day} - {selectedWeekEnd.monthShort}
+					{selectedWeekEnd.day}, {selectedWeekEnd.year}
+				{:else}
+					{selectedDay.monthLong} {selectedDay.day}, {selectedDay.year}
+				{/if}
+			</h1>
+		</div>
+		<div class="flex items-center gap-5">
+			<DropdownMenu.Root>
+				<DropdownMenu.Trigger>
+					<Button variant="outline" class="hover:cursor-pointer">
+						<span>{view === 'day' ? 'Day' : 'Week'}</span>
+						<ChevronsUpDown class="size-4 mt-0.5 ml-1 opacity-50" />
+					</Button>
+				</DropdownMenu.Trigger>
+				<DropdownMenu.Content align="center">
+					<DropdownMenu.Item class="cursor-pointer" onclick={() => (view = 'day')}>
+						Day
+					</DropdownMenu.Item>
+					<DropdownMenu.Item class="cursor-pointer" onclick={() => (view = 'week')}>
+						Week
+					</DropdownMenu.Item>
+				</DropdownMenu.Content>
+			</DropdownMenu.Root>
+			<ButtonGroup>
+				<Button
+					class="hover:cursor-pointer"
+					variant="outline"
+					onclick={() => {
+						selectedDay = selectedDay.minus({ days: view === 'week' ? 7 : 1 });
+					}}><ChevronLeft /></Button
+				>
+				<Button
+					class="hover:cursor-pointer"
+					variant="outline"
+					onclick={() => {
+						selectedDay = DateTime.now();
+					}}
+				>
+					Today
+				</Button>
+				<Button
+					class="hover:cursor-pointer"
+					variant="outline"
+					onclick={() => {
+						selectedDay = selectedDay.plus({ days: view === 'week' ? 7 : 1 });
+					}}><ChevronRight /></Button
+				>
+			</ButtonGroup>
+			<Button class="hover:cursor-pointer" onclick={() => goto('/dash/sessions/create')}>
+				Create Session <Plus class="size-4" />
+			</Button>
+		</div>
+	</div>
+	<div class="flex flex-col w-full rounded-b-xl overflow-hidden">
+		<div
+			class="grid w-full border-b text-center font-semibold text-sm"
+			class:grid-cols-29={view === 'week'}
+			class:grid-cols-4={view === 'day'}
+		>
+			{#if view === 'week'}
+				<div class="border-r"></div>
+				{#each Array(7) as _, i}
+					<div
+						class="col-span-4 flex flex-col items-center justify-center py-3 text-sm"
+						class:border-r={i !== 6}
+						class:bg-muted={selectedWeekStart.plus({ days: i }).hasSame(today, 'day')}
+					>
+						<span class="uppercase tracking-wider text-xs text-muted-foreground">
+							{selectedWeekStart.plus({ days: i }).weekdayShort}
+						</span>
+						<span class="text-base font-semibold">
+							{selectedWeekStart.plus({ days: i }).day}
+						</span>
+					</div>
+				{/each}
+			{:else if view === 'day'}
+				<div class="col-span-4 flex flex-col items-center justify-center py-3 text-sm">
+					<span class="uppercase tracking-wider text-xs text-muted-foreground">
+						{selectedDay.weekdayLong}
+					</span>
+					<span class="text-base font-semibold">{selectedDay.day}</span>
+				</div>
+			{/if}
+		</div>
 
-<style>
-	:global(.ec-time-grid .ec-time, .ec-time-grid .ec-line) {
-		height: 32px;
-	}
-</style>
+		<ScrollArea>
+			<div
+				class="grid flex-1"
+				class:grid-cols-29={view === 'week'}
+				class:grid-cols-4={view === 'day'}
+			>
+				{#each Array(48) as _, hour}
+					<div class="border-r" class:border-b={hour < 47} class:border-b-dashed={hour % 2 === 0}>
+						{#if hour % 2 === 0}
+							<div class="text-xs text-muted-foreground text-center">
+								{DateTime.fromObject({ hour: hour / 2, minute: 0 }).toFormat('h a')}
+							</div>
+						{/if}
+					</div>
+					{#each Array(view === 'week' ? 7 : 1) as _, day}
+						<div
+							class={cn(
+								'relative h-12 p-2 col-span-4',
+								selectedWeekStart.plus({ days: day }).hasSame(today, 'day') && 'bg-muted/30'
+							)}
+							class:border-b={hour < 47}
+							class:border-r={day !== (view === 'week' ? 6 : 0)}
+							class:border-b-dashed={hour % 2 === 0}
+						></div>
+					{/each}
+				{/each}
+			</div>
+		</ScrollArea>
+	</div>
+</div>
