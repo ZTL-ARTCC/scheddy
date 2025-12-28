@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { sessions, sessionTypes, type users } from '$lib/server/db/schema';
+	import type { sessions, sessionTypes, users } from '$lib/server/db/schema';
 
 	interface Props {
 		student: typeof users.$inferSelect;
