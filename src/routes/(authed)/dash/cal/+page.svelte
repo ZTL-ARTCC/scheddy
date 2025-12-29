@@ -7,17 +7,37 @@
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
-	import CalendarItem from './CalendarItem.svelte';
 	import type { PageData } from '../$types';
 	import Plus from '@lucide/svelte/icons/plus';
 	import { goto } from '$app/navigation';
-	import { cn } from '$lib/utils';
+	import { cn, ROLE_STAFF } from '$lib/utils';
+	import { roleOf } from '$lib';
 
 	interface Props {
 		data: PageData;
 	}
 
 	let { data }: Props = $props();
+
+	const backgroundColors = [
+		'#991b1b',
+		'#9a3412',
+		'#92400e',
+		'#854d0e',
+		'#3f6212',
+		'#166534',
+		'#065f46',
+		'#115e59',
+		'#155e75',
+		'#075985',
+		'#1e40af',
+		'#3730a3',
+		'#5b21b6',
+		'#6b21a8',
+		'#86198f',
+		'#9d174d',
+		'#9f1239'
+	];
 
 	const today = DateTime.now();
 	let selectedDay = $state(DateTime.now());
@@ -26,6 +46,24 @@
 	);
 	let selectedWeekEnd = $derived.by(() => selectedWeekStart.plus({ days: 6 }).endOf('day'));
 	let view = $state('week');
+
+	const findHeight = (start: DateTime, end: DateTime) => {
+		const diffMinutes = end.diff(start, 'minutes').minutes;
+		return diffMinutes * 0.1;
+	};
+
+	const findMargin = (start: DateTime) => {
+		let minutes = start.minute;
+		if (minutes > 30) {
+			minutes = minutes - 30;
+		}
+		return (minutes / 30) * 12;
+	};
+
+	const isCompact = (start: DateTime, end: DateTime, min: number) => {
+		const minutes = end.diff(start, 'minutes').minutes;
+		return minutes <= min;
+	};
 </script>
 
 <div class="flex flex-col w-full h-full border-2 rounded-xl">
@@ -144,7 +182,58 @@
 							class:border-b={hour < 47}
 							class:border-r={day !== (view === 'week' ? 6 : 0)}
 							class:border-b-dashed={hour % 2 === 0}
-						></div>
+						>
+							{#if view === 'week'}
+								{#each data.mentorSessions as session}
+									{@const sessionStart = DateTime.fromISO(session.session.start)}
+									{@const sessionEnd = sessionStart.plus({ minutes: session.sessionType.length })}
+
+									{#if sessionStart.hasSame(selectedWeekStart.plus( { days: day } ), 'day') && sessionStart.hour === Math.floor(hour / 2) && Math.floor(sessionStart.minute / 30) * 30 === (hour % 2) * 30}
+										<button
+											onclick={() => {
+												if (
+													session.session.mentor === data.user.id ||
+													roleOf(data.user) >= ROLE_STAFF
+												) {
+													goto(`/dash/sessions/${session.session.id}`);
+												}
+											}}
+											class={cn(
+												'absolute top-0 left-0 w-full z-10 rounded-md text-xs cursor-pointer',
+												`mt-${findMargin(sessionStart)}`
+											)}
+											style={`height: ${findHeight(sessionStart, sessionEnd)}rem; background-color: ${
+												backgroundColors[(Math.random() * backgroundColors.length) | 0]
+											};`}
+										>
+											<div
+												class={cn(
+													'overflow-hidden h-full flex justify-center',
+													isCompact(sessionStart, sessionEnd, 15)
+														? 'flex-row items-center gap-2'
+														: 'flex-col'
+												)}
+											>
+												<p class="font-semibold">
+													{session.sessionType.name}
+												</p>
+												<p>
+													{session.student.firstName}
+													{session.student.lastName}
+												</p>
+												<p class={`${isCompact(sessionStart, sessionEnd, 15) ? 'hidden' : ''}`}>
+													{sessionStart.toFormat('h:mm a')} - {sessionEnd.toFormat('h:mm a')}
+												</p>
+												<p class={`${isCompact(sessionStart, sessionEnd, 45) ? 'hidden' : ''}`}>
+													with {session.mentor.firstName}
+													{session.mentor.lastName}
+												</p>
+											</div>
+										</button>
+									{/if}
+								{/each}
+							{:else}{/if}
+						</div>
 					{/each}
 				{/each}
 			</div>
