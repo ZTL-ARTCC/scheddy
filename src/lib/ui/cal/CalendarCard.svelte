@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { DateTime } from 'luxon';
 	import { cn } from 'tailwind-variants';
-	import type { Session } from './utils';
+	import { backgroundColors, type Session } from './utils';
 
 	interface Props {
 		session: Session;
