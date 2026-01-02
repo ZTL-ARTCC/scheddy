@@ -13,8 +13,8 @@ export const findHeight = (start: DateTime, end: DateTime) => {
 	return diffMinutes * 0.1;
 };
 
-export const findMargin = (start: DateTime, slotStart: DateTime) => {
-	const diff = start.diff(slotStart, 'minutes').minutes;
+export const findMargin = (start: DateTime) => {
+	const diff = start.diff(start.startOf('day'), 'minutes').minutes;
 	return Math.abs(diff * 0.1);
 };
 
