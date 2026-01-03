@@ -37,7 +37,10 @@ const sortIntoGroups = (sessions: Session[]): SessionWithTime[][] => {
 	return groups;
 };
 
-export const getStyledSessions = (sessions: Session[]): StyledSession[] => {
+export const getStyledSessions = (
+	sessions: Session[],
+	selectedDateISO: string
+): StyledSession[] => {
 	if (sessions.length === 0) return [];
 
 	const sTypes = [...new Set(sessions.map((s) => s.sessionType.id))];
@@ -89,8 +92,8 @@ export const getStyledSessions = (sessions: Session[]): StyledSession[] => {
 					`left: ${left}%`,
 					`width: ${Math.min(actualWidth, 95 - left)}%`,
 					`z-index: ${columnIndex}`,
-					`height: ${findHeight(session.start, session.end)}rem`,
-					`top: ${findMargin(session.start)}rem`,
+					`height: ${findHeight(selectedDateISO, session.start, session.end)}rem`,
+					`top: ${findMargin(selectedDateISO, session.start)}rem`,
 					`background-color: ${backgroundColors[sTypes.indexOf(session.sessionType.id) % backgroundColors.length]}`
 				])
 			};
