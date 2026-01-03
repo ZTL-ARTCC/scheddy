@@ -1,21 +1,22 @@
 <script lang="ts">
+	import { cn } from '$lib/utils';
 	import { DateTime } from 'luxon';
+	import type { HTMLAttributes } from 'svelte/elements';
 
-	interface Props {
+	interface Props extends HTMLAttributes<HTMLDivElement> {
 		selectedDay: DateTime;
 		selectedWeekStart: DateTime;
 		view: string;
 	}
 
-	let { selectedDay, selectedWeekStart, view }: Props = $props();
+	let { selectedDay, selectedWeekStart, view, class: className, ...restProps }: Props = $props();
 
 	const today = DateTime.now();
 </script>
 
 <div
-	class="grid w-full border-b text-center font-semibold text-sm"
-	class:grid-cols-29={view === 'week'}
-	class:grid-cols-4={view === 'day'}
+	class={cn('grid grid-cols-29 w-full border-b text-center font-semibold text-sm', className)}
+	{...restProps}
 >
 	{#if view === 'week'}
 		<div class="border-r"></div>
@@ -34,8 +35,9 @@
 			</div>
 		{/each}
 	{:else if view === 'day'}
+		<div class="border-r"></div>
 		<div
-			class="col-span-4 flex flex-col items-center justify-center py-3 text-sm"
+			class="col-span-28 flex flex-col items-center justify-center py-3 text-sm"
 			class:bg-muted={selectedDay.hasSame(today, 'day')}
 		>
 			<span class="uppercase tracking-wider text-xs text-muted-foreground">

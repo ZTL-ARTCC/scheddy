@@ -1,22 +1,34 @@
 <script lang="ts">
 	import { roleOf } from '$lib';
 	import { DateTime } from 'luxon';
-	import type { Session } from './utils';
+	import type { Session } from './utils/utils';
 	import type { users } from '$lib/server/db/schema';
 	import { ROLE_STAFF } from '$lib/utils';
-	import { getStyledSessions } from './placing';
+	import { getStyledSessions } from './utils/placing';
 	import EventCard from './EventCard.svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
 
-	interface Props {
+	interface Props extends HTMLAttributes<HTMLDivElement> {
 		user: typeof users.$inferSelect;
 		sessions: Session[];
 		view: string;
 		date: string;
 		selectedWeekStart: DateTime;
 		day: number;
+		backgroundByType: Record<string, string>;
 	}
 
-	const { user, sessions, view, date, selectedWeekStart, day }: Props = $props();
+	let {
+		user,
+		sessions,
+		view,
+		date,
+		selectedWeekStart,
+		day,
+		backgroundByType,
+		class: className,
+		...restProps
+	}: Props = $props();
 
 	const cellDate = selectedWeekStart.plus({ days: day });
 
@@ -40,17 +52,19 @@
 
 	const selectedDateISO = view === 'week' ? cellDate.toISODate()! : date;
 
-	const styledSessions = getStyledSessions(sessionsToday, selectedDateISO);
+	const styledSessions = getStyledSessions(sessionsToday, selectedDateISO, backgroundByType);
 </script>
 
-{#each styledSessions as session (session.session.id)}
-	<a
-		href={session.session.mentor === user.id || roleOf(user) >= ROLE_STAFF
-			? `/dash/sessions/${session.session.id}`
-			: undefined}
-		class="absolute rounded-lg text-xs cursor-pointer overflow-hidden shadow-lg hover:brightness-90 hover:shadow-xl p-1"
-		style={session.style}
-	>
-		<EventCard {session} {selectedDateISO} />
-	</a>
-{/each}
+<div class={className} {...restProps}>
+	{#each styledSessions as session (session.session.id)}
+		<a
+			href={session.session.mentor === user.id || roleOf(user) >= ROLE_STAFF
+				? `/dash/sessions/${session.session.id}`
+				: undefined}
+			class="absolute rounded-lg text-xs cursor-pointer overflow-hidden shadow-lg hover:brightness-90 hover:shadow-xl p-1"
+			style={session.style}
+		>
+			<EventCard {session} {selectedDateISO} />
+		</a>
+	{/each}
+</div>

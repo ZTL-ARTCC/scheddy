@@ -9,12 +9,27 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import { cn } from '$lib/utils';
-	export let selectedDay: DateTime;
-	export let selectedWeekStart: DateTime;
-	export let selectedWeekEnd: DateTime;
-	export let view: string;
-	export let onViewChange: (newView: string) => void;
-	export let onSelectedDayChange: (newDay: DateTime) => void;
+	import type { HTMLAttributes } from 'svelte/elements';
+
+	interface Props extends HTMLAttributes<HTMLDivElement> {
+		selectedDay: DateTime;
+		selectedWeekStart: DateTime;
+		selectedWeekEnd: DateTime;
+		view: string;
+		onViewChange: (newView: string) => void;
+		onSelectedDayChange: (newDay: DateTime) => void;
+	}
+
+	let {
+		selectedDay,
+		selectedWeekStart,
+		selectedWeekEnd,
+		view,
+		onViewChange,
+		onSelectedDayChange,
+		class: className,
+		...restProps
+	}: Props = $props();
 
 	const previous = () => {
 		const newDay =
@@ -36,7 +51,10 @@
 	};
 </script>
 
-<div class="flex w-full items-center justify-between border-b px-6 py-4">
+<div
+	class={cn('flex w-full items-center justify-between border-b px-6 py-4', className)}
+	{...restProps}
+>
 	<div class="flex flex-col">
 		<h1 class="text-base font-semibold">
 			{#if view === 'week'}

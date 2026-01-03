@@ -31,8 +31,11 @@ export const findMargin = (selectedDateISO: string, start: DateTime) => {
 	return Math.abs(diff * 0.1);
 };
 
+export const styleCreator = (style: string[]): string => {
+	return style.join(';\n');
+};
+
 export const backgroundColors = [
-	'#991b1b',
 	'#155e75',
 	'#9a3412',
 	'#3730a3',

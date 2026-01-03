@@ -1,8 +1,12 @@
 <script lang="ts">
+	import { cn } from '$lib/utils';
 	import { DateTime } from 'luxon';
+	import type { HTMLAttributes } from 'svelte/elements';
+
+	let { class: className, ...restProps }: HTMLAttributes<HTMLDivElement> = $props();
 </script>
 
-<div class="grid grid-rows-48 h-full">
+<div class={cn('grid grid-rows-48 h-full', className)} {...restProps}>
 	{#each Array(48) as _, hour}
 		<div
 			class="h-12 border-r flex flex-col justify-start"

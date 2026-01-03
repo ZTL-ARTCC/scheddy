@@ -5,8 +5,9 @@
 	import TimeColumn from '$lib/ui/cal/TimeColumn.svelte';
 	import CalendarHeader from '$lib/ui/cal/CalendarHeader.svelte';
 	import DateHeader from '$lib/ui/cal/DateHeader.svelte';
-	import type { Session } from '$lib/ui/cal/utils';
+	import type { Session } from '$lib/ui/cal/utils/utils';
 	import Events from '$lib/ui/cal/Events.svelte';
+	import TimeMarker from '$lib/ui/cal/TimeMarker.svelte';
 
 	interface Props {
 		data: PageData;
@@ -21,9 +22,19 @@
 	);
 	let selectedWeekEnd = $derived.by(() => selectedWeekStart.plus({ days: 6 }).endOf('day'));
 	let view = $state('week');
+	const now = DateTime.now();
 
 	// @ts-ignore sveltekit bug
 	const sessions = data.mentorSessions as Session[];
+	// @ts-ignore
+	const backgroundByType = data.backgroundByType as Record<string, string>;
+
+	const findTimeMarkerPosition = () => {
+		const startOfDay = now.startOf('day');
+
+		const diff = now.diff(startOfDay, 'minutes').minutes;
+		return Math.abs(diff * 0.1);
+	};
 </script>
 
 <div class="flex flex-col w-full border-2 rounded-xl" style="max-height: calc(100vh - 5rem);">
@@ -36,15 +47,18 @@
 		onSelectedDayChange={(newDay: DateTime) => (selectedDay = newDay)}
 	/>
 	<div class="flex flex-col w-full rounded-b-xl overflow-hidden">
-		<div class="relative overflow-y-auto">
-			<div class="sticky top-0 z-50 bg-background">
-				<DateHeader {selectedDay} {selectedWeekStart} {view} />
-			</div>
+		<div class="overflow-y-auto">
+			<DateHeader
+				{selectedDay}
+				{selectedWeekStart}
+				{view}
+				class="sticky top-0 z-50 bg-background"
+			/>
 
 			<div class="grid grid-cols-29">
 				<TimeColumn />
 
-				{#key `${selectedWeekStart.toISODate()}-${selectedDay}-${view}`}
+				{#key [selectedWeekStart.toISODate(), selectedDay, view]}
 					{#each Array(view === 'week' ? 7 : 1) as _, day}
 						<div
 							class={cn(
@@ -60,7 +74,13 @@
 									class:border-b-dashed={hour % 2 === 0}
 								></div>
 							{/each}
+							{#if (view === 'week' && selectedWeekStart
+									.plus({ days: day })
+									.hasSame(now, 'day')) || (view === 'day' && selectedDay.hasSame(now, 'day'))}
+								<TimeMarker class="z-49" style="top: {findTimeMarkerPosition()}rem;" />
+							{/if}
 							<Events
+								{backgroundByType}
 								user={data.user}
 								{sessions}
 								{view}
