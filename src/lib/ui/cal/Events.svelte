@@ -21,14 +21,26 @@
 	const cellDate = selectedWeekStart.plus({ days: day });
 
 	const sessionsToday = sessions.filter((s) => {
+		const start = DateTime.fromISO(s.session.start);
+		const end = start.plus({ minutes: s.sessionType.length });
 		if (view === 'week') {
-			const start = DateTime.fromISO(s.session.start);
-			return start.toISODate() === cellDate.toISODate();
+			return (
+				start.toISODate() === cellDate.toISODate() ||
+				end.toISODate() === cellDate.toISODate() ||
+				(start < cellDate.startOf('day') && end > cellDate.endOf('day'))
+			);
 		} else if (view === 'day') {
-			return DateTime.fromISO(s.session.start).toISODate() === date;
+			return (
+				start.toISODate() === date ||
+				end.toISODate() === date ||
+				(start < cellDate.startOf('day') && end > cellDate.endOf('day'))
+			);
 		}
 	});
-	const styledSessions = getStyledSessions(sessionsToday);
+
+	const selectedDateISO = view === 'week' ? cellDate.toISODate()! : date;
+
+	const styledSessions = getStyledSessions(sessionsToday, selectedDateISO);
 </script>
 
 {#each styledSessions as session (session.session.id)}
@@ -39,6 +51,6 @@
 		class="absolute rounded-lg text-xs cursor-pointer overflow-hidden shadow-lg hover:brightness-90 hover:shadow-xl p-1"
 		style={session.style}
 	>
-		<EventCard {session} sessionStart={session.start} sessionEnd={session.end} />
+		<EventCard {session} {selectedDateISO} />
 	</a>
 {/each}

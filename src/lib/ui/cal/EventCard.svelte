@@ -1,35 +1,36 @@
 <script lang="ts">
-	import { DateTime } from 'luxon';
-	import type { Session } from './utils';
+	import { findHeight, type StyledSession } from './utils';
 	import { cn } from '$lib/utils';
 
 	interface Props {
-		session: Session;
-		sessionStart: DateTime;
-		sessionEnd: DateTime;
+		session: StyledSession;
+		selectedDateISO: string;
 	}
 
-	let { session, sessionStart, sessionEnd }: Props = $props();
+	let { session, selectedDateISO }: Props = $props();
+
+	const dayLength = findHeight(selectedDateISO, session.start, session.end) * 10;
+	const styleLength = Math.min(dayLength, session.sessionType.length);
 </script>
 
 <div
 	class={cn(
 		'h-full flex justify-center text-center',
-		session.sessionType.length < 25 ? 'flex-row gap-2 items-center' : 'flex-col'
+		styleLength < 25 ? 'flex-row gap-2 items-center' : 'flex-col'
 	)}
 >
-	<p class="font-semibold text-white">
+	<p class="font-semibold text-white truncate">
 		{session.sessionType.name}
 	</p>
 	<p class="text-white truncate">
 		{session.student.firstName}
 		{session.student.lastName}
 	</p>
-	{#if session.sessionType.length >= 30}
+	{#if styleLength >= 30}
 		<p class="text-white truncate">
-			{sessionStart.toFormat('h:mm a')} - {sessionEnd.toFormat('h:mm a')}
+			{session.start.toFormat('h:mm a')} - {session.end.toFormat('h:mm a')}
 		</p>
-		{#if session.sessionType.length >= 45}
+		{#if styleLength >= 45}
 			<p class="text-white truncate">
 				with {session.mentor.firstName}
 				{session.mentor.lastName}
