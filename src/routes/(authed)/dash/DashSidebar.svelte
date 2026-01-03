@@ -13,7 +13,7 @@
 	let { role, userId, name }: Props = $props();
 </script>
 
-<Sidebar.Root>
+<Sidebar.Root class="z-99">
 	<Sidebar.Header>
 		<SbFacility />
 	</Sidebar.Header>
