@@ -1,12 +1,11 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { roleOf } from '$lib';
 	import { DateTime } from 'luxon';
 	import type { Session } from './utils';
 	import type { users } from '$lib/server/db/schema';
 	import { ROLE_STAFF } from '$lib/utils';
 	import { getStyledSessions } from './placing';
-	import CalendarCard from './CalendarCard.svelte';
+	import EventCard from './EventCard.svelte';
 
 	interface Props {
 		user: typeof users.$inferSelect;
@@ -37,9 +36,9 @@
 		href={session.session.mentor === user.id || roleOf(user) >= ROLE_STAFF
 			? `/dash/sessions/${session.session.id}`
 			: undefined}
-		class="absolute rounded-lg text-xs cursor-pointer overflow-hidden shadow-lg hover:brightness-90 text-center p-1"
+		class="absolute rounded-lg text-xs cursor-pointer overflow-hidden shadow-lg hover:brightness-90 hover:shadow-xl p-1"
 		style={session.style}
 	>
-		<CalendarCard {session} sessionStart={session.start} sessionEnd={session.end} />
+		<EventCard {session} sessionStart={session.start} sessionEnd={session.end} />
 	</a>
 {/each}

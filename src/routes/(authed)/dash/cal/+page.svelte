@@ -4,10 +4,9 @@
 	import { cn } from '$lib/utils';
 	import TimeColumn from '$lib/ui/cal/TimeColumn.svelte';
 	import CalendarHeader from '$lib/ui/cal/CalendarHeader.svelte';
-	import DateHead from '$lib/ui/cal/DateHead.svelte';
+	import DateHeader from '$lib/ui/cal/DateHeader.svelte';
 	import type { Session } from '$lib/ui/cal/utils';
 	import Events from '$lib/ui/cal/Events.svelte';
-	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte';
 
 	interface Props {
 		data: PageData;
@@ -39,7 +38,7 @@
 	<div class="flex flex-col w-full rounded-b-xl overflow-hidden">
 		<div class="relative overflow-y-auto">
 			<div class="sticky top-0 z-50 bg-background">
-				<DateHead {selectedDay} {selectedWeekStart} {view} />
+				<DateHeader {selectedDay} {selectedWeekStart} {view} />
 			</div>
 
 			<div class="grid grid-cols-29">
