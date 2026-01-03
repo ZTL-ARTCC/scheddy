@@ -100,7 +100,7 @@
 }
 
 @layer utilities {
-  .border-b-dashed {
-    border-bottom-style: dashed;
-  }
+	.border-b-dashed {
+		border-bottom-style: dashed;
+	}
 }

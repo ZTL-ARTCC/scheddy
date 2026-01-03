@@ -6,8 +6,7 @@
 	import CalendarHeader from '$lib/ui/cal/CalendarHeader.svelte';
 	import DateHead from '$lib/ui/cal/DateHead.svelte';
 	import type { Session } from '$lib/ui/cal/utils';
-	import WeekView from '$lib/ui/cal/WeekView.svelte';
-	import DayView from '$lib/ui/cal/DayView.svelte';
+	import Events from '$lib/ui/cal/Events.svelte';
 
 	interface Props {
 		data: PageData;
@@ -39,14 +38,15 @@
 	<div class="flex flex-col w-full rounded-b-xl overflow-hidden">
 		<DateHead {selectedDay} {selectedWeekStart} {view} />
 
-		<div class={cn('grid flex-1', view === 'week' ? 'grid-cols-29' : 'grid-cols-4')}>
+		<div class="grid grid-cols-29">
 			<TimeColumn />
 
-			{#key selectedWeekStart.toISODate()}
+			{#key `${selectedWeekStart.toISODate()}-${selectedDay}-${view}`}
 				{#each Array(view === 'week' ? 7 : 1) as _, day}
 					<div
 						class={cn(
-							'grid grid-rows-48 col-span-4 border-r relative',
+							'grid grid-rows-48 border-r relative',
+							view === 'week' ? 'col-span-4' : 'col-span-28',
 							selectedWeekStart.plus({ days: day }).hasSame(today, 'day') && 'bg-muted/30'
 						)}
 					>
@@ -57,12 +57,14 @@
 								class:border-b-dashed={hour % 2 === 0}
 							></div>
 						{/each}
-
-						{#if view === 'week'}
-							<WeekView {sessions} {selectedWeekStart} {day} user={data.user} />
-						{:else if view === 'day'}
-							<DayView />
-						{/if}
+						<Events
+							user={data.user}
+							{sessions}
+							{view}
+							date={selectedDay.toISODate()}
+							{selectedWeekStart}
+							{day}
+						/>
 					</div>
 				{/each}
 			{/key}
