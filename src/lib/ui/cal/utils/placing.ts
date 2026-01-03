@@ -4,13 +4,9 @@ import {
 	type Session,
 	findHeight,
 	findMargin,
-	backgroundColors
+	styleCreator
 } from './utils';
 import { DateTime } from 'luxon';
-
-const styleCreator = (style: string[]): string => {
-	return style.join(';\n');
-};
 
 const sortIntoGroups = (sessions: Session[]): SessionWithTime[][] => {
 	const sessionWithTimes: SessionWithTime[] = sessions.map((s) => ({
@@ -39,11 +35,10 @@ const sortIntoGroups = (sessions: Session[]): SessionWithTime[][] => {
 
 export const getStyledSessions = (
 	sessions: Session[],
-	selectedDateISO: string
+	selectedDateISO: string,
+	backgroundByType: Record<string, string>
 ): StyledSession[] => {
 	if (sessions.length === 0) return [];
-
-	const sTypes = [...new Set(sessions.map((s) => s.sessionType.id))];
 
 	const groups = sortIntoGroups(sessions);
 
@@ -94,7 +89,7 @@ export const getStyledSessions = (
 					`z-index: ${columnIndex}`,
 					`height: ${findHeight(selectedDateISO, session.start, session.end)}rem`,
 					`top: ${findMargin(selectedDateISO, session.start)}rem`,
-					`background-color: ${backgroundColors[sTypes.indexOf(session.sessionType.id) % backgroundColors.length]}`
+					`background-color: ${backgroundByType[session.sessionType.id]}`
 				])
 			};
 		});

@@ -7,6 +7,7 @@ import { mentors, sessions, sessionTypes, students, users } from '$lib/server/db
 import { eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 import { DateTime } from 'luxon';
+import { backgroundColors } from '$lib/ui/cal/utils/utils';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -34,9 +35,17 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		}
 	});
 
+	const sTypesInSessions = [...new Set(mentorSessions.map((s) => s.sessionType!.id))];
+	const backgroundByType: Record<string, string> = {};
+
+	for (const [i, sType] of sTypesInSessions.entries()) {
+		backgroundByType[sType] = backgroundColors[i % backgroundColors.length];
+	}
+
 	return {
 		user,
 		mentorSessions,
+		backgroundByType,
 		usersArr: await db.select().from(users),
 		sessionTypesArr: await db.select().from(sessionTypes),
 		breadcrumbs: [{ title: 'Dashboard', url: '/dash' }, { title: 'Facility Calendar' }]
