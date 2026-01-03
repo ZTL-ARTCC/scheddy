@@ -34,7 +34,10 @@
 			</div>
 		{/each}
 	{:else if view === 'day'}
-		<div class="col-span-4 flex flex-col items-center justify-center py-3 text-sm">
+		<div
+			class="col-span-4 flex flex-col items-center justify-center py-3 text-sm"
+			class:bg-muted={selectedDay.hasSame(today, 'day')}
+		>
 			<span class="uppercase tracking-wider text-xs text-muted-foreground">
 				{selectedDay.weekdayLong}
 			</span>

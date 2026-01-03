@@ -9,20 +9,10 @@
 		sessionEnd: DateTime;
 	}
 
-	const isCompact = (start: DateTime, end: DateTime, min: number) => {
-		const minutes = end.diff(start, 'minutes').minutes;
-		return minutes <= min;
-	};
-
 	let { session, sessionStart, sessionEnd }: Props = $props();
 </script>
 
-<div
-	class={cn(
-		'overflow-hidden h-full flex justify-center',
-		isCompact(sessionStart, sessionEnd, 15) ? 'flex-row items-center gap-2' : 'flex-col'
-	)}
->
+<div class={cn('overflow-hidden h-full flex justify-center flex-col')}>
 	<p class="font-semibold text-white">
 		{session.sessionType.name}
 	</p>

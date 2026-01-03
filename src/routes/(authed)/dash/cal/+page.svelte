@@ -7,6 +7,7 @@
 	import DateHead from '$lib/ui/cal/DateHead.svelte';
 	import type { Session } from '$lib/ui/cal/utils';
 	import Events from '$lib/ui/cal/Events.svelte';
+	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte';
 
 	interface Props {
 		data: PageData;
@@ -26,7 +27,7 @@
 	const sessions = data.mentorSessions as Session[];
 </script>
 
-<div class="flex flex-col w-full h-full border-2 rounded-xl">
+<div class="flex flex-col w-full border-2 rounded-xl" style="max-height: calc(100vh - 5rem);">
 	<CalendarHeader
 		{selectedDay}
 		{selectedWeekStart}
@@ -36,38 +37,42 @@
 		onSelectedDayChange={(newDay: DateTime) => (selectedDay = newDay)}
 	/>
 	<div class="flex flex-col w-full rounded-b-xl overflow-hidden">
-		<DateHead {selectedDay} {selectedWeekStart} {view} />
+		<div class="relative overflow-y-auto">
+			<div class="sticky top-0 z-50 bg-background">
+				<DateHead {selectedDay} {selectedWeekStart} {view} />
+			</div>
 
-		<div class="grid grid-cols-29">
-			<TimeColumn />
+			<div class="grid grid-cols-29">
+				<TimeColumn />
 
-			{#key `${selectedWeekStart.toISODate()}-${selectedDay}-${view}`}
-				{#each Array(view === 'week' ? 7 : 1) as _, day}
-					<div
-						class={cn(
-							'grid grid-rows-48 border-r relative',
-							view === 'week' ? 'col-span-4' : 'col-span-28',
-							selectedWeekStart.plus({ days: day }).hasSame(today, 'day') && 'bg-muted/30'
-						)}
-					>
-						{#each Array(48) as _, hour}
-							<div
-								class="relative h-12 p-2"
-								class:border-b={hour < 47}
-								class:border-b-dashed={hour % 2 === 0}
-							></div>
-						{/each}
-						<Events
-							user={data.user}
-							{sessions}
-							{view}
-							date={selectedDay.toISODate()}
-							{selectedWeekStart}
-							{day}
-						/>
-					</div>
-				{/each}
-			{/key}
+				{#key `${selectedWeekStart.toISODate()}-${selectedDay}-${view}`}
+					{#each Array(view === 'week' ? 7 : 1) as _, day}
+						<div
+							class={cn(
+								'grid grid-rows-48 border-r relative',
+								view === 'week' ? 'col-span-4' : 'col-span-28',
+								selectedWeekStart.plus({ days: day }).hasSame(today, 'day') && 'bg-muted/30'
+							)}
+						>
+							{#each Array(48) as _, hour}
+								<div
+									class="relative h-12 p-2"
+									class:border-b={hour < 47}
+									class:border-b-dashed={hour % 2 === 0}
+								></div>
+							{/each}
+							<Events
+								user={data.user}
+								{sessions}
+								{view}
+								date={selectedDay.toISODate()}
+								{selectedWeekStart}
+								{day}
+							/>
+						</div>
+					{/each}
+				{/key}
+			</div>
 		</div>
 	</div>
 </div>
