@@ -19,7 +19,7 @@
 
 <div
 	class={cn(
-		'overflow-hidden h-full flex justify-center',
+		'overflow-hidden h-full flex justify-center flex-c',
 		isCompact(sessionStart, sessionEnd, 15) ? 'flex-row items-center gap-2' : 'flex-col'
 	)}
 >
@@ -33,7 +33,7 @@
 	<p class={`${isCompact(sessionStart, sessionEnd, 15) ? 'hidden' : ''}`}>
 		{sessionStart.toFormat('h:mm a')} - {sessionEnd.toFormat('h:mm a')}
 	</p>
-	<p class={`${isCompact(sessionStart, sessionEnd, 45) ? 'hidden' : ''}`}>
+	<p>
 		with {session.mentor.firstName}
 		{session.mentor.lastName}
 	</p>
