@@ -33,15 +33,13 @@
 </script>
 
 {#each styledSessions as session (session.session.id)}
-	<button
-		onclick={() => {
-			if (session.session.mentor === user.id || roleOf(user) >= ROLE_STAFF) {
-				goto(`/dash/sessions/${session.session.id}`);
-			}
-		}}
-		class="absolute rounded-lg text-xs cursor-pointer overflow-hidden shadow-lg hover:brightness-90"
+	<a
+		href={session.session.mentor === user.id || roleOf(user) >= ROLE_STAFF
+			? `/dash/sessions/${session.session.id}`
+			: undefined}
+		class="absolute rounded-lg text-xs cursor-pointer overflow-hidden shadow-lg hover:brightness-90 text-center p-1"
 		style={session.style}
 	>
 		<CalendarCard {session} sessionStart={session.start} sessionEnd={session.end} />
-	</button>
+	</a>
 {/each}

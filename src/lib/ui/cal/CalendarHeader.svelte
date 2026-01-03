@@ -7,8 +7,8 @@
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import Plus from '@lucide/svelte/icons/plus';
-	import { goto } from '$app/navigation';
-
+	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
+	import { cn } from '$lib/utils';
 	export let selectedDay: DateTime;
 	export let selectedWeekStart: DateTime;
 	export let selectedWeekEnd: DateTime;
@@ -79,8 +79,8 @@
 			</Button>
 		</ButtonGroup>
 
-		<Button class="hover:cursor-pointer" onclick={() => goto('/dash/sessions/create')}>
+		<a class={cn(buttonVariants({ variant: 'default' }))} href="/dash/sessions/create">
 			Create Session <Plus class="size-4" />
-		</Button>
+		</a>
 	</div>
 </div>

@@ -13,26 +13,24 @@ const styleCreator = (style: string[]): string => {
 };
 
 const sortIntoGroups = (sessions: Session[]): SessionWithTime[][] => {
-	const sorted: SessionWithTime[] = sessions
-		.map((s) => ({
-			...s,
-			start: DateTime.fromISO(s.session.start),
-			end: DateTime.fromISO(s.session.start).plus({ minutes: s.sessionType.length })
-		}))
-		.sort((a, b) => a.start.toMillis() - b.start.toMillis());
+	const sessionWithTimes: SessionWithTime[] = sessions.map((s) => ({
+		...s,
+		start: DateTime.fromISO(s.session.start),
+		end: DateTime.fromISO(s.session.start).plus({ minutes: s.sessionType.length })
+	}));
 
 	const groups: SessionWithTime[][] = [];
-	let lastEnd: number | null = null;
+	let lastSessionEnd: number | null = null;
 
-	sorted.forEach((session) => {
-		if (!lastEnd || session.start.toMillis() >= lastEnd) {
+	sessionWithTimes.forEach((session) => {
+		if (!lastSessionEnd || session.start.toMillis() >= lastSessionEnd) {
 			groups.push([session]);
 		} else {
 			groups[groups.length - 1].push(session);
 		}
 
-		if (!lastEnd || session.end.toMillis() > lastEnd) {
-			lastEnd = session.end.toMillis();
+		if (!lastSessionEnd || session.end.toMillis() > lastSessionEnd) {
+			lastSessionEnd = session.end.toMillis();
 		}
 	});
 
@@ -53,8 +51,8 @@ export const getStyledSessions = (sessions: Session[]): StyledSession[] => {
 			let placed = false;
 
 			for (let i = 0; i < columns.length; i++) {
-				const lastInCol = columns[i][columns[i].length - 1];
-				if (session.start.toMillis() >= lastInCol.end.toMillis()) {
+				const lastEvent = columns[i][columns[i].length - 1];
+				if (session.start.toMillis() >= lastEvent.end.toMillis()) {
 					columns[i].push(session);
 					session.column = i;
 					placed = true;
@@ -69,11 +67,11 @@ export const getStyledSessions = (sessions: Session[]): StyledSession[] => {
 		}
 
 		return group.map((session): StyledSession => {
-			const colIndex = session.column ?? 0;
-			const totalCols = columns.length;
+			const columnIndex = session.column!;
+			const totalColumns = columns.length;
 
 			let canSpan = 1;
-			for (let i = colIndex + 1; i < totalCols; i++) {
+			for (let i = columnIndex + 1; i < totalColumns; i++) {
 				const hasOverlap = columns[i].some(
 					(other) => session.start < other.end && session.end > other.start
 				);
@@ -81,16 +79,16 @@ export const getStyledSessions = (sessions: Session[]): StyledSession[] => {
 				canSpan++;
 			}
 
-			const left = (colIndex / totalCols) * 95;
-			const width = (canSpan / totalCols) * 95;
-			const actualWidth = colIndex < totalCols - 1 ? width * 1.7 : width;
+			const left = (columnIndex / totalColumns) * 95;
+			const width = (95 / totalColumns) * canSpan;
+			const actualWidth = columnIndex < totalColumns - 1 ? width * 1.7 : width;
 
 			return {
 				...session,
 				style: styleCreator([
 					`left: ${left}%`,
 					`width: ${Math.min(actualWidth, 95 - left)}%`,
-					`z-index: ${colIndex}`,
+					`z-index: ${columnIndex}`,
 					`height: ${findHeight(session.start, session.end)}rem`,
 					`top: ${findMargin(session.start)}rem`,
 					`background-color: ${backgroundColors[sTypes.indexOf(session.sessionType.id) % backgroundColors.length]}`
