@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { DateTime } from 'luxon';
 	import { cn } from 'tailwind-variants';
-	import { backgroundColors, type Session } from './utils';
+	import type { Session } from './utils';
 
 	interface Props {
 		session: Session;
@@ -19,21 +19,21 @@
 
 <div
 	class={cn(
-		'overflow-hidden h-full flex justify-center flex-c',
+		'overflow-hidden h-full flex justify-center',
 		isCompact(sessionStart, sessionEnd, 15) ? 'flex-row items-center gap-2' : 'flex-col'
 	)}
 >
-	<p class="font-semibold">
+	<p class="font-semibold text-white">
 		{session.sessionType.name}
 	</p>
-	<p>
+	<p class="text-white">
 		{session.student.firstName}
 		{session.student.lastName}
 	</p>
-	<p class={`${isCompact(sessionStart, sessionEnd, 15) ? 'hidden' : ''}`}>
+	<p class="text-white">
 		{sessionStart.toFormat('h:mm a')} - {sessionEnd.toFormat('h:mm a')}
 	</p>
-	<p>
+	<p class="text-white">
 		with {session.mentor.firstName}
 		{session.mentor.lastName}
 	</p>

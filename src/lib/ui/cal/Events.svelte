@@ -11,17 +11,23 @@
 	interface Props {
 		user: typeof users.$inferSelect;
 		sessions: Session[];
+		view: string;
+		date: string;
 		selectedWeekStart: DateTime;
 		day: number;
 	}
 
-	const { user, sessions, selectedWeekStart, day }: Props = $props();
+	const { user, sessions, view, date, selectedWeekStart, day }: Props = $props();
 
 	const cellDate = selectedWeekStart.plus({ days: day });
 
 	const sessionsToday = sessions.filter((s) => {
-		const start = DateTime.fromISO(s.session.start);
-		return start.toISODate() === cellDate.toISODate();
+		if (view === 'week') {
+			const start = DateTime.fromISO(s.session.start);
+			return start.toISODate() === cellDate.toISODate();
+		} else if (view === 'day') {
+			return DateTime.fromISO(s.session.start).toISODate() === date;
+		}
 	});
 	const styledSessions = getStyledSessions(sessionsToday);
 </script>
