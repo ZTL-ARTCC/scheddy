@@ -11,26 +11,30 @@
 
 	const dayLength = findHeight(selectedDateISO, session.start, session.end) * 10;
 	const styleLength = Math.min(dayLength, session.sessionType.length);
+
+	const mentorBreakpoint = styleLength >= 45;
+	const studentBreakpoint = styleLength >= 30;
+	const rowBreakpoint = styleLength < 25;
 </script>
 
 <div
 	class={cn(
 		'h-full flex justify-center text-center',
-		styleLength < 25 ? 'flex-row gap-2 items-center' : 'flex-col'
+		rowBreakpoint ? 'flex-row gap-2 items-center' : 'flex-col'
 	)}
 >
-	<p class="font-semibold text-white truncate">
-		{session.sessionType.name}
+	<p class=" text-white truncate">
+		{session.start.toFormat('h:mm a')} - {session.end.toFormat('h:mm a')}
 	</p>
 	<p class="text-white truncate">
-		{session.student.firstName}
-		{session.student.lastName}
+		{session.sessionType.name}
 	</p>
-	{#if styleLength >= 30}
+	{#if studentBreakpoint}
 		<p class="text-white truncate">
-			{session.start.toFormat('h:mm a')} - {session.end.toFormat('h:mm a')}
+			{session.student.firstName}
+			{session.student.lastName}
 		</p>
-		{#if styleLength >= 45}
+		{#if mentorBreakpoint}
 			<p class="text-white truncate">
 				with {session.mentor.firstName}
 				{session.mentor.lastName}
