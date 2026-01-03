@@ -15,14 +15,13 @@
 
 	let { data }: Props = $props();
 
-	const today = DateTime.now();
+	const now = DateTime.now();
 	let selectedDay = $state(DateTime.now());
 	let selectedWeekStart = $derived.by(() =>
 		selectedDay.minus({ days: selectedDay.weekday % 7 }).startOf('day')
 	);
 	let selectedWeekEnd = $derived.by(() => selectedWeekStart.plus({ days: 6 }).endOf('day'));
 	let view = $state('week');
-	const now = DateTime.now();
 
 	// @ts-ignore sveltekit bug
 	const sessions = data.mentorSessions as Session[];
@@ -46,52 +45,45 @@
 		onViewChange={(newView: string) => (view = newView)}
 		onSelectedDayChange={(newDay: DateTime) => (selectedDay = newDay)}
 	/>
-	<div class="flex flex-col w-full rounded-b-xl overflow-hidden">
-		<div class="overflow-y-auto">
-			<DateHeader
-				{selectedDay}
-				{selectedWeekStart}
-				{view}
-				class="sticky top-0 z-50 bg-background"
-			/>
+	<div class="flex flex-col w-full rounded-b-xl overflow-hidden overflow-y-auto">
+		<DateHeader {selectedDay} {selectedWeekStart} {view} class="sticky top-0 z-50 bg-background" />
 
-			<div class="grid grid-cols-29">
-				<TimeColumn />
+		<div class="grid grid-cols-29">
+			<TimeColumn />
 
-				{#key [selectedWeekStart.toISODate(), selectedDay, view]}
-					{#each Array(view === 'week' ? 7 : 1) as _, day}
-						<div
-							class={cn(
-								'grid grid-rows-48 border-r relative',
-								view === 'week' ? 'col-span-4' : 'col-span-28',
-								selectedWeekStart.plus({ days: day }).hasSame(today, 'day') && 'bg-muted/30'
-							)}
-						>
-							{#each Array(48) as _, hour}
-								<div
-									class="relative h-12 p-2"
-									class:border-b={hour < 47}
-									class:border-b-dashed={hour % 2 === 0}
-								></div>
-							{/each}
-							{#if (view === 'week' && selectedWeekStart
-									.plus({ days: day })
-									.hasSame(now, 'day')) || (view === 'day' && selectedDay.hasSame(now, 'day'))}
-								<TimeMarker class="z-49" style="top: {findTimeMarkerPosition()}rem;" />
-							{/if}
-							<Events
-								{backgroundByType}
-								user={data.user}
-								{sessions}
-								{view}
-								date={selectedDay.toISODate()}
-								{selectedWeekStart}
-								{day}
-							/>
-						</div>
-					{/each}
-				{/key}
-			</div>
+			{#key [selectedWeekStart.toISODate(), selectedDay, view]}
+				{#each Array(view === 'week' ? 7 : 1) as _, day}
+					<div
+						class={cn(
+							'grid grid-rows-48 border-r relative',
+							view === 'week' ? 'col-span-4' : 'col-span-28',
+							selectedWeekStart.plus({ days: day }).hasSame(now, 'day') && 'bg-muted/30'
+						)}
+					>
+						{#each Array(48) as _, hour}
+							<div
+								class="relative h-12 p-2"
+								class:border-b={hour < 47}
+								class:border-b-dashed={hour % 2 === 0}
+							></div>
+						{/each}
+						{#if (view === 'week' && selectedWeekStart
+								.plus({ days: day })
+								.hasSame(now, 'day')) || (view === 'day' && selectedDay.hasSame(now, 'day'))}
+							<TimeMarker class="z-49" style="top: {findTimeMarkerPosition()}rem;" />
+						{/if}
+						<Events
+							{backgroundByType}
+							user={data.user}
+							{sessions}
+							{view}
+							date={selectedDay.toISODate()}
+							{selectedWeekStart}
+							{day}
+						/>
+					</div>
+				{/each}
+			{/key}
 		</div>
 	</div>
 </div>
