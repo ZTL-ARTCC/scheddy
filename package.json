@@ -17,7 +17,6 @@
 		"format": "prettier --write ."
 	},
 	"devDependencies": {
-		"@event-calendar/core": "^4.3.0",
 		"@internationalized/date": "^3.7.0",
 		"@lucide/svelte": "^0.533.0",
 		"@sveltejs/adapter-node": "^5.2.12",

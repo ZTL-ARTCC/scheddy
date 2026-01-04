@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
-	import { getTimeZones } from '@vvo/tzdb';
 	import { DateTime } from 'luxon';
 	import type { HTMLAttributes } from 'svelte/elements';
 
