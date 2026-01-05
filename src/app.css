@@ -98,6 +98,9 @@
 	body {
 		@apply bg-background text-foreground;
 	}
+	html {
+		font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+	}
 }
 
 @layer utilities {

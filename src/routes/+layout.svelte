@@ -19,6 +19,6 @@
 <Toaster richColors />
 <ModeWatcher />
 
-<div class="min-h-screen font-[Inter] bg-muted/10">
+<div class="min-h-screen bg-muted/10">
 	{@render children()}
 </div>

@@ -9,12 +9,24 @@
 	let { data }: Props = $props();
 </script>
 
-<div class="flex flex-col gap-4 p-4">
-	<h3 class="text-md">
-		<a class="text-sm text-blue-500 hover:text-blue-600 transition font-semibold" href="/schedule">
+<div class="mx-auto max-w-6xl p-6">
+	<div class="mb-6 flex flex-col gap-2">
+		<a href="/schedule" class="text-sm font-medium text-blue-600 hover:underline transition w-fit">
 			&larr; Back to Scheduling
 		</a>
-	</h3>
-	<h2 class="font-semibold text-lg">Your Upcoming Sessions as a Student</h2>
-	<DataTable data={data.upcomingSessions} {columns} />
+		<div class="flex gap-3 items-middle">
+			<h2 class="text-2xl font-bold">My Upcoming Sessions</h2>
+			{#if data.upcomingSessions.length > 0}
+				<span class="rounded-full bg-muted p-2.5 py-1.5 text-sm">
+					{data.upcomingSessions.length}
+				</span>
+			{/if}
+		</div>
+	</div>
+
+	<div class="rounded-xl shadow-sm overflow-hidden">
+		<div class="p-1">
+			<DataTable data={data.upcomingSessions} {columns} />
+		</div>
+	</div>
 </div>
