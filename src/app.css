@@ -1,3 +1,4 @@
+@import url('./lib/inter/web/inter.css');
 @import 'tailwindcss';
 
 @config '../tailwind.config.ts';
