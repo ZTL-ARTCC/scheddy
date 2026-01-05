@@ -21,7 +21,7 @@
 		userId={data.user.id}
 		name="{data.user.firstName} {data.user.lastName}"
 	/>
-	<main class="flex-1">
+	<main class="flex-1 bg-muted/10">
 		<header
 			class="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has[[data-collapsible=icon]]/sidebar-wrapper:h-12"
 		>
