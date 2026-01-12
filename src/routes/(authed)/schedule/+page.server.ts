@@ -1,14 +1,13 @@
 import type { PageServerLoad, Actions } from './$types';
 import { loadUserData } from '$lib/userInfo';
-import { ROLE_MENTOR, ROLE_STUDENT, roleString } from '$lib/utils';
+import { ROLE_MENTOR, roleString } from '$lib/utils';
 import { roleOf } from '$lib';
 import { db } from '$lib/server/db';
 import { sessions, sessionTypes, users } from '$lib/server/db/schema';
-import { eq, gte, and, or, lte } from 'drizzle-orm';
+import { eq, gte, or } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import { ulid } from 'ulid';
 import { appointment_booked } from '$lib/emails/student/appointment_booked';
-import { session_canceled } from '$lib/emails/mentor/session_canceled';
 import { sendEmail } from '$lib/email';
 import { new_session } from '$lib/emails/mentor/new_session';
 import { slottificate } from '$lib/slottificate';
@@ -24,9 +23,7 @@ import * as age from 'age-encryption';
 export const load: PageServerLoad = async ({ cookies, url }) => {
 	const { user } = (await loadUserData(cookies))!;
 
-	const sTypes = await db
-		.select()
-		.from(sessionTypes); // DO *NOT* ADD ADDITIONAL CONSTRAINTS TO THIS CALL
+	const sTypes = await db.select().from(sessionTypes); // DO *NOT* ADD ADDITIONAL CONSTRAINTS TO THIS CALL
 	const mentorsList = await db
 		.select()
 		.from(users)
@@ -63,19 +60,22 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		timezone: z.enum(timezones.map((u) => u.name))
 	});
 
-	let canReschedule = false;
-
 	const data = {};
-	if (url.searchParams.has('sessionId')) {
-		const id = url.searchParams.get('sessionId');
-		const session = (await db.select().from(sessions).where(eq(sessions.id, id)))[0];
-		const sessionTime = DateTime.fromISO(session.start);
-		canReschedule = sessionTime.diffNow().as('hours') > 24;
 
-		if (!DateTime.fromISO(session.start).diffNow(['hours']).hours < 24) {
-			data.sessionType = session.type;
-			data.timezone = session.timezone;
-		}
+	let cooldown = false;
+	let cooldownRemaining = '';
+
+	if (
+		user.lastBookingTime &&
+		DateTime.fromISO(user.lastBookingTime).plus({ minutes: serverConfig.bookings.cooldown }) >
+			DateTime.now()
+	) {
+		cooldown = true;
+		cooldownRemaining = DateTime.fromISO(user.lastBookingTime)
+			.plus({ minutes: serverConfig.bookings.cooldown })
+			.diffNow(['hours', 'minutes'])
+			// showZeros doesn't exist anymore?
+			.toHuman({ maximumFractionDigits: 0 });
 	}
 
 	const maxPending = serverConfig.bookings.max_pending_sessions;
@@ -132,9 +132,8 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		form,
 		sessionMap,
 		timezones,
-		reschedule: url.searchParams.has('sessionId'),
-		oldId: url.searchParams.get('sessionId'),
-		canReschedule,
+		cooldown,
+		cooldownRemaining,
 		blocked: !user.allowBookings
 	};
 };
@@ -143,9 +142,7 @@ export const actions: Actions = {
 	default: async (event) => {
 		const { user } = (await loadUserData(event.cookies))!;
 
-		const sTypes = await db
-			.select()
-			.from(sessionTypes);// DO *NOT* ADD ADDITIONAL CONSTRAINTS TO THIS CALL
+		const sTypes = await db.select().from(sessionTypes); // DO *NOT* ADD ADDITIONAL CONSTRAINTS TO THIS CALL
 		const mentorsList = await db
 			.select()
 			.from(users)
@@ -251,25 +248,23 @@ export const actions: Actions = {
 				duration = typ.length;
 				typename = typ.name;
 				if (!typ.bookable) {
-					return setError(form, 'sessionType', 'Facility policy does not currently allow this session type to be booked. Please reload the page.');
+					return setError(
+						form,
+						'sessionType',
+						'Facility policy does not currently allow this session type to be booked. Please reload the page.'
+					);
 				}
 				if (user.rating < typ.rating) {
-					return setError(form, 'sessionType', 'You do not hold the rating necessary to book this session type. Please reload the page.');
+					return setError(
+						form,
+						'sessionType',
+						'You do not hold the rating necessary to book this session type. Please reload the page.'
+					);
 				}
 			}
 		}
 
 		const id = ulid();
-
-		const oldId = event.url.searchParams.get('sessionId');
-		const oldSession = allSessions.find((s) => s.id === oldId);
-		const oldSessionData = oldId
-			? {
-					session: oldSession,
-					mentor: mentorsList.find((m) => m.id === oldSession?.mentor),
-					student: (await db.select().from(users).where(eq(users.id, oldSession?.student)))[0]
-				}
-			: null;
 
 		const studentEmailContent = appointment_booked({
 			startTime: start.setZone(form.data.timezone),
@@ -278,17 +273,10 @@ export const actions: Actions = {
 			duration,
 			sessionId: id,
 			type: typename,
-			link_params: `?sessionId=${id}&reschedule=true&type=${form.data.sessionType}`,
-			reschedule: oldId != undefined,
+			link: `/cancel/${id}`,
 			facilityName: serverConfig.facility.name_public,
 			emailDomain: serverConfig.facility.mail_domain
 		});
-
-		let mentorReschedule = false;
-
-		if (oldId && oldSessionData && oldSessionData.mentor.id === slotObj.mentor) {
-			mentorReschedule = true;
-		}
 
 		const mentorEmailContent = new_session({
 			startTime: start.setZone(mentor.timezone),
@@ -297,32 +285,25 @@ export const actions: Actions = {
 			duration,
 			sessionId: id,
 			type: typename,
-			reschedule: mentorReschedule,
 			facilityName: serverConfig.facility.name_public,
 			emailDomain: serverConfig.facility.mail_domain
 		});
 
-		if (oldId == undefined) {
-			await db.insert(sessions).values({
-				id,
-				mentor: slotObj.mentor,
-				student: user.id,
-				start: start.toISO(),
-				type: form.data.sessionType,
-				timezone: form.data.timezone,
-				createdBy: user.id,
-				createdAt: DateTime.now().toISO()
-			});
-		} else {
-			await db
-				.update(sessions)
-				.set({
-					start: start.toISO(),
-					timezone: form.data.timezone,
-					mentor: slotObj.mentor
-				})
-				.where(eq(sessions.id, oldId));
-		}
+		await db.insert(sessions).values({
+			id,
+			mentor: slotObj.mentor,
+			student: user.id,
+			start: start.toISO(),
+			type: form.data.sessionType,
+			timezone: form.data.timezone,
+			createdBy: user.id,
+			createdAt: DateTime.now().toISO()
+		});
+
+		await db
+			.update(users)
+			.set({ lastBookingTime: DateTime.now().toISO() })
+			.where(eq(users.id, user.id));
 
 		const icsEvent = (await new Promise((res, rej) => {
 			const startUtc = start.setZone('utc');
@@ -348,8 +329,8 @@ export const actions: Actions = {
 		try {
 			await sendEmail(
 				user.email,
-				`Appointment ${oldId ? 'updated' : 'booked'} - ` +
-					start.setZone(form.data.timezone).toLocaleString(DateTime.DATETIME_HUGE),
+				'Appointment booked ',
+				start.setZone(form.data.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 				studentEmailContent.raw,
 				studentEmailContent.html,
 				icsEvent
@@ -357,39 +338,11 @@ export const actions: Actions = {
 
 			await sendEmail(
 				mentor.email,
-				`Session ${oldSessionData?.mentor?.id === slotObj.mentor ? 'updated' : 'booked'} - ` +
-					start.setZone(mentor.timezone).toLocaleString(DateTime.DATETIME_HUGE),
+				'Session booked ' + start.setZone(mentor.timezone).toLocaleString(DateTime.DATETIME_HUGE),
 				mentorEmailContent.raw,
 				mentorEmailContent.html,
 				icsEvent
 			);
-
-			if (oldSessionData && oldSessionData.mentor && oldSessionData.mentor?.id !== slotObj.mentor) {
-				const oldMentorEmailContent = session_canceled({
-					startTime: DateTime.fromISO(oldSessionData.session?.start).setZone(
-						oldSessionData.mentor.timezone
-					),
-					type: typename,
-					duration,
-					studentName: oldSessionData.student.firstName + ' ' + oldSessionData.student.lastName,
-					sessionId: oldId,
-					timezone: oldSessionData.mentor?.timezone,
-					facilityName: serverConfig.facility.name_public,
-					emailDomain: serverConfig.facility.mail_domain,
-					cancellationReason: 'Student Rescheduled',
-					cancellationUserLevel: ROLE_STUDENT
-				});
-
-				await sendEmail(
-					oldSessionData.mentor.email,
-					'Session canceled - ' +
-						DateTime.fromISO(oldSessionData.session?.start)
-							.setZone(oldSessionData.mentor.timezone)
-							.toLocaleString(DateTime.DATETIME_HUGE),
-					oldMentorEmailContent.raw,
-					oldMentorEmailContent.html
-				);
-			}
 		} catch (e) {
 			console.error(e); // TODO: requeue these for later
 		}

@@ -44,7 +44,7 @@
 			{/if}
 			<DropdownMenu.Separator />
 			<DropdownMenu.Item>
-				<a href="/schedule?sessionId={id}">Cancel/Reschedule</a>
+				<a href="/schedule/cancel/{id}">Cancel</a>
 			</DropdownMenu.Item>
 		</DropdownMenu.Group>
 	</DropdownMenu.Content>
