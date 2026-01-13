@@ -1,7 +1,7 @@
 import { sessions, mentors, sessionTypes } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { loadUserData } from '$lib/userInfo';
-import type { PageServerLoad } from './$types';
+import type { PageServerLoad } from '../my_sessions/$types';
 import { and, eq, gte } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { roleOf } from '$lib';

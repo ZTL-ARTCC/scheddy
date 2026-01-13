@@ -50,7 +50,7 @@
 					visible: role >= ROLE_MENTOR
 				},
 				{
-					url: `/dash/cal/transfer_requests`,
+					url: `/dash/cal/transfer-requests`,
 					title: 'Transfer Requests',
 					icon: ArrowUpDown,
 					visible: role >= ROLE_MENTOR
