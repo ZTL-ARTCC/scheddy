@@ -272,7 +272,7 @@
 										<LoaderCircle class="mr-2 size-5 animate-spin" />
 										Scheduling...
 									{:else}
-										Confirm Appointment &rarr;
+										Book Appointment &rarr;
 									{/if}
 								</Form.Button>
 							</div>

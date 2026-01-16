@@ -6,6 +6,7 @@
 	// yes, this imports itself
 	import NavItem from './NavItem.svelte';
 	import { page } from '$app/state';
+	import { cn } from '$lib/utils';
 
 	interface Props {
 		data: NestedMenuItem[];
@@ -37,7 +38,9 @@
 											{#if item.icon}
 												<item.icon />
 											{/if}
-											<span>{item.title}</span>
+											<span class={cn('font-medium', isActive ? 'font-semibold' : '')}>
+												{item.title}
+											</span>
 											<ChevronRightIcon
 												class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
 											/>
@@ -48,7 +51,9 @@
 						</Collapsible.Trigger>
 						<Collapsible.Content>
 							<Sidebar.MenuSub>
-								<NavItem data={item.children} isSub={true} />
+								{#if item.children}
+									<NavItem data={item.children} isSub={true} />
+								{/if}
 							</Sidebar.MenuSub>
 						</Collapsible.Content>
 					</components.item>
@@ -60,7 +65,9 @@
 					{#snippet child({ props })}
 						<a href={item.url} {...props}>
 							<item.icon />
-							<span>{item.title}</span>
+							<span class={cn('font-medium', isActive ? 'font-semibold' : '')}>
+								{item.title}
+							</span>
 						</a>
 					{/snippet}
 				</components.button>

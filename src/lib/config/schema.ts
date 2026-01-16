@@ -5,7 +5,8 @@ export const baseConfig = {
 	facility: {
 		name_public: 'Your ARTCC',
 		id: 'ZXX',
-		mail_domain: 'zxxartcc.org'
+		mail_domain: 'zxxartcc.org',
+		logo_public: ''
 	},
 	site: {
 		base_public: 'http://localhost:5173',
