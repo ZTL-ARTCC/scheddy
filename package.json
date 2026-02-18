@@ -67,6 +67,7 @@
 	"dependencies": {
 		"@sentry/sveltekit": "^8.55.0",
 		"age-encryption": "^0.2.4",
+		"amplify-adapter": "^1.2.3",
 		"ics": "^3.8.1"
 	}
 }
