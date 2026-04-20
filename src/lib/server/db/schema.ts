@@ -14,7 +14,7 @@ export const users = mysqlTable('user', {
 	allowedSessionTypes: text(),
 	bookableSessionTypes: text(),
 	timezone: text(),
-
+	lastBookingTime: text(),
 	allowBookings: boolean().notNull().default(true)
 });
 

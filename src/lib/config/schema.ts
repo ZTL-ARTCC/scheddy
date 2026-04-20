@@ -14,7 +14,8 @@ export const baseConfig = {
 	},
 	bookings: {
 		max_days_ahead: 14,
-		max_pending_sessions: 2
+		max_pending_sessions: 2,
+		cooldown: 5
 	},
 	api: {
 		master_key: 'this must be overridden'
