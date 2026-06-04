@@ -1,7 +1,6 @@
 <script lang="ts">
-	import type { AvailSchema } from './availSchema';
 	import { Checkbox } from '$lib/components/ui/checkbox';
-	import type { Infer, SuperForm } from 'sveltekit-superforms';
+	import type { SuperForm } from 'sveltekit-superforms';
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
 	import { Separator } from '$lib/components/ui/separator';
@@ -12,7 +11,8 @@
 	interface Props {
 		dayId: string;
 		dayName: string;
-		form: SuperForm<Infer<AvailSchema>>;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		form: SuperForm<any>;
 	}
 	let { dayId, dayName, form }: Props = $props();
 

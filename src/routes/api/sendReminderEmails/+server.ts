@@ -19,7 +19,13 @@ export async function GET() {
 		return DateTime.fromISO(u.session.start) <= DateTime.now().plus({ hours: 24 });
 	});
 
-	for (const sess of sessWithin24h) {
+	for (const _sess of sessWithin24h) {
+		const sess = _sess as unknown as {
+			session: { id: string; start: string; timezone: string };
+			mentor: { firstName: string; lastName: string; email: string };
+			student: { email: string };
+			sessionType: { name: string };
+		};
 		const studentEmailContent = reminder({
 			startTime: DateTime.fromISO(sess.session.start).setZone(sess.session.timezone),
 			timezone: sess.session.timezone,

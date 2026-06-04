@@ -2,7 +2,7 @@
 	import type { PageData } from './$types';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import DataTable from '$lib/ui/DataTable.svelte';
-	import { columns } from './columns';
+	import { columns, type CalendarItem } from './columns';
 	import WeekdayAvailability from './WeekdayAvailability.svelte';
 	import SpecificDateAvailability from './SpecificDateAvailability.svelte';
 	import { Separator } from '$lib/components/ui/separator';
@@ -21,7 +21,7 @@
 
 	<h2 class="font-semibold text-lg">Upcoming Sessions</h2>
 
-	<DataTable class="w-full" data={data.mentorSessions} {columns} />
+	<DataTable class="w-full" data={data.mentorSessions as unknown as CalendarItem[]} {columns} />
 
 	<div class="flex flex-col">
 		<h2 class="font-semibold text-lg">Create Session</h2>

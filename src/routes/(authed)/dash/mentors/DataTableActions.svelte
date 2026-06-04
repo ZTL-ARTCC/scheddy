@@ -1,11 +1,11 @@
 <script lang="ts">
-	import Ellipsis from '@lucide/svelte/icons/ellipsis';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { toast } from 'svelte-sonner';
+	import { Ellipsis } from '@lucide/svelte';
 
 	interface Props {
-		id: string;
+		id: number;
 	}
 	let { id }: Props = $props();
 </script>
@@ -24,7 +24,7 @@
 			<DropdownMenu.GroupHeading>Actions</DropdownMenu.GroupHeading>
 			<DropdownMenu.Item
 				onclick={() => {
-					navigator.clipboard.writeText(id);
+					navigator.clipboard.writeText(id.toString());
 					toast.success('Copied CID to clipboard!');
 				}}
 			>

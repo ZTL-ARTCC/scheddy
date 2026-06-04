@@ -27,7 +27,8 @@
 
 	let done = $state(false);
 
-	const form = superForm(data.form, {
+	const _formData = $derived(data.form);
+	const form = superForm(_formData, {
 		onUpdated({ form }) {
 			if (form.valid) {
 				done = true;

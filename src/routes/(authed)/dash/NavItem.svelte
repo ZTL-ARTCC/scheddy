@@ -48,7 +48,7 @@
 						</Collapsible.Trigger>
 						<Collapsible.Content>
 							<Sidebar.MenuSub>
-								<NavItem data={item.children} isSub={true} />
+								<NavItem data={item.children ?? []} isSub={true} />
 							</Sidebar.MenuSub>
 						</Collapsible.Content>
 					</components.item>

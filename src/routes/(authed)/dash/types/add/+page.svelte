@@ -15,7 +15,8 @@
 	}
 	let { data }: Props = $props();
 
-	const form = superForm(data.form, {
+	const _formData = $derived(data.form);
+	const form = superForm(_formData, {
 		async onUpdated({ form }) {
 			if (form.valid) {
 				await goto('/dash/types');
@@ -68,13 +69,13 @@
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label>Required Rating</Form.Label>
-				<Select.Root type="single" bind:value={$formData.rating} name={props.name}>
+				<Select.Root type="single" bind:value={$formData.rating as unknown as string} name={props.name}>
 					<Select.Trigger {...props}>
 						{$formData.rating ? ratingIdDisplay($formData.rating) : 'Select a required rating'}
 					</Select.Trigger>
 					<Select.Content>
 						{#each RATINGS as rating}
-							<Select.Item value={rating.id} label={ratingIdDisplay(rating.id)} />
+							<Select.Item value={rating.id as unknown as string} label={ratingIdDisplay(rating.id) ?? ''} />
 						{/each}
 					</Select.Content>
 				</Select.Root>

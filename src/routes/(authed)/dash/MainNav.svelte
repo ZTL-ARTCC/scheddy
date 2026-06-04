@@ -21,7 +21,7 @@
 	}
 	let { role, userId }: Props = $props();
 
-	let commonPages: NestedMenuItem[] = [
+	const commonPages = $derived<NestedMenuItem[]>([
 		{
 			url: '/dash',
 			title: 'Dashboard',
@@ -34,9 +34,9 @@
 			icon: CalendarPlusIcon,
 			visible: role >= ROLE_STUDENT
 		}
-	];
+	]);
 
-	let schedulingPages: NestedMenuItem[] = [
+	const schedulingPages = $derived<NestedMenuItem[]>([
 		{
 			url: '/dash/cal',
 			title: 'Facility Calendar',
@@ -63,8 +63,8 @@
 			icon: CalendarClockIcon,
 			visible: role >= ROLE_MENTOR
 		}
-	];
-	let facilityAdministrationPages: NestedMenuItem[] = [
+	]);
+	const facilityAdministrationPages = $derived<NestedMenuItem[]>([
 		{
 			url: '/dash/types',
 			title: 'Session Types',
@@ -77,8 +77,8 @@
 			icon: GraduationCapIcon,
 			visible: role >= ROLE_STAFF
 		}
-	];
-	let siteAdministrationPages: NestedMenuItem[] = [
+	]);
+	const siteAdministrationPages = $derived<NestedMenuItem[]>([
 		{
 			url: '/dash/users',
 			title: 'User Management',
@@ -105,7 +105,7 @@
 				}
 			]
 		}
-	];
+	]);
 
 	function isAnythingVisible(data: NestedMenuItem[]): boolean {
 		for (let page of data) {
@@ -114,12 +114,12 @@
 		return false;
 	}
 
-	let sections: { data: NestedMenuItem[]; title?: string }[] = [
+	const sections = $derived<{ data: NestedMenuItem[]; title?: string }[]>([
 		{ data: commonPages },
 		{ title: 'Scheduling', data: schedulingPages },
 		{ title: 'Facility Administration', data: facilityAdministrationPages },
 		{ title: 'Site Administration', data: siteAdministrationPages }
-	];
+	]);
 </script>
 
 {#each sections as section}

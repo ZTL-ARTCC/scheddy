@@ -9,30 +9,31 @@
 		data: MentorAvailability;
 	}
 	let { data, dayId, dayName }: Props = $props();
+	const day = $derived((data as unknown as Record<string, import('$lib/availability').DayAvailability>)[dayId]);
 </script>
 
 <div class="rounded-md border p-4">
 	<div class="flex flex-row items-start space-x-3 space-y-0">
-		<Checkbox disabled checked={data[dayId].available} />
+		<Checkbox disabled checked={day.available} />
 		<div class="space-y-1 leading-none">
 			<Label>
 				{dayName}
-				{#if data[dayId].available}
+				{#if day.available}
 					<span class="text-sm text-muted-foreground"
 						>from <b
-							>{String(data[dayId].start.hour).padStart(2, '0')}:{String(
-								data[dayId].start.minute
+							>{String(day.start.hour).padStart(2, '0')}:{String(
+								day.start.minute
 							).padStart(2, '0')}</b
 						>
 						to
 						<b
-							>{String(data[dayId].end.hour).padStart(2, '0')}:{String(
-								data[dayId].end.minute
+							>{String(day.end.hour).padStart(2, '0')}:{String(
+								day.end.minute
 							).padStart(2, '0')}</b
 						></span
 					>
-					{#if data[dayId].extraRecords}
-						{#each data[dayId].extraRecords as record}
+					{#if day.extraRecords}
+						{#each day.extraRecords as record}
 							<span class="text-sm text-muted-foreground"
 								>and from <b
 									>{String(record.start.hour).padStart(2, '0')}:{String(

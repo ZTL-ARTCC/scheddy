@@ -6,14 +6,13 @@
 		label: string;
 		children: Snippet;
 	}
-	let props: Props = $props();
-	let { label, children } = props;
+	let { icon: Icon, label, children }: Props = $props();
 </script>
 
 <tr>
 	<td class="flex flex-col gap-2 py-1 mt-2 lg:mt-0">
 		<div class="flex flex-row items-center gap-2">
-			<props.icon class="size-6 text-muted-foreground" />
+			<Icon class="size-6 text-muted-foreground" />
 			<span class="text-muted-foreground text-sm font-semibold">{label}</span>
 		</div>
 	</td>

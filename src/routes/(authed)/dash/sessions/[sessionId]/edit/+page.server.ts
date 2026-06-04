@@ -8,7 +8,7 @@ import { eq, gte, inArray, or } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import { DateTime, Interval } from 'luxon';
 import { fail, superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { editSchema } from './editSchema';
 import type { DayAvailability, MentorAvailability } from '$lib/availability';
 
@@ -51,7 +51,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 	}
 
 	const data = {
-		date: start.toISODate(),
+		date: start.toISODate()!,
 		hour: start.hour,
 		minute: start.minute,
 		type: session.type,
@@ -111,7 +111,7 @@ export const actions: Actions = {
 			minute: form.data.minute
 		});
 
-		const data = {
+		const data: { start: string; type: string; mentor?: number } = {
 			start: date.toUTC().toString(),
 			type: form.data.type
 		};
@@ -211,8 +211,8 @@ export const actions: Actions = {
 
 			if (availability.exceptions && availability.exceptions[dateMentorStr]) {
 				dayAvailability = availability.exceptions[dateMentorStr];
-			} else if (availability[dayOfWeek]) {
-				dayAvailability = availability[dayOfWeek];
+			} else if (dayOfWeek) {
+				dayAvailability = (availability as unknown as Record<string, DayAvailability>)[dayOfWeek];
 			}
 
 			if (dayAvailability) {

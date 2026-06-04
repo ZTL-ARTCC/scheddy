@@ -24,9 +24,9 @@
 	let view = $state('week');
 
 	// @ts-ignore sveltekit bug
-	const sessions = data.mentorSessions as Session[];
+	const sessions = $derived(data.mentorSessions as Session[]);
 	// @ts-ignore
-	const backgroundByType = data.backgroundByType as Record<string, string>;
+	const backgroundByType = $derived(data.backgroundByType as Record<string, string>);
 
 	const findTimeMarkerPosition = () => {
 		const startOfDay = now.startOf('day');

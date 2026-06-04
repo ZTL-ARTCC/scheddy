@@ -7,7 +7,7 @@ import { db } from '$lib/server/db';
 import { sessions, sessionTypes } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { fail, superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { deleteSchema } from './deleteSchema';
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
 	const data = (await db.select().from(sessionTypes).where(eq(sessionTypes.id, params.typeId)))[0];
 
-	const form = await superValidate(data, zod(deleteSchema));
+	const form = await superValidate(zod(deleteSchema));
 
 	return {
 		form,
@@ -40,8 +40,8 @@ export const actions: Actions = {
 			return fail(400, { form });
 		}
 
-		await db.delete(sessions).where(eq(sessions.type, event.params.typeId));
-		await db.delete(sessionTypes).where(eq(sessionTypes.id, event.params.typeId));
+		await db.delete(sessions).where(eq(sessions.type, event.params.typeId!));
+		await db.delete(sessionTypes).where(eq(sessionTypes.id, event.params.typeId!));
 
 		return { form };
 	}

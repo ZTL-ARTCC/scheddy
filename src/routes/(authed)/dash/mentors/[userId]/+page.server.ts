@@ -11,7 +11,7 @@ import { DateTime } from 'luxon';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
-	if (roleOf(user) < ROLE_STAFF && user.id != params.userId) {
+	if (roleOf(user) < ROLE_STAFF && user.id.toString() != params.userId) {
 		redirect(307, '/schedule');
 	}
 
@@ -73,12 +73,12 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
 	if (avail?.exceptions) {
 		for (const ex in avail.exceptions) {
-			const ex_date = DateTime.fromISO(ex).setZone(mentor[0].timezone).set({
+			const ex_date = DateTime.fromISO(ex).setZone(mentor[0].timezone!).set({
 				hour: avail.exceptions[ex].start.hour,
 				minute: avail.exceptions[ex].start.minute
 			});
 
-			const time_now = DateTime.now().setZone(mentor[0].timezone).minus({ day: 1 });
+			const time_now = DateTime.now().setZone(mentor[0].timezone!).minus({ day: 1 });
 
 			if (ex_date < time_now) {
 				delete avail.exceptions[ex];

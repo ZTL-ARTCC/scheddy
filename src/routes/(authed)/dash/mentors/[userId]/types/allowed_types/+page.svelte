@@ -12,7 +12,8 @@
 	}
 	let { data }: Props = $props();
 
-	const form = superForm(data.form, {
+	const _formData = $derived(data.form);
+	const form = superForm(_formData, {
 		dataType: 'json',
 		async onUpdated({ form }) {
 			if (form.valid) {
@@ -33,7 +34,7 @@
 	<form method="POST" use:enhance>
 		<div class="flex flex-col gap-3">
 			{#each Object.entries(data.typesMap) as [id, name]}
-				<Form.Field {form} name={id}>
+				<Form.Field {form} name={id as any}>
 					<Form.Control>
 						{#snippet children({ props })}
 							<div class="flex items-center space-x-2">

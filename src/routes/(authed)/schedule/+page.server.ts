@@ -15,7 +15,7 @@ import { slottificate } from '$lib/slottificate';
 import { DateTime, Interval } from 'luxon';
 import { z } from 'zod';
 import { superValidate, message, setError } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { getTimeZones } from '@vvo/tzdb';
 import * as ics from 'ics';
 import { serverConfig } from '$lib/config/server';
@@ -65,14 +65,14 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 
 	let canReschedule = false;
 
-	const data = {};
+	const data: { sessionType?: string; timezone?: string } = {};
 	if (url.searchParams.has('sessionId')) {
-		const id = url.searchParams.get('sessionId');
+		const id = url.searchParams.get('sessionId')!;
 		const session = (await db.select().from(sessions).where(eq(sessions.id, id)))[0];
 		const sessionTime = DateTime.fromISO(session.start);
 		canReschedule = sessionTime.diffNow().as('hours') > 24;
 
-		if (!DateTime.fromISO(session.start).diffNow(['hours']).hours < 24) {
+		if (!(DateTime.fromISO(session.start).diffNow(['hours']).hours < 24)) {
 			data.sessionType = session.type;
 			data.timezone = session.timezone;
 		}
@@ -90,7 +90,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 
 	const form = await superValidate(data, zod(schema));
 
-	const categories: { category: string; items: { id: string; name: string; order: number }[] }[] =
+	const categories: { category: string; items: { id: string; name: string; order: number; length: number }[] }[] =
 		[];
 
 	sTypes.sort((a, b) => {
@@ -240,7 +240,7 @@ export const actions: Actions = {
 		}
 
 		const interval = Interval.fromISO(slotObj.slot);
-		const start = interval.start.setZone('utc');
+		const start = interval.start!.setZone('utc');
 
 		const mentor = (await db.select().from(users).where(eq(users.id, slotObj.mentor)))[0]!;
 
@@ -267,7 +267,7 @@ export const actions: Actions = {
 			? {
 					session: oldSession,
 					mentor: mentorsList.find((m) => m.id === oldSession?.mentor),
-					student: (await db.select().from(users).where(eq(users.id, oldSession?.student)))[0]
+					student: (await db.select().from(users).where(eq(users.id, oldSession?.student ?? 0)))[0]
 				}
 			: null;
 
@@ -286,13 +286,13 @@ export const actions: Actions = {
 
 		let mentorReschedule = false;
 
-		if (oldId && oldSessionData && oldSessionData.mentor.id === slotObj.mentor) {
+		if (oldId && oldSessionData && oldSessionData.mentor?.id === slotObj.mentor) {
 			mentorReschedule = true;
 		}
 
 		const mentorEmailContent = new_session({
-			startTime: start.setZone(mentor.timezone),
-			timezone: mentor.timezone,
+			startTime: start.setZone(mentor.timezone ?? undefined),
+			timezone: mentor.timezone ?? '',
 			studentName: user.firstName + ' ' + user.lastName,
 			duration,
 			sessionId: id,
@@ -307,7 +307,7 @@ export const actions: Actions = {
 				id,
 				mentor: slotObj.mentor,
 				student: user.id,
-				start: start.toISO(),
+				start: start.toISO()!,
 				type: form.data.sessionType,
 				timezone: form.data.timezone,
 				createdBy: user.id,
@@ -317,7 +317,7 @@ export const actions: Actions = {
 			await db
 				.update(sessions)
 				.set({
-					start: start.toISO(),
+					start: start.toISO()!,
 					timezone: form.data.timezone,
 					mentor: slotObj.mentor
 				})
@@ -358,7 +358,7 @@ export const actions: Actions = {
 			await sendEmail(
 				mentor.email,
 				`Session ${oldSessionData?.mentor?.id === slotObj.mentor ? 'updated' : 'booked'} - ` +
-					start.setZone(mentor.timezone).toLocaleString(DateTime.DATETIME_HUGE),
+					start.setZone(mentor.timezone ?? undefined).toLocaleString(DateTime.DATETIME_HUGE),
 				mentorEmailContent.raw,
 				mentorEmailContent.html,
 				icsEvent
@@ -366,14 +366,14 @@ export const actions: Actions = {
 
 			if (oldSessionData && oldSessionData.mentor && oldSessionData.mentor?.id !== slotObj.mentor) {
 				const oldMentorEmailContent = session_canceled({
-					startTime: DateTime.fromISO(oldSessionData.session?.start).setZone(
-						oldSessionData.mentor.timezone
+					startTime: DateTime.fromISO(oldSessionData.session?.start ?? '').setZone(
+						oldSessionData.mentor.timezone ?? undefined
 					),
 					type: typename,
 					duration,
-					studentName: oldSessionData.student.firstName + ' ' + oldSessionData.student.lastName,
-					sessionId: oldId,
-					timezone: oldSessionData.mentor?.timezone,
+					studentName: (oldSessionData.student?.firstName ?? '') + ' ' + (oldSessionData.student?.lastName ?? ''),
+					sessionId: oldId ?? '',
+					timezone: oldSessionData.mentor?.timezone ?? '',
 					facilityName: serverConfig.facility.name_public,
 					emailDomain: serverConfig.facility.mail_domain,
 					cancellationReason: 'Student Rescheduled',
@@ -383,8 +383,8 @@ export const actions: Actions = {
 				await sendEmail(
 					oldSessionData.mentor.email,
 					'Session canceled - ' +
-						DateTime.fromISO(oldSessionData.session?.start)
-							.setZone(oldSessionData.mentor.timezone)
+						DateTime.fromISO(oldSessionData.session?.start ?? '')
+							.setZone(oldSessionData.mentor.timezone ?? undefined)
 							.toLocaleString(DateTime.DATETIME_HUGE),
 					oldMentorEmailContent.raw,
 					oldMentorEmailContent.html

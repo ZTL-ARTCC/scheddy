@@ -15,7 +15,7 @@ import { eq, gte, or, and, ne } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import { fail, superValidate } from 'sveltekit-superforms';
 import { transferSchema } from '../transferSchema';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { DateTime } from 'luxon';
 import { new_session_transfer_request } from '$lib/emails/mentor/transfer_request';
 import { sendEmail } from '$lib/email';
@@ -106,7 +106,7 @@ export const actions: Actions = {
 		const newMentor = await db.select().from(users).where(eq(users.id, form.data.newMentor));
 
 		const mentorEmailContent = new_session_transfer_request({
-			startTime: DateTime.fromISO(sessionAndFriends.session.start).setZone(newMentor[0].timezone),
+			startTime: DateTime.fromISO(sessionAndFriends.session.start).setZone(newMentor[0].timezone ?? undefined),
 			timezone: sessionAndFriends.session.timezone,
 			studentName: sessionAndFriends.student?.firstName + ' ' + sessionAndFriends.student?.lastName,
 			mentorName: sessionAndFriends.mentor?.firstName + ' ' + sessionAndFriends.mentor?.lastName,
@@ -122,7 +122,7 @@ export const actions: Actions = {
 			newMentor[0].email,
 			'Session transfer request - ' +
 				DateTime.fromISO(sessionAndFriends.session.start)
-					.setZone(newMentor[0].timezone)
+					.setZone(newMentor[0].timezone ?? undefined)
 					.toLocaleString(DateTime.DATETIME_HUGE),
 			mentorEmailContent.raw,
 			mentorEmailContent.html

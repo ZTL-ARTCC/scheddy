@@ -29,7 +29,8 @@
 	}
 	let { data }: Props = $props();
 
-	const form = superForm(data.form, {
+	const _formData = $derived(data.form);
+	const form = superForm(_formData, {
 		async onUpdated({ form }) {
 			if (form.valid) {
 				await goto(`/dash/sessions/${data.sessionInfo.session.id}`);
@@ -51,8 +52,8 @@
 	let datePlaceholder = $state<DateValue>(today(getLocalTimeZone()));
 
 	function pad() {
-		$formData.hour = String($formData.hour).padStart(2, '0');
-		$formData.minute = String($formData.minute).padStart(2, '0');
+		$formData.hour = Number(String($formData.hour).padStart(2, '0'));
+		$formData.minute = Number(String($formData.minute).padStart(2, '0'));
 	}
 </script>
 

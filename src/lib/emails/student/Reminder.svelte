@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { AppointmentBookedProps } from './appointment_booked';
 	import { DateTime } from 'luxon';
+	import type { ReminderProps } from './reminder';
 
 	let {
 		startTime,
@@ -10,7 +10,7 @@
 		mentorName,
 		facilityName,
 		emailDomain
-	}: AppointmentBookedProps = $props();
+	}: ReminderProps = $props();
 </script>
 
 <h1>Appointment reminder</h1>

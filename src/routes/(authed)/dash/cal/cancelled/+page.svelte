@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { columns } from '../columns';
+	import { columns, type CalendarItem } from '../columns';
 	import DataTable from '$lib/ui/DataTable.svelte';
 
 	interface Props {
@@ -9,4 +9,4 @@
 	let { data }: Props = $props();
 </script>
 
-<DataTable class="w-full" data={data.mentorSessions} {columns} />
+<DataTable class="w-full" data={data.mentorSessions as unknown as CalendarItem[]} {columns} />

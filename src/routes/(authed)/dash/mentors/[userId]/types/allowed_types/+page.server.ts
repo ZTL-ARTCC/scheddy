@@ -7,7 +7,7 @@ import { sessionTypes, users } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import { fail, superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { typeSchema } from '../typeSchema';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
@@ -89,7 +89,7 @@ export const actions: Actions = {
 			.set({
 				allowedSessionTypes: allowed
 			})
-			.where(eq(users.id, event.params.userId));
+			.where(eq(users.id, Number(event.params.userId)));
 
 		return { form };
 	}

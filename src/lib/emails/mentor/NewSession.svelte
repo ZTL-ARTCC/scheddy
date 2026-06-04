@@ -14,6 +14,8 @@
 		emailDomain
 	}: NewSessionProps = $props();
 
+	// Rendered to email
+	// svelte-ignore state_referenced_locally
 	let title = reschedule ? 'Session updated' : 'New session booked';
 	let bookedText = 'A student has booked an appointment. Here are the details:';
 	let updatedText = 'The details for your session has changed.';

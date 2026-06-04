@@ -13,7 +13,7 @@
 		form: SuperForm<Infer<AvailSchema>>;
 	}
 	let { form }: Props = $props();
-	const { form: formData } = form;
+	const formData = $derived(form.form);
 
 	const df = new DateFormatter('en-US', {
 		dateStyle: 'long'

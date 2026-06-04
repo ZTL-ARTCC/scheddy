@@ -45,5 +45,6 @@ export async function sendEmail(
 			}
 		];
 	}
+	// @ts-expect-error weird type error
 	return emailTransporter.sendMail(options);
 }
