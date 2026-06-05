@@ -7,7 +7,7 @@ import { eq, ne } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import { ROLE_STAFF } from '$lib/utils';
 import { fail, superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { setSchema } from './setSchema';
 
 export const load: PageServerLoad = async ({ cookies, url }) => {
@@ -16,12 +16,12 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		redirect(307, '/schedule');
 	}
 
-	const data = {};
+	const data: { id?: number; roleOverride?: number } = {};
 	if (url.searchParams.has('id')) {
-		data.id = Number.parseInt(url.searchParams.get('id'));
+		data.id = Number.parseInt(url.searchParams.get('id') ?? '');
 	}
 	if (url.searchParams.has('roleOverride')) {
-		data.roleOverride = Number.parseInt(url.searchParams.get('roleOverride'));
+		data.roleOverride = Number.parseInt(url.searchParams.get('roleOverride') ?? '');
 	}
 
 	const form = await superValidate(data, zod(setSchema));

@@ -8,8 +8,9 @@ import { eq, and, inArray, gte } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import { DateTime } from 'luxon';
 import { fail, superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { createSchema } from './createSchema';
+import { z } from 'zod';
 import { ulid } from 'ulid';
 import { appointment_booked } from '$lib/emails/student/appointment_booked';
 
@@ -77,8 +78,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
 	const now = DateTime.now().setZone(mentorsMap[user.id].timezone);
 
-	const data: typeof createSchema._type = {
-		date: now.toISODate(),
+	const data: z.infer<typeof createSchema> = {
+		date: now.toISODate()!,
 		hour: now.hour,
 		minute: now.minute,
 		type: sTypes.length === 0 ? '' : sTypes[0].id,
@@ -96,7 +97,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 			and(
 				eq(sessions.mentor, user.id),
 				eq(sessions.cancelled, false),
-				gte(sessions.start, now.toISO())
+				gte(sessions.start, now.toISO()!)
 			)
 		);
 

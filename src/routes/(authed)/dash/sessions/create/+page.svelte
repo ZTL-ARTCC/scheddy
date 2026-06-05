@@ -30,7 +30,8 @@
 	}
 	let { data }: Props = $props();
 
-	const form = superForm(data.form, {
+	const _formData = $derived(data.form);
+	const form = superForm(_formData, {
 		async onUpdated({ form }) {
 			if (form.valid) {
 				await goto(`/dash/cal`);
@@ -84,20 +85,17 @@
 
 		if (!availability) return false;
 
+		const avail = availability as unknown as Record<string, DayAvailability>;
 		if (
-			!availability[sessionStart.weekdayLong?.toLowerCase()].available &&
-			!availability[sessiondEnd.weekdayLong?.toLowerCase()].available &&
+			!avail[sessionStart.weekdayLong?.toLowerCase() ?? '']?.available &&
+			!avail[sessiondEnd.weekdayLong?.toLowerCase() ?? '']?.available &&
 			Object.keys(availability.exceptions).length === 0
 		)
 			return false;
 
-		const startDayAvailability = availability[
-			sessionStart.weekdayLong?.toLowerCase()
-		] as DayAvailability;
+		const startDayAvailability = avail[sessionStart.weekdayLong?.toLowerCase() ?? ''] as DayAvailability;
 
-		const endDayAvailability = availability[
-			sessiondEnd.weekdayLong?.toLowerCase()
-		] as DayAvailability;
+		const endDayAvailability = avail[sessiondEnd.weekdayLong?.toLowerCase() ?? ''] as DayAvailability;
 
 		if (
 			availableInterval(startDayAvailability, sessionStart, sessiondEnd) &&
@@ -151,17 +149,17 @@
 	let datePlaceholder = $state<DateValue>(today(getLocalTimeZone()));
 
 	function pad() {
-		$formData.hour = String($formData.hour).padStart(2, '0');
-		$formData.minute = String($formData.minute).padStart(2, '0');
+		$formData.hour = Number(String($formData.hour).padStart(2, '0'));
+		$formData.minute = Number(String($formData.minute).padStart(2, '0'));
 	}
 
-	const usersMap = Object.fromEntries(
+	const usersMap = $derived(Object.fromEntries(
 		Object.entries(data.usersMap).map(([key, value]) => [Number(key), value.name])
-	);
+	));
 
-	const mentorMap = Object.fromEntries(
+	const mentorMap = $derived(Object.fromEntries(
 		Object.entries(data.mentorsMap).map(([key, value]) => [Number(key), value.name])
-	);
+	));
 </script>
 
 <h2 class="text-xl font-semibold">Create Session</h2>

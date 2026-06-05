@@ -16,8 +16,12 @@
 		emailDomain
 	}: AppointmentBookedProps = $props();
 
+	// Static page (rendered to email)
+	// svelte-ignore state_referenced_locally
 	let reschedule_link = `${serverConfig.site.base_public}schedule${link_params}`;
-	let title = reschedule ? 'Appointment updated' : 'Appointment booked';
+	// Static page (rendered to email)
+	// svelte-ignore state_referenced_locally
+		let title = reschedule ? 'Appointment updated' : 'Appointment booked';
 	let bookedText = 'This is your confirmation email for your upcoming session.';
 	let updatedText = 'The details for your upcoming session has changed.';
 </script>

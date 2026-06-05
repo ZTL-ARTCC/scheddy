@@ -6,7 +6,7 @@ import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { sessionTypes } from '$lib/server/db/schema';
 import { fail, superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { typeSchema } from '../typeSchema';
 import { nanoid } from 'nanoid';
 export const load: PageServerLoad = async ({ cookies }) => {

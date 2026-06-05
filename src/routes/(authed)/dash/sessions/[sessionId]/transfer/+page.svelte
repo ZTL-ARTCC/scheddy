@@ -12,7 +12,8 @@
 	}
 	let { data }: Props = $props();
 
-	const form = superForm(data.form, {
+	const _formData = $derived(data.form);
+	const form = superForm(_formData, {
 		async onUpdated({ form }) {
 			if (form.valid) {
 				await goto(`/dash/sessions/${data.sessionId}`);

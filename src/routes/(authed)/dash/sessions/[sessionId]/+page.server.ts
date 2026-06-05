@@ -123,7 +123,7 @@ export const actions: Actions = {
 		});
 
 		const mentorEmailContent = new_session({
-			startTime: DateTime.fromISO(sessionAndFriends.session.start).setZone(newMentor[0].timezone),
+			startTime: DateTime.fromISO(sessionAndFriends.session.start).setZone(newMentor[0].timezone ?? undefined),
 			timezone: sessionAndFriends.session.timezone,
 			studentName: sessionAndFriends.student?.firstName + ' ' + sessionAndFriends.student?.lastName,
 			duration: sessionAndFriends.sessionType?.length,
@@ -135,9 +135,7 @@ export const actions: Actions = {
 		});
 
 		const oldMentorEmailContent = session_transfer_result({
-			startTime: DateTime.fromISO(sessionAndFriends.session.start).setZone(
-				sessionAndFriends.mentor.timezone
-			),
+			startTime: DateTime.fromISO(sessionAndFriends.session.start).setZone(sessionAndFriends.mentor.timezone ?? undefined),
 			timezone: sessionAndFriends.session.timezone,
 			duration: sessionAndFriends.sessionType?.length,
 			studentName: sessionAndFriends.student?.firstName + ' ' + sessionAndFriends.student?.lastName,
@@ -153,7 +151,7 @@ export const actions: Actions = {
 			sessionAndFriends.mentor.email,
 			'Session transfer request accepted -' +
 				DateTime.fromISO(sessionAndFriends.session.start)
-					.setZone(sessionAndFriends.mentor.timezone)
+					.setZone(sessionAndFriends.mentor.timezone ?? undefined)
 					.toLocaleString(DateTime.DATETIME_HUGE),
 			oldMentorEmailContent.raw,
 			oldMentorEmailContent.html
@@ -173,7 +171,7 @@ export const actions: Actions = {
 			newMentor[0].email,
 			'Session booked - ' +
 				DateTime.fromISO(sessionAndFriends.session.start)
-					.setZone(newMentor[0].timezone)
+					.setZone(newMentor[0].timezone ?? undefined)
 					.toLocaleString(DateTime.DATETIME_HUGE),
 			mentorEmailContent.raw,
 			mentorEmailContent.html
@@ -209,9 +207,7 @@ export const actions: Actions = {
 		}
 
 		const oldMentorEmailContent = session_transfer_result({
-			startTime: DateTime.fromISO(sessionAndFriends.session.start).setZone(
-				sessionAndFriends.mentor.timezone
-			),
+			startTime: DateTime.fromISO(sessionAndFriends.session.start).setZone(sessionAndFriends.mentor.timezone ?? undefined),
 			timezone: sessionAndFriends.session.timezone,
 			duration: sessionAndFriends.sessionType?.length,
 			studentName: sessionAndFriends.student?.firstName + ' ' + sessionAndFriends.student?.lastName,
@@ -227,7 +223,7 @@ export const actions: Actions = {
 			sessionAndFriends.mentor.email,
 			'Session transfer request declined -' +
 				DateTime.fromISO(sessionAndFriends.session.start)
-					.setZone(sessionAndFriends.mentor.timezone)
+					.setZone(sessionAndFriends.mentor.timezone ?? undefined)
 					.toLocaleString(DateTime.DATETIME_HUGE),
 			oldMentorEmailContent.raw,
 			oldMentorEmailContent.html

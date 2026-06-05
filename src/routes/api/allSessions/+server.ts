@@ -6,7 +6,7 @@ import { DateTime } from 'luxon';
 import { verifyToken } from '$lib/helpers/verifyApiToken';
 
 export const GET: RequestHandler = async ({ request }) => {
-	verifyToken(request.headers.get('Authorization'));
+	verifyToken(request.headers.get('Authorization') ?? '');
 
 	const sess = await db
 		.select()

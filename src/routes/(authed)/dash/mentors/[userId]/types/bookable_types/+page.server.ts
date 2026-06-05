@@ -7,7 +7,7 @@ import { sessionTypes, users } from '$lib/server/db/schema';
 import { eq, inArray } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import { fail, superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { typeSchema } from '../typeSchema';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
@@ -33,10 +33,9 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		? JSON.parse(mentor[0].bookableSessionTypes)
 		: null;
 
-	const validTypes = await db
-		.select()
-		.from(sessionTypes)
-		.where(inArray(sessionTypes.id, allowedTypes));
+	const validTypes = allowedTypes
+		? await db.select().from(sessionTypes).where(inArray(sessionTypes.id, allowedTypes))
+		: [];
 
 	const bookable: Record<string, boolean> = {};
 	const typesMap: Record<string, string> = {};
@@ -96,7 +95,7 @@ export const actions: Actions = {
 			.set({
 				bookableSessionTypes: bookable
 			})
-			.where(eq(users.id, event.params.userId));
+			.where(eq(users.id, Number(event.params.userId)));
 
 		return { form };
 	}

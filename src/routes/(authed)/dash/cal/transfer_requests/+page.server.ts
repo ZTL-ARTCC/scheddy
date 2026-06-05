@@ -35,8 +35,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	const pendingSessionTransfers = await query;
 
 	pendingSessionTransfers.sort((a, b) => {
-		const a_dt = DateTime.fromISO(a.session?.start);
-		const b_dt = DateTime.fromISO(b.session?.start);
+		const a_dt = DateTime.fromISO(a.session!.start!);
+		const b_dt = DateTime.fromISO(b.session!.start!);
 		if (a_dt < b_dt) {
 			return -1;
 		} else if (a_dt > b_dt) {

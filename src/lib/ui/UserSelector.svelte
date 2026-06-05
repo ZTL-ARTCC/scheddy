@@ -11,12 +11,13 @@
 
 	interface Props {
 		usersMap: Record<number, string>;
-		form: never;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		form: any;
 		name: string;
-		value: string;
+		value: number;
 		label: string;
 	}
-	let { usersMap, form, name, label, value = $bindable('') }: Props = $props();
+	let { usersMap, form, name, label, value = $bindable(0) }: Props = $props();
 
 	function customFilter(commandValue: string, search: string, commandKeywords?: string[]): number {
 		const defaultScore = computeCommandScore(commandValue, search, commandKeywords);
@@ -61,7 +62,7 @@
 					role="combobox"
 					{...props}
 				>
-					{usersMap[value] ? usersMap[value] + ' (' + value + ')' : 'Select user'}
+					{usersMap[value] ? usersMap[value] + ' (' + String(value) + ')' : 'Select user'}
 					<ChevronsUpDown class="opacity-50" />
 				</Popover.Trigger>
 				<input hidden {value} name={props.name} />
@@ -76,12 +77,12 @@
 						<Command.Item
 							value={cid}
 							onSelect={() => {
-								value = cid;
+								value = Number.parseInt(cid);
 								closeAndFocusTrigger(triggerId);
 							}}
 						>
 							{name} ({cid})
-							<Check class={cn(cid !== value && 'text-transparent')} />
+							<Check class={cn(Number(cid) !== value && 'text-transparent')} />
 						</Command.Item>
 					{/each}
 				</Command.Group>

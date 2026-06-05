@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import { serverConfig } from '$lib/config/server';
 
-export const verifyToken = (token) => {
+export const verifyToken = (token: string) => {
 	if (!token) {
 		error(
 			403,

@@ -10,12 +10,12 @@
 
 	let { session, selectedDateISO, class: className, ...restProps }: Props = $props();
 
-	const dayLength = findHeight(selectedDateISO, session.start, session.end) * 10;
-	const styleLength = Math.min(dayLength, session.sessionType.length);
+	const dayLength = $derived(findHeight(selectedDateISO, session.start, session.end) * 10);
+	const styleLength = $derived(Math.min(dayLength, session.sessionType.length));
 
-	const mentorBreakpoint = styleLength >= 45;
-	const studentBreakpoint = styleLength >= 30;
-	const rowBreakpoint = styleLength < 25;
+	const mentorBreakpoint = $derived(styleLength >= 45);
+	const studentBreakpoint = $derived(styleLength >= 30);
+	const rowBreakpoint = $derived(styleLength < 25);
 </script>
 
 <div

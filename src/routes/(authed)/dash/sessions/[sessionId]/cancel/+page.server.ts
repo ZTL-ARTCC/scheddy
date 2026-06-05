@@ -72,7 +72,7 @@ export const actions: Actions = {
 
 		const mentorEmailContent = session_canceled({
 			startTime: DateTime.fromISO(sessionAndFriends.session.start),
-			timezone: sessionAndFriends.mentor.timezone,
+			timezone: sessionAndFriends.mentor.timezone ?? '',
 			duration: sessionAndFriends.sessionType?.length,
 			studentName: sessionAndFriends.student.firstName + ' ' + sessionAndFriends.student.lastName,
 			sessionId: params.sessionId,
@@ -97,7 +97,7 @@ export const actions: Actions = {
 				sessionAndFriends.mentor.email,
 				'Session canceled - ' +
 					DateTime.fromISO(sessionAndFriends.session.start)
-						.setZone(sessionAndFriends.mentor.timezone)
+						.setZone(sessionAndFriends.mentor.timezone ?? undefined)
 						.toLocaleString(DateTime.DATETIME_HUGE),
 				mentorEmailContent.raw,
 				mentorEmailContent.html

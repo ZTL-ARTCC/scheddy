@@ -6,7 +6,7 @@ import { DateTime } from 'luxon';
 import { verifyToken } from '$lib/helpers/verifyApiToken';
 
 export const POST: RequestHandler = async ({ request, params }) => {
-	verifyToken(request.headers.get('Authorization'));
+	verifyToken(request.headers.get('Authorization') ?? '');
 
 	const { enabled } = await request.json();
 
@@ -15,7 +15,7 @@ export const POST: RequestHandler = async ({ request, params }) => {
 		.set({
 			allowBookings: enabled
 		})
-		.where(eq(users.id, params.userId));
+		.where(eq(users.id, Number(params.userId)));
 
 	return new Response(JSON.stringify(r));
 };

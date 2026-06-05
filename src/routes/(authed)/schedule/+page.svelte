@@ -27,7 +27,8 @@
 
 	let done = $state(false);
 
-	const form = superForm(data.form, {
+	const _formData = $derived(data.form);
+	const form = superForm(_formData, {
 		onUpdated({ form }) {
 			if (form.valid) {
 				done = true;
@@ -42,7 +43,7 @@
 </script>
 
 <div class="min-w-screen min-h-screen flex flex-col align-middle justify-center items-center">
-	<Card.Root class="max-w-xl mx-4 text-center px-4 py-2">
+	<Card.Root class="max-w-xl mx-4 text-center">
 		<Card.Header>
 			<p class="text-sm text-right text-slate-500 mb-1">
 				Logged in as {data.user.firstName}
@@ -65,7 +66,7 @@
 			{:else if done}
 				<p>{$message}</p>
 			{:else if !data.atMaxSessions}
-				<form class="text-left flex flex-col gap-4" method="POST" use:enhance>
+				<form class="text-left items-center flex flex-col gap-4" method="POST" use:enhance>
 					<div class={data.reschedule ? 'hidden' : ''}>
 						<!-- Step 1: Always shown - session type -->
 						<Form.Field {form} name="sessionType">

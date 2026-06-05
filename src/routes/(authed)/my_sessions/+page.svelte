@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import DataTable from '$lib/ui/DataTable.svelte';
-	import { columns } from './columns';
+	import { columns, type CalendarItem } from './columns';
 
 	interface Props {
 		data: PageData;
@@ -16,5 +16,5 @@
 		</a>
 	</h3>
 	<h2 class="font-semibold text-lg">Your Upcoming Sessions as a Student</h2>
-	<DataTable data={data.upcomingSessions} {columns} />
+	<DataTable class="w-full" data={data.upcomingSessions as unknown as CalendarItem[]} {columns} />
 </div>

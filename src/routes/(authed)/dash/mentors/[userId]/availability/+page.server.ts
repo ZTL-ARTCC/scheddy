@@ -7,14 +7,14 @@ import { users } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import { fail, superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import type { MentorAvailability } from '$lib/availability';
 import { availSchema } from './availSchema';
 import { getTimeZones } from '@vvo/tzdb';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
-	if (roleOf(user) < ROLE_STAFF && user.id != params.userId) {
+	if (roleOf(user) < ROLE_STAFF && user.id.toString() != params.userId) {
 		redirect(307, '/schedule');
 	}
 
@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		: null;
 
 	const form = await superValidate(
-		{ timezone: mentor[0].timezone, ...availability },
+		{ timezone: mentor[0].timezone ?? undefined, ...availability } as Parameters<typeof superValidate>[0],
 		zod(availSchema)
 	);
 
@@ -80,7 +80,7 @@ export const actions: Actions = {
 		const form = await superValidate(event, zod(availSchema));
 
 		const { user } = (await loadUserData(event.cookies))!;
-		if (roleOf(user) < ROLE_STAFF && user.id != event.params.userId) {
+		if (roleOf(user) < ROLE_STAFF && user.id.toString() != event.params.userId) {
 			return fail(403, { form });
 		}
 		if (!form.valid) {
@@ -95,7 +95,7 @@ export const actions: Actions = {
 				mentorAvailability: schedule,
 				timezone: form.data.timezone
 			})
-			.where(eq(users.id, event.params.userId));
+			.where(eq(users.id, Number(event.params.userId)));
 
 		return { form };
 	}

@@ -80,10 +80,10 @@
 								setMode('system');
 							}}
 						>
-							{#if $systemPrefersMode === 'light'}
+							{#if systemPrefersMode.current === 'light'}
 								<SunIcon class="mr-2 size-4" />
 								<span>System (light)</span>
-							{:else if $systemPrefersMode === 'dark'}
+							{:else if systemPrefersMode.current === 'dark'}
 								<MoonIcon class="mr-2 size-4" />
 								<span>System (dark)</span>
 							{:else}

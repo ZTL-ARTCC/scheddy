@@ -24,7 +24,7 @@ export const mentorsCols: ColumnDef<TMentor>[] = [
 	{
 		id: 'actions',
 		cell: ({ row }) => {
-			return renderComponent(DataTableActions, row.original);
+			return renderComponent(DataTableActions, { id: row.original.id });
 		}
 	}
 ];

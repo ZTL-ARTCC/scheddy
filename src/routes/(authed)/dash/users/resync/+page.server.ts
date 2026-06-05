@@ -7,7 +7,7 @@ import { eq, ne } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import { ROLE_STAFF } from '$lib/utils';
 import { fail, setError, superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { syncSchema } from './syncSchema';
 import { serverConfig } from '$lib/config/server';
 import { determineHighestRole } from '$lib/helpers/auth';

@@ -38,7 +38,7 @@ export const userColumns: ColumnDef<TUser>[] = [
 		id: 'actions',
 		cell: ({ row }) => {
 			return renderComponent(DataTableActions, {
-				id: row.original.id,
+				id: row.original.id.toString(),
 				roleOverride: row.original.roleOverride
 			});
 		},

@@ -2,7 +2,7 @@
 	import type { PageData } from './$types';
 	import { superForm } from 'sveltekit-superforms';
 	import { goto } from '$app/navigation';
-	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { zod4Client as zodClient } from 'sveltekit-superforms/adapters';
 	import { availSchema } from './availSchema';
 	import * as Form from '$lib/components/ui/form';
 	import * as Select from '$lib/components/ui/select';
@@ -18,7 +18,8 @@
 	}
 	let { data }: Props = $props();
 
-	const form = superForm(data.form, {
+	const _formData = $derived(data.form);
+	const form = superForm(_formData, {
 		validators: zodClient(availSchema),
 		dataType: 'json',
 		async onUpdated({ form }) {

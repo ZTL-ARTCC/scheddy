@@ -7,7 +7,7 @@ import { db } from '$lib/server/db';
 import { sessionTypes } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { fail, superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 as zod } from 'sveltekit-superforms/adapters';
 import { typeSchema } from '../../typeSchema';
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -51,7 +51,7 @@ export const actions: Actions = {
 				category: form.data.category,
 				bookable: form.data.bookable
 			})
-			.where(eq(sessionTypes.id, event.params.typeId));
+			.where(eq(sessionTypes.id, event.params.typeId!));
 
 		return { form };
 	}

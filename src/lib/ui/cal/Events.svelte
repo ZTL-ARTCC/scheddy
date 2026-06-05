@@ -30,9 +30,9 @@
 		...restProps
 	}: Props = $props();
 
-	const cellDate = selectedWeekStart.plus({ days: day });
+	const cellDate = $derived(selectedWeekStart.plus({ days: day }));
 
-	const sessionsToday = sessions.filter((s) => {
+	const sessionsToday = $derived(sessions.filter((s) => {
 		const start = DateTime.fromISO(s.session.start);
 		const end = start.plus({ minutes: s.sessionType.length });
 		if (view === 'week') {
@@ -48,11 +48,11 @@
 				(start < cellDate.startOf('day') && end > cellDate.endOf('day'))
 			);
 		}
-	});
+	}));
 
-	const selectedDateISO = view === 'week' ? cellDate.toISODate()! : date;
+	const selectedDateISO = $derived(view === 'week' ? cellDate.toISODate()! : date);
 
-	const styledSessions = getStyledSessions(sessionsToday, selectedDateISO, backgroundByType);
+	const styledSessions = $derived(getStyledSessions(sessionsToday, selectedDateISO, backgroundByType));
 </script>
 
 <div class={className} {...restProps}>

@@ -14,7 +14,8 @@
 	}
 	let { data }: Props = $props();
 
-	const form = superForm(data.form, {
+	const _formData = $derived(data.form);
+	const form = superForm(_formData, {
 		async onUpdated({ form }) {
 			if (form.valid) {
 				await goto('/dash/users');
@@ -32,7 +33,7 @@
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label>Role Override</Form.Label>
-				<Select.Root type="single" bind:value={$formData.roleOverride} name={props.name}>
+				<Select.Root type="single" bind:value={$formData.roleOverride as unknown as string} name={props.name}>
 					<Select.Trigger {...props}>
 						{$formData.roleOverride
 							? roleString($formData.roleOverride)
